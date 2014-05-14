@@ -34,7 +34,7 @@ test-all:
 	tox
 
 coverage:
-	py.test --cov=helpdesk --cov=tests
+	py.test --cov-report term-missing --cov helpdesk --cov tests
 
 coverage-html: coverage
 	coverage html

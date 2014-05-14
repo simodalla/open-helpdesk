@@ -88,7 +88,7 @@ USE_SOUTH = True
 # In the format (('Full Name', 'email@example.com'),
 #                ('Full Name', 'anotheremail@example.com'))
 ADMINS = (
-    ('administrator', 'administrator@example.com'),
+    # ('Your Name', 'your_email@domain.com'),
 )
 MANAGERS = ADMINS
 
@@ -113,10 +113,10 @@ USE_TZ = True
 LANGUAGE_CODE = "en"
 
 # Supported languages
-_ = lambda s: s
-LANGUAGES = (
-    ('en', _('English')),
-)
+# _ = lambda s: s
+# LANGUAGES = (
+#     ('en', _('English')),
+# )
 
 # A boolean that turns on/off debug mode. When set to ``True``, stack traces
 # are displayed for error pages. Should always be set to ``False`` in
@@ -223,58 +223,7 @@ ROOT_URLCONF = "%s.urls" % PROJECT_DIRNAME
 # or "C:/www/django/templates".
 # Always use forward slashes, even on Windows.
 # Don't forget to use absolute paths, not relative paths.
-TEMPLATE_DIRS = (os.path.join(PROJECT_ROOT, "../templates"),)
-
-###########
-# LOGGING #
-###########
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-        },
-        'null': {
-            'class': 'django.utils.log.NullHandler',
-        },
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler',
-            # 'email_backend': 'django.core.mail.backends.console.'
-            #                  'EmailBackend',
-        }
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-        },
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'django.security': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'py.warnings': {
-            'handlers': ['console'],
-        },
-    }
-}
+TEMPLATE_DIRS = (os.path.join(PROJECT_ROOT, "templates"),)
 
 
 ################
@@ -294,11 +243,11 @@ INSTALLED_APPS = (
     "mezzanine.conf",
     "mezzanine.core",
     "mezzanine.generic",
+    "mezzanine.blog",
+    "mezzanine.forms",
     "mezzanine.pages",
-    "mezzanine.accounts",
-    "helpdesk"
-    # "django_pdb",
-    # "functional_tests",
+    "mezzanine.galleries",
+    "helpdesk",
 )
 
 # List of processors used by RequestContext to populate the context.
@@ -314,6 +263,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.core.context_processors.tz",
     "mezzanine.conf.context_processors.settings",
+    "mezzanine.pages.context_processors.page",
 )
 
 # List of middleware classes to use. Order is important; in the request phase,
@@ -337,7 +287,6 @@ MIDDLEWARE_CLASSES = (
     # "mezzanine.core.middleware.SSLRedirectMiddleware",
     "mezzanine.pages.middleware.PageMiddleware",
     "mezzanine.core.middleware.FetchFromCacheMiddleware",
-    # "django_pdb.middleware.PdbMiddleware",
 )
 
 # Store these package names here as they may change in the future since
@@ -358,8 +307,6 @@ OPTIONAL_APPS = (
     PACKAGE_NAME_GRAPPELLI,
 )
 
-DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
-
 ###################
 # DEPLOY SETTINGS #
 ###################
@@ -368,17 +315,15 @@ DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
 # Check fabfile.py for defaults.
 
 # FABRIC = {
-#     "SSH_USER": "", # SSH username
-#     "SSH_PASS":  "", # SSH password (consider key-based authentication)
-#     "SSH_KEY_PATH":  "", # Local path to SSH key file, for key-based auth
-#     "HOSTS": [], # List of hosts to deploy to
+#     "SSH_USER": "", # SSH username for host deploying to
+#     "HOSTS": ALLOWED_HOSTS[:1], # List of hosts to deploy to (eg, first host)
+#     "DOMAINS": ALLOWED_HOSTS, # Domains for public site
+#     "REPO_URL": "ssh://hg@bitbucket.org/user/project", # Project's repo URL
 #     "VIRTUALENV_HOME":  "", # Absolute remote path for virtualenvs
 #     "PROJECT_NAME": "", # Unique identifier for project
-#     "REQUIREMENTS_PATH": "", # Path to pip requirements, relative to project
+#     "REQUIREMENTS_PATH": "requirements.txt", # Project's pip requirements
 #     "GUNICORN_PORT": 8000, # Port gunicorn will listen on
 #     "LOCALE": "en_US.UTF-8", # Should end with ".UTF-8"
-#     "LIVE_HOSTNAME": "www.example.com", # Host for public site.
-#     "REPO_URL": "", # Git or Mercurial remote repo URL for the project
 #     "DB_PASS": "", # Live database password
 #     "ADMIN_PASS": "", # Live admin user password
 #     "SECRET_KEY": SECRET_KEY,
