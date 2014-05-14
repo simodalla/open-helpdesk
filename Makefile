@@ -34,7 +34,8 @@ test-all:
 	tox
 
 coverage:
-	py.test --cov-report term-missing --cov helpdesk --cov tests
+	coverage run --source helpdesk --omit=*/migrations/*,*/tests/factories.py $(shell which py.test)
+	coverage report -m
 
 coverage-html: coverage
 	coverage html
