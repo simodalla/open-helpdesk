@@ -1,0 +1,6 @@
+mezzanine>=3.0.9
+wheel>=0.23.0
+south>=0.8.4
+django-debug-toolbar
+psycopg2>=2.5.3
+-r test.txt
