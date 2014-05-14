@@ -1,0 +1,9 @@
+coverage
+coveralls
+factory_boy
+mock
+pytest
+pytest-django
+flake8
+tox
+six
