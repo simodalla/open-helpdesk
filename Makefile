@@ -12,6 +12,7 @@ help:
 	@echo "sdist - package"
 
 clean: clean-build clean-pyc
+	rm -fr htmlcov/
 
 clean-build:
 	rm -fr build/
@@ -27,14 +28,15 @@ lint:
 	flake8 mezzanine-helpdesk tests
 
 test:
-	python runtests.py test
+	py.test
 
 test-all:
 	tox
 
 coverage:
-	coverage run --source mezzanine-helpdesk setup.py test
-	coverage report -m
+	py.test --cov=helpdesk --cov=tests
+
+coverage-html: coverage
 	coverage html
 	open htmlcov/index.html
 
@@ -52,4 +54,5 @@ release: clean
 
 sdist: clean
 	python setup.py sdist
+	python setup.py bdist_wheel
 	ls -l dist

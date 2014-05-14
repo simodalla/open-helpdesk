@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}"{% if LANGUAGE_BIDI %} dir="rtl"{% endif %}>
+{% load pages_tags mezzanine_tags i18n future staticfiles %}
+
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="{% block meta_keywords %}{% endblock %}">
+<meta name="description" content="{% block meta_description %}{% endblock %}">
+<title>{% block meta_title %}{% endblock %}{% if settings.SITE_TITLE %} | {{ settings.SITE_TITLE }}{% endif %}</title>
+<link rel="shortcut icon" href="{% static "open_pa/img/favicon.ico" %}">
+
+{% ifinstalled mezzanine.blog %}
+<link rel="alternate" type="application/rss+xml" title="RSS" href="{% url "blog_post_feed" "rss" %}">
+<link rel="alternate" type="application/atom+xml" title="Atom" href="{% url "blog_post_feed" "atom" %}">
+{% endifinstalled %}
+
+{% compress css %}
+<link rel="stylesheet" href="{% static "css/bootstrap.css" %}">
+<link rel="stylesheet" href="{% static "css/mezzanine.css" %}">
+<link rel="stylesheet" href="{% static "css/bootstrap-theme.css" %}">
+<link rel="stylesheet" href="{% static "open_pa/css/open_pa.css" %}">
+{% if LANGUAGE_BIDI %}
+<link rel="stylesheet" href="{% static "css/rtl.css" %}">
+{% endif %}
+{% ifinstalled cartridge.shop %}
+<link rel="stylesheet" href="{% static "css/cartridge.css" %}">
+{% if LANGUAGE_BIDI %}
+<link rel="stylesheet" href="{% static "css/cartridge.rtl.css" %}">
+{% endif %}
+{% endifinstalled %}
+{% block extra_css %}{% endblock %}
+{% endcompress %}
+
+{% compress js %}
+<script src="{% static "mezzanine/js/"|add:settings.JQUERY_FILENAME %}"></script>
+<script src="{% static "js/bootstrap.js" %}"></script>
+<script src="{% static "js/bootstrap-extras.js" %}"></script>
+{% block extra_js %}{% endblock %}
+{% endcompress %}
+<!--[if lt IE 9]>
+<script src="{% static "js/html5shiv.js" %}"></script>
+<script src="{% static "js/respond.min.js" %}"></script>
+<![endif]-->
+
+{% block extra_head %}{% endblock %}
+</head>
+
+<body id="{% block body_id %}body{% endblock %}">
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="container">
+<div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">{% trans "Toggle Navigation" %}</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/"><img src="{% static "open_pa/img/logo_zola_37.png" %}" alt="Logo dell'amministrazione comunale"></a>
+    {% if settings.SITE_TAGLINE %}<p class="navbar-text visible-lg">{{ settings.SITE_TAGLINE }}</p>{% endif %}
+</div>
+<div class="navbar-collapse collapse">
+    {% search_form %}
+    {% page_menu "pages/menus/dropdown.html" %}
+</div>
+</div>
+</div>
+
+<div class="container">
+
+{% nevercache %}
+{% if messages %}
+<div class="messages">
+{% for message in messages %}
+<div class="alert alert-dismissable alert-{{ message.tags }}" data-alert="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endnevercache %}
+
+<ul class="breadcrumb">
+{% spaceless %}
+{% block breadcrumb_menu %}{% page_menu "pages/menus/breadcrumb.html" %}{% endblock %}
+{% endspaceless %}
+</ul>
+
+</div>
+
+<div class="container">
+<div class="row">
+
+<div class="col-md-3 left">
+    {% block left_panel %}
+    {% nevercache %}
+    {% include "includes/user_panel.html" %}
+    {% endnevercache %}
+    <div class="panel panel-default tree" id="left_panel_tree">{% page_menu "pages/menus/tree.html" %}</div>
+    {% endblock %}
+</div>
+
+<div class="col-md-9 middle">
+    {% block title %}{% endblock %}
+    {% block main %}{% endblock %}
+</div>
+
+</div>
+</div>
+
+<footer>
+<div class="container">
+
+<div class="row">
+<p class="site-info text-center">
+    {% trans "By" %}
+        <a href="mailto:ced@comune.zolapredosa.bo.it">
+            Servizi Informatici del Comune di Zola Predosa
+        </a>
+    <span class="sep">|</span>
+    Copyright © 2013 Comune di Zola Predosa. Tutti i diritti riservati.
+    <br /><br />
+    <a href="http://mezzanine.jupo.org/">
+        <img src="{% static "open_pa/img/mezzanine-logo.png" %}"
+             style="height:54px;" title="Mezzanine Logo.">
+    </a>
+    <a href="http://www.djangoproject.com">
+        <img src="{% static "open_pa/img/djangopowered126x54_grey.gif" %}"
+             alt="Powered by Django." title="Powered by Django Logo." />
+    </a>
+    <a href="http://python.org">
+        <img src="{% static "open_pa/img/python-powered-w-140x56.png" %}"
+             alt="Powered by Python." title="Powered by Python Logo.">
+    </a>
+    <a href="http://www.postgresql.org">
+        <img src="{% static "open_pa/img/postgres.gif" %}"
+             alt="Powered by PostgreSQL." title="Powered by PostgreSQL Logo.">
+    </a>
+    </p>
+</div>
+</div>
+</footer>
+
+{% include "includes/footer_scripts.html" %}
+
+</body>
+</html>
