@@ -25,7 +25,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 mezzanine-helpdesk tests
+	flake8 helpdesk
 
 test:
 	py.test
