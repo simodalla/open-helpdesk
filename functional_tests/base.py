@@ -18,7 +18,6 @@ except ImportError:
 
 
 class FunctionalTest(LiveServerTestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.display = None
@@ -54,8 +53,8 @@ class FunctionalTest(LiveServerTestCase):
         session[SESSION_KEY] = user.pk
         session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
         session.save()
-        ## to set a cookie we need fo first visit the domain.
-        ## 404 pages load the quicktest!
+        # to set a cookie we need fo first visit the domain.
+        # 404 pages load the quicktest!
         self.browser.get('{0}/404_no_such_url/'.format(self.live_server_url))
         self.browser.add_cookie(dict(
             name=settings.SESSION_COOKIE_NAME,

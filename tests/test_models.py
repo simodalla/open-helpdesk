@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
-from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -11,7 +10,7 @@ from mock import Mock
 from .factories import (UserFactory, GroupFactory, CategoryFactory,
                         SiteFactory,
                         TipologyFactory, HELPDESK_ISSUE_MAKERS)
-from helpdesk.models import Category, Tipology, Attachment, Issue
+from helpdesk.models import Category, Tipology, Issue
 
 
 class CategoryTest(TestCase):

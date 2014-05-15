@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from future.builtins import str
 
 from django.db import models
 from django.contrib.admin.templatetags.admin_urls import admin_urlname

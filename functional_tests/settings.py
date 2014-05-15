@@ -150,13 +150,15 @@ AUTHENTICATION_BACKENDS = ("mezzanine.core.auth_backends.MezzanineBackend",)
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # The numeric mode to set newly-uploaded files to. The value should be
 # a mode you'd pass directly to os.chmod.
 FILE_UPLOAD_PERMISSIONS = 0o644
 
+SECRET_KEY = "1234567890"
+NEVERCACHE_KEY = "0987654321"
 
 #############
 # DATABASES #
@@ -329,22 +331,6 @@ OPTIONAL_APPS = (
 #     "SECRET_KEY": SECRET_KEY,
 #     "NEVERCACHE_KEY": NEVERCACHE_KEY,
 # }
-
-
-##################
-# LOCAL SETTINGS #
-##################
-
-# Make these unique, and don't share it with anybody.
-SECRET_KEY = "14cffd36-9abd"
-NEVERCACHE_KEY = "41b960b4-6d24"
-
-from django import get_version
-if int(get_version().split('.')[1]) <= 5:
-    TEST_RUNNER = 'discover_runner.DiscoverRunner'
-    TEST_DISCOVER_PATTERN = "test_*.py"
-else:
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 ####################
 # DYNAMIC SETTINGS #

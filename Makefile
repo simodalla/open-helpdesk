@@ -25,7 +25,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 helpdesk
+	flake8 --exclude=migrations,urls.py helpdesk tests functional_tests
 
 test:
 	py.test -vs tests
