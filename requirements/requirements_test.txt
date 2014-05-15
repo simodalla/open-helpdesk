@@ -8,3 +8,5 @@ flake8
 selenium
 tox
 six
+lxml
+cssselect
