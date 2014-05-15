@@ -4,13 +4,12 @@ from __future__ import unicode_literals, absolute_import
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-
 from mock import Mock
 
 from .factories import (UserFactory, GroupFactory, CategoryFactory,
                         SiteFactory,
                         TipologyFactory, HELPDESK_ISSUE_MAKERS)
-from helpdesk.models import Category, Tipology, Issue
+from helpdesk.models import Category, Tipology, Ticket
 
 
 class CategoryTest(TestCase):
@@ -54,17 +53,18 @@ class TipologyTest(TestCase):
 
 
 @override_settings(HELPDESK_ISSUE_MAKERS=HELPDESK_ISSUE_MAKERS)
-class IssueTest(TestCase):
+class TicketTest(TestCase):
     def setUp(self):
         self.issue_maker = UserFactory(groups=(
             GroupFactory(name=HELPDESK_ISSUE_MAKERS,
-                         permissions=('helpdesk.add_issue',)),))
+                         permissions=('helpdesk.add_ticket',)),))
 
     def test_set_data_from_request(self):
         mock_request = Mock(user=self.issue_maker)
-        issue = Issue()
+        issue = Ticket()
         issue.set_data_from_request(mock_request)
         self.assertEqual(issue.user, self.issue_maker)
+
 
     # def test_set_user_on_save(self):
     #     issue = Issue(user=self.issue_maker)
@@ -74,5 +74,7 @@ class IssueTest(TestCase):
     #     print("----", issue)
     #     print("----", issue.site)
     #     print("----", issue.slug)
+
+
 
 

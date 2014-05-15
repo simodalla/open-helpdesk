@@ -3,10 +3,9 @@ from __future__ import unicode_literals, absolute_import
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-
 from mezzanine.core.admin import TabularDynamicInlineAdmin, OwnableAdmin
 
-from .models import Category, Tipology, Attachment, Issue
+from .models import Category, Tipology, Attachment, Ticket
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -25,7 +24,7 @@ class AttachmentInline(TabularDynamicInlineAdmin):
     model = Attachment
 
 
-class IssueAdmin(OwnableAdmin):
+class TicketAdmin(OwnableAdmin):
     filter_horizontal = ("tipologies", "related_issues")
     inlines = [AttachmentInline]
 
@@ -40,7 +39,7 @@ class IssueAdmin(OwnableAdmin):
     )
 
     def __init__(self, *args, **kwargs):
-        super(IssueAdmin, self).__init__(*args, **kwargs)
+        super(TicketAdmin, self).__init__(*args, **kwargs)
         try:
             self.search_fields = (list(set(
                 list(self.search_fields) +
@@ -51,4 +50,4 @@ class IssueAdmin(OwnableAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Tipology, TipologyAdmin)
-admin.site.register(Issue, IssueAdmin)
+admin.site.register(Ticket, TicketAdmin)

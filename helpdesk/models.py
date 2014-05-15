@@ -6,11 +6,26 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-
 from mezzanine.core.models import Ownable, RichText, Slugged, TimeStamped
-from mezzanine.utils.models import upload_to
+from mezzanine.utils.models import upload_to, get_user_model_name
 
 from .managers import HeldeskableManager
+
+
+user_model_name = get_user_model_name()
+
+
+PRIORITY_URGENT = 8
+PRIORITY_HIGH = 4
+PRIORITY_NORMAL = 2
+PRIORITY_LOW = 1
+
+PRIORITIES = (
+    (PRIORITY_URGENT, _('Urgent')),
+    (PRIORITY_HIGH, _('High')),
+    (PRIORITY_NORMAL, _('Normal')),
+    (PRIORITY_LOW, _('Low')),
+)
 
 
 @python_2_unicode_compatible
@@ -42,6 +57,8 @@ class Tipology(TimeStamped):
                                  related_name='tipologies')
     sites = models.ManyToManyField('sites.Site', blank=True,
                                    verbose_name=_('Enable on Sites'))
+    priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
+                                   default=PRIORITY_LOW)
 
     class Meta:
         verbose_name = _('Tipology')
@@ -79,7 +96,7 @@ class Attachment(TimeStamped):
                          upload_to=upload_to('helpdesk.Issue.attachments',
                                              'helpdesk/attachments'), )
     description = models.CharField(_('Description'), max_length=500)
-    issue = models.ForeignKey('Issue')
+    issue = models.ForeignKey('Ticket')
 
     class Meta:
         verbose_name = _('Attachment')
@@ -90,32 +107,41 @@ class Attachment(TimeStamped):
         return "attachment"
 
 
-# ISSUE_STATUS_DRAFT = 1
-# CONTENT_STATUS_PUBLISHED = 2
-# CONTENT_STATUS_CHOICES = (
-#     (CONTENT_STATUS_DRAFT, _('Draft')),
-#     (CONTENT_STATUS_PUBLISHED, _('Published')),
-# )
+TICKET_STATUS_NEW = 1
+TICKET_STATUS_OPEN = 2
+TICKET_STATUS_PENDING = 3
+TICKET_STATUS_SOLVED = 4
+TICKET_STATUS = {
+    TICKET_STATUS_NEW: _('New'),
+    TICKET_STATUS_OPEN: _('Open'),
+    TICKET_STATUS_PENDING: _('Pending'),
+    TICKET_STATUS_SOLVED: _('Solved'),
+}
+
+TICKET_STATUS_CHOICES = tuple((k, v) for k, v in TICKET_STATUS.items())
+
 
 @python_2_unicode_compatible
-class Issue(Slugged, TimeStamped, Ownable, RichText):
+class Ticket(Slugged, TimeStamped, Ownable, RichText):
     """
     A Issue.
     """
-    # status = models.IntegerField(_('Status'),
-    #                          choices=CONTENT_STATUS_CHOICES,
-    #                          default=CONTENT_STATUS_PUBLISHED,)
+    status = models.IntegerField(_('Status'),
+                                 choices=TICKET_STATUS_CHOICES,
+                                 default=TICKET_STATUS_NEW)
     tipologies = models.ManyToManyField('Tipology',
                                         verbose_name=_('Tipologies'),
-                                        related_name='issues')
-    related_issues = models.ManyToManyField(
-        "self", verbose_name=_('Related issues'), blank=True)
+                                        related_name='tickets')
+    related_tickets = models.ManyToManyField(
+        "self", verbose_name=_('Related tickets'), blank=True)
+    assignee = models.ForeignKey(user_model_name, verbose_name=_("Assignee"),
+                                 related_name="%(class)ss")
 
     objects = HeldeskableManager()
 
     class Meta:
-        verbose_name = _('Issue')
-        verbose_name_plural = _('Issues')
+        verbose_name = _('Ticket')
+        verbose_name_plural = _('Tickets')
         ordering = ('-created',)
 
     def __str__(self):
