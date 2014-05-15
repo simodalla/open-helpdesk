@@ -27,7 +27,7 @@ class Category(TimeStamped):
 
     def admin_tipologies(self):
         return '<br>'.join(
-            ['<a href="{}?id={}">{}</a>'.format(
+            ['<a href="{}?id={}" class="view_tipology">{}</a>'.format(
                 reverse(admin_urlname(t._meta, 'changelist')), t.pk, t.title)
              for t in self.tipologies.all()])
     admin_tipologies.allow_tags = True
@@ -54,7 +54,7 @@ class Tipology(TimeStamped):
 
     def admin_sites(self):
         return '<br>'.join(
-            ['<a href="{url}?id={site.pk}">{site.domain}</a>'.format(
+            ['<a href="{url}?id={site.pk}" class="view_site">{site.domain}</a>'.format(
                 url=reverse(admin_urlname(s._meta, 'changelist')), site=s)
              for s in self.sites.all()])
     admin_sites.allow_tags = True

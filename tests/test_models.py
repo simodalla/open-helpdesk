@@ -21,7 +21,7 @@ class CategoryTest(TestCase):
     def test_admin_tipologies(self):
         category = CategoryFactory()
         admin_tipologies_result = '<br>'.join(
-            ['<a href="{}?id={}">{}</a>'.format(
+            ['<a href="{}?id={}" class="view_tipology">{}</a>'.format(
                 reverse('admin:helpdesk_tipology_changelist'), t.pk, t.title)
              for t in category.tipologies.all()])
         self.assertEqual(category.admin_tipologies(), admin_tipologies_result)
@@ -37,7 +37,7 @@ class TipologyTest(TestCase):
         tipology = TipologyFactory(category=CategoryFactory(),
                                    sites=[SiteFactory() for i in range(0, 2)])
         admin_sites_result = '<br>'.join(
-            ['<a href="{url}?id={site.id}">{site.domain}</a>'.format(
+            ['<a href="{url}?id={site.id}" class="view_site">{site.domain}</a>'.format(
                 url=reverse('admin:sites_site_changelist'), site=s)
              for s in tipology.sites.all()])
         self.assertEqual(tipology.admin_sites(), admin_sites_result)

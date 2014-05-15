@@ -15,7 +15,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class TipologyAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category']
+    list_display = ['title', 'category', 'admin_sites']
     list_filter = ['category']
     search_fields = ['title', 'category__title']
 
