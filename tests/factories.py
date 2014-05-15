@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import factory
 
 from django.contrib.auth.models import Group, Permission, User
+from django.contrib.sites.models import Site
 from helpdesk.models import Category, Tipology
 
 
@@ -65,6 +66,13 @@ class UserFactory(factory.DjangoModelFactory):
             self.user_permissions.add(*[_get_perm(pn) for pn in extracted])
 
 
+class SiteFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Site
+
+    domain = factory.Sequence(lambda n: 'example{0}.com'.format(n))
+    name = factory.Sequence(lambda n: 'example{0}'.format(n))
+
+
 class CategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Category
 
@@ -80,3 +88,8 @@ class TipologyFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Tipology
 
     title = factory.Sequence(lambda n: 'tipology{0}'.format(n))
+
+    @factory.post_generation
+    def sites(self, create, extracted, **kwargs):
+        if create and extracted:
+            [self.sites.add(site) for site in extracted]

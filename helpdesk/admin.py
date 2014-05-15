@@ -10,7 +10,7 @@ from .models import Category, Tipology, Attachment, Issue
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['title']
+    list_display = ['title', 'admin_tipologies']
     search_fields = ['title']
 
 

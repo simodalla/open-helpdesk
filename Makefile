@@ -31,7 +31,7 @@ test:
 	py.test -vs tests
 
 test-functional:
-python functional_tests/manage.py test
+	python functional_tests/manage.py test
 
 test-all:
 	tox
