@@ -3,7 +3,10 @@ from __future__ import absolute_import
 import factory
 
 from django.contrib.auth.models import Group, Permission, User
-from ..models import Category, Tipology
+from helpdesk.models import Category, Tipology
+
+
+HELPDESK_ISSUE_MAKERS = 'helpdesk_issue_makers'
 
 
 def _get_perm(perm_name):
@@ -66,6 +69,11 @@ class CategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Category
 
     title = factory.Sequence(lambda n: 'category{0}'.format(n))
+
+    @factory.post_generation
+    def tipologies(self, create, extracted, **kwargs):
+        if create and extracted:
+            [self.tipologies.create(title=title) for title in extracted]
 
 
 class TipologyFactory(factory.DjangoModelFactory):

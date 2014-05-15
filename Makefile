@@ -28,13 +28,16 @@ lint:
 	flake8 helpdesk
 
 test:
-	py.test
+	py.test -vs tests
+
+test-functional:
+python functional_tests/manage.py test
 
 test-all:
 	tox
 
 coverage:
-	coverage run --source helpdesk --omit=*/migrations/*,*/tests/factories.py $(shell which py.test)
+	coverage run --source helpdesk --omit=*/migrations/* $(shell which py.test) tests
 	coverage report -m
 
 coverage-html: coverage

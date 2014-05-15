@@ -121,7 +121,7 @@ LANGUAGE_CODE = "en"
 # A boolean that turns on/off debug mode. When set to ``True``, stack traces
 # are displayed for error pages. Should always be set to ``False`` in
 # production. Best set to ``True`` in local_settings.py
-DEBUG = False
+DEBUG = True
 
 # Whether a user's session cookie expires when the Web browser is closed.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -164,10 +164,10 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 DATABASES = {
     "default": {
-        # Add "postgresql_psycopg2", "mysql", "sqlite3" or "oracle".
-        "ENGINE": "django.db.backends.",
+        # Ends with "postgresql_psycopg2", "mysql", "sqlite3" or "oracle".
+        "ENGINE": "django.db.backends.sqlite3",
         # DB name or path to database file if using sqlite3.
-        "NAME": "",
+        "NAME": "dev.db",
         # Not used with sqlite3.
         "USER": "",
         # Not used with sqlite3.
@@ -247,7 +247,7 @@ INSTALLED_APPS = (
     "mezzanine.forms",
     "mezzanine.pages",
     "mezzanine.galleries",
-    "helpdesk",
+    "helpdesk"
 )
 
 # List of processors used by RequestContext to populate the context.
@@ -335,14 +335,16 @@ OPTIONAL_APPS = (
 # LOCAL SETTINGS #
 ##################
 
-# Allow any settings to be defined in local_settings.py which should be
-# ignored in your version control system allowing for settings to be
-# defined per machine.
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+# Make these unique, and don't share it with anybody.
+SECRET_KEY = "14cffd36-9abd"
+NEVERCACHE_KEY = "41b960b4-6d24"
 
+from django import get_version
+if int(get_version().split('.')[1]) <= 5:
+    TEST_RUNNER = 'discover_runner.DiscoverRunner'
+    TEST_DISCOVER_PATTERN = "test_*.py"
+else:
+    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 ####################
 # DYNAMIC SETTINGS #
