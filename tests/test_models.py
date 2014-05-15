@@ -37,10 +37,20 @@ class TipologyTest(TestCase):
         tipology = TipologyFactory(category=CategoryFactory(),
                                    sites=[SiteFactory() for i in range(0, 2)])
         admin_sites_result = '<br>'.join(
-            ['<a href="{url}?id={site.id}" class="view_site">{site.domain}</a>'.format(
-                url=reverse('admin:sites_site_changelist'), site=s)
+            ['<a href="{url}?id={site.id}" class="view_site">{site.domain}'
+             '</a>'.format(url=reverse('admin:sites_site_changelist'), site=s)
              for s in tipology.sites.all()])
         self.assertEqual(tipology.admin_sites(), admin_sites_result)
+
+    def test_admin_category(self):
+        tipology = TipologyFactory(category=CategoryFactory(),
+                                   sites=[SiteFactory() for i in range(0, 2)])
+        admin_category_result = (
+            '<a href="{url}?id={category.pk}" class="view_category">'
+            '{category.title}</a>'.format(
+                url=reverse('admin:helpdesk_category_changelist'),
+                category=tipology.category))
+        self.assertEqual(tipology.admin_category(), admin_category_result)
 
 
 @override_settings(HELPDESK_ISSUE_MAKERS=HELPDESK_ISSUE_MAKERS)

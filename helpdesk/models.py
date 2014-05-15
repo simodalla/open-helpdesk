@@ -52,10 +52,22 @@ class Tipology(TimeStamped):
     def __str__(self):
         return '[{self.category.title}] {self.title}'.format(self=self)
 
+    def admin_category(self):
+        return (
+            '<a href="{url}?id={category.pk}" class="view_category">'
+            '{category.title}</a>'.format(
+                url=reverse('admin:helpdesk_category_changelist'),
+                category=self.category))
+    admin_category.allow_tags = True
+    # TODO set orderable
+    # admin_category.order
+    admin_category.short_description = _('Enable on Sites')
+
     def admin_sites(self):
         return '<br>'.join(
-            ['<a href="{url}?id={site.pk}" class="view_site">{site.domain}</a>'.format(
-                url=reverse(admin_urlname(s._meta, 'changelist')), site=s)
+            ['<a href="{url}?id={site.pk}" class="view_site">{site.domain}'
+             '</a>'.format(url=reverse(admin_urlname(s._meta, 'changelist')),
+                           site=s)
              for s in self.sites.all()])
     admin_sites.allow_tags = True
     admin_sites.short_description = _('Enable on Sites')
@@ -65,7 +77,7 @@ class Tipology(TimeStamped):
 class Attachment(TimeStamped):
     f = models.FileField(verbose_name=_('File'),
                          upload_to=upload_to('helpdesk.Issue.attachments',
-                                             'helpdesk/attachments'),)
+                                             'helpdesk/attachments'), )
     description = models.CharField(_('Description'), max_length=500)
     issue = models.ForeignKey('Issue')
 
