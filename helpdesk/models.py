@@ -134,10 +134,13 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
                                         related_name='tickets')
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
+    requester = models.ForeignKey(user_model_name, verbose_name=_("Requester"),
+                                  related_name="requested_tickets")
+    assignee = models.ForeignKey(user_model_name, verbose_name=_("Assignee"),
+                                 related_name="assigned_tickets",
+                                 blank=True, null=True)
     related_tickets = models.ManyToManyField(
         "self", verbose_name=_('Related tickets'), blank=True)
-    assignee = models.ForeignKey(user_model_name, verbose_name=_("Assignee"),
-                                 related_name="assigned_tickets")
 
     objects = HeldeskableManager()
 

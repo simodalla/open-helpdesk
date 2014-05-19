@@ -169,7 +169,7 @@ DATABASES = {
         # Ends with "postgresql_psycopg2", "mysql", "sqlite3" or "oracle".
         "ENGINE": "django.db.backends.sqlite3",
         # DB name or path to database file if using sqlite3.
-        "NAME": "dev.db",
+        "NAME": ":memory:",
         # Not used with sqlite3.
         "USER": "",
         # Not used with sqlite3.

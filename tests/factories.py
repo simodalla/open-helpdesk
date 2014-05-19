@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 
 import factory
-
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.sites.models import Site
+
 from helpdesk.models import Category, Tipology
 
 
-HELPDESK_ISSUE_MAKERS = 'helpdesk_issue_makers'
+HELPDESK_TICKET_REQUESTERS = 'helpdesk_ticket_requesters'
 
 
 def _get_perm(perm_name):
@@ -64,6 +64,20 @@ class UserFactory(factory.DjangoModelFactory):
         if create and extracted:
             # We have a saved object and a list of permission names
             self.user_permissions.add(*[_get_perm(pn) for pn in extracted])
+
+
+class RequestersFactory(GroupFactory):
+
+    name = HELPDESK_TICKET_REQUESTERS
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        group = super(RequestersFactory, cls)._prepare(create, **kwargs)
+        if create:
+            group.save()
+            group.permissions.add(*[_get_perm(pn) for pn in ['ticket_add']])
+        return group
+
 
 
 class SiteFactory(factory.DjangoModelFactory):
