@@ -135,7 +135,7 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
     related_tickets = models.ManyToManyField(
         "self", verbose_name=_('Related tickets'), blank=True)
     assignee = models.ForeignKey(user_model_name, verbose_name=_("Assignee"),
-                                 related_name="%(class)ss")
+                                 related_name="assigned_tickets")
 
     objects = HeldeskableManager()
 
