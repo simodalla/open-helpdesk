@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
 import time
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY
@@ -41,6 +43,19 @@ class FunctionalTest(LiveServerTestCase):
     def tearDown(self):
         if self.display:
             time.sleep(1)
+
+    # def _test_has_failed(self):
+    #     if getattr(self, '_resultForDoCleanups', None):
+    #         if (self._resultForDoCleanups.failures
+    #                 or self._resultForDoCleanups.errors):
+    #             return True
+    #     elif getattr(self, '_outcomeForDoCleanups', None):
+    #         if not self._outcomeForDoCleanups.success:
+    #             return True
+    #     elif getattr(self, '_outcome', None):
+    #         if not self._outcome.success:
+    #             return True
+    #     return False
 
     def get_url(self, url, args=None, kwargs=None):
         if url.startswith('/'):
