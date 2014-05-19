@@ -124,7 +124,7 @@ TICKET_STATUS_CHOICES = tuple((k, v) for k, v in TICKET_STATUS.items())
 @python_2_unicode_compatible
 class Ticket(Slugged, TimeStamped, Ownable, RichText):
     """
-    A Issue.
+    A ticket.
     """
     status = models.IntegerField(_('Status'),
                                  choices=TICKET_STATUS_CHOICES,
@@ -132,6 +132,8 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
     tipologies = models.ManyToManyField('Tipology',
                                         verbose_name=_('Tipologies'),
                                         related_name='tickets')
+    priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
+                                   default=PRIORITY_LOW)
     related_tickets = models.ManyToManyField(
         "self", verbose_name=_('Related tickets'), blank=True)
     assignee = models.ForeignKey(user_model_name, verbose_name=_("Assignee"),

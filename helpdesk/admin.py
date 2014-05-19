@@ -25,16 +25,16 @@ class AttachmentInline(TabularDynamicInlineAdmin):
 
 
 class TicketAdmin(OwnableAdmin):
-    filter_horizontal = ("tipologies", "related_issues")
+    filter_horizontal = ("tipologies", "related_tickets")
     inlines = [AttachmentInline]
 
     fieldsets = (
         (None, {
             "fields": ["tipologies", "content", ],
         }),
-        (_("Related issues"), {
+        (_("Related tickets"), {
             "classes": ("collapse-closed",),
-            "fields": ("related_issues",)
+            "fields": ("related_tickets",)
         }),
     )
 
