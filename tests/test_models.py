@@ -4,8 +4,9 @@ from __future__ import unicode_literals, absolute_import
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from .factories import (CategoryFactory,
+from .factories import (CategoryFactory, UserFactory,
                         SiteFactory, TipologyFactory)
+from django.contrib.auth.models import User
 from helpdesk.models import Category, Tipology
 
 
@@ -47,3 +48,16 @@ class TipologyTest(TestCase):
                 url=reverse('admin:helpdesk_category_changelist'),
                 category=tipology.category))
         self.assertEqual(tipology.admin_category(), admin_category_result)
+
+
+class HelpdeskUserTest(TestCase):
+    def test_is_requester(self):
+
+        user = UserFactory()
+        print(type(user))
+        auth_user = User.objects.get(pk=user.pk)
+        print(type(auth_user))
+        # helpdesk_user = HelpdeskUser.objects.get(pk=user.pk)
+        # print(type(helpdesk_user))
+        # import ipdb
+        # ipdb.set_trace()

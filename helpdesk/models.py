@@ -2,16 +2,22 @@
 from __future__ import unicode_literals
 
 from django.db import models
+# from django.contrib.auth import get_user_model
+# AuthUser = get_user_model()
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
+from mezzanine.conf import settings
 from mezzanine.core.models import Ownable, RichText, Slugged, TimeStamped
-from mezzanine.utils.models import upload_to, get_user_model_name
+from mezzanine.utils.models import upload_to, get_user_model_name, get_user_model
 
 from .managers import HeldeskableManager
 
 
+# xxx = get_user_model()
+# print(xxx)
 user_model_name = get_user_model_name()
 
 
@@ -26,6 +32,30 @@ PRIORITIES = (
     (PRIORITY_NORMAL, _('Normal')),
     (PRIORITY_LOW, _('Low')),
 )
+
+
+# class HelpdeskUser(User):
+#     class Meta:
+#         proxy = True
+#
+#     @property
+#     def group_names(self):
+#         return self.groups.values_list('name', flat=True)
+#
+#     def is_requester(self):
+#         if settings.HELPDESK_REQUESTERS in self.group_names:
+#             return True
+#         return False
+#
+#     def is_operator(self):
+#         if settings.HELPDESK_OPERATORS in self.group_names:
+#             return True
+#         return False
+#
+#     def is_admin(self):
+#         if settings.HELPDESK_ADMIN in self.group_names:
+#             return True
+#         return False
 
 
 @python_2_unicode_compatible
