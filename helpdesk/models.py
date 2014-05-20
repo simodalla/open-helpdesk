@@ -154,5 +154,3 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
 
     def set_data_from_request(self, request):
         self.user = request.user
-
-

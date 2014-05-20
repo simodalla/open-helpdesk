@@ -7,8 +7,9 @@ from django.test import TestCase
 from lxml.html import fromstring
 
 from helpdesk.models import Ticket
+from helpdesk.defaults import HELPDESK_REQUESTERS, HELPDESK_OPERATORS
 from .factories import (
-    UserFactory, TipologyFactory, CategoryFactory, SiteFactory, RequestersFactory)
+    UserFactory, TipologyFactory, CategoryFactory, SiteFactory, GroupFactory)
 
 
 class AdminCategoryAndTipologyTest(TestCase):
@@ -58,10 +59,12 @@ class AdminCategoryAndTipologyTest(TestCase):
                 len(dom.cssselect('div.result-list table tbody tr')), 1)
 
 
-class AdminTicketByAdminTest(TestCase):
+class AdminTicketByOperatorsTest(TestCase):
     def setUp(self):
-        self.admin = UserFactory(is_superuser=True)
-        self.client.login(username=self.admin.username, password='default')
+        self.operator = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
+                                 permissions=list(HELPDESK_OPERATORS[1]))])
+        self.client.login(username=self.operator.username, password='default')
         sites = [SiteFactory() for i in range(0, 2)]
         self.tipologies = [TipologyFactory(category=CategoryFactory(),
                                            sites=sites) for i in range(0, 2)]
@@ -75,33 +78,19 @@ class AdminTicketByAdminTest(TestCase):
 
 class AdminTicketByRequesterTest(TestCase):
     def setUp(self):
-        self.requester = UserFactory(is_superuser=True)
+        self.requester = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
+                                 permissions=list(HELPDESK_REQUESTERS[1]))])
+        print(self.requester.groups.all())
+        print(self.requester.groups.all()[0].permissions.all())
         self.client.login(username=self.requester.username, password='default')
         sites = [SiteFactory() for i in range(0, 2)]
         self.tipologies = [TipologyFactory(category=CategoryFactory(),
                                            sites=sites) for i in
                            range(0, 2)]
 
-    def test_field_requester_is_in_form(self):
+    def test_field_requester_not_in_form(self):
         response = self.client.get(
             reverse(admin_urlname(Ticket._meta, 'add')))
         dom = fromstring(response.content)
-        self.assertEqual(len(dom.cssselect('#ticket_form #id_requester')),
-                         1)
-        print(RequestersFactory())
-        # print(NEWUserFactory())
-    # def test_add_ticket(self):
-    #     print(self.tipologies)
-    #     response = self.client.post(
-    #         reverse(admin_urlname(Ticket._meta, 'add')),
-    #         data={'content': 'helpdesk', '_save': 'Save', 'priority': 1,
-    #               'requester':
-    #               'tipologies': [str(t.pk) for t in self.tipologies],
-    #               'attachment_set-TOTAL_FORMS': '1',
-    #               'attachment_set-INITIAL_FORMS': '0',
-    #               'attachment_set-MAX_NUM_FORMS': ''}, follow=True)
-        # print("**************", response.content)
-        # print(response.context['errors'])
-        # print(Ticket.objects.all()[0].user)
-
-
+        self.assertEqual(len(dom.cssselect('#ticket_form #id_requester')), 0)

@@ -7,9 +7,6 @@ from django.contrib.sites.models import Site
 from helpdesk.models import Category, Tipology
 
 
-HELPDESK_TICKET_REQUESTERS = 'helpdesk_ticket_requesters'
-
-
 def _get_perm(perm_name):
     """
     Returns permission instance with given name.
@@ -40,19 +37,10 @@ class UserFactory(factory.DjangoModelFactory):
     first_name = factory.Sequence(lambda n: 'John {0}'.format(n))
     last_name = factory.Sequence(lambda n: 'Doe {0}'.format(n))
     email = factory.Sequence(lambda n: 'user{0}@example.com'.format(n))
-    password = 'default'
+    password = factory.PostGenerationMethodCall('set_password',
+                                                'default')
     is_staff = True
     is_active = True
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        password = kwargs.pop('password', None)
-        user = super(UserFactory, cls)._prepare(create, **kwargs)
-        if password:
-            user.set_password(password)
-            if create:
-                user.save()
-        return user
 
     @factory.post_generation
     def groups(self, create, extracted, **kwargs):
@@ -64,20 +52,6 @@ class UserFactory(factory.DjangoModelFactory):
         if create and extracted:
             # We have a saved object and a list of permission names
             self.user_permissions.add(*[_get_perm(pn) for pn in extracted])
-
-
-class RequestersFactory(GroupFactory):
-
-    name = HELPDESK_TICKET_REQUESTERS
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        group = super(RequestersFactory, cls)._prepare(create, **kwargs)
-        if create:
-            group.save()
-            group.permissions.add(*[_get_perm(pn) for pn in ['ticket_add']])
-        return group
-
 
 
 class SiteFactory(factory.DjangoModelFactory):
