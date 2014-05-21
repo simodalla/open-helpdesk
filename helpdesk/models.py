@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-# from django.contrib.auth import get_user_model
-# AuthUser = get_user_model()
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
@@ -11,13 +9,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
 from mezzanine.core.models import Ownable, RichText, Slugged, TimeStamped
-from mezzanine.utils.models import upload_to, get_user_model_name, get_user_model
+from mezzanine.utils.models import (upload_to, get_user_model_name,
+                                    get_user_model)
 
 from .managers import HeldeskableManager
 
 
-# xxx = get_user_model()
-# print(xxx)
+User = get_user_model()
 user_model_name = get_user_model_name()
 
 
@@ -34,28 +32,28 @@ PRIORITIES = (
 )
 
 
-# class HelpdeskUser(User):
-#     class Meta:
-#         proxy = True
-#
-#     @property
-#     def group_names(self):
-#         return self.groups.values_list('name', flat=True)
-#
-#     def is_requester(self):
-#         if settings.HELPDESK_REQUESTERS in self.group_names:
-#             return True
-#         return False
-#
-#     def is_operator(self):
-#         if settings.HELPDESK_OPERATORS in self.group_names:
-#             return True
-#         return False
-#
-#     def is_admin(self):
-#         if settings.HELPDESK_ADMIN in self.group_names:
-#             return True
-#         return False
+class HelpdeskUser(User):
+    class Meta:
+        proxy = True
+
+    @property
+    def group_names(self):
+        return self.groups.values_list('name', flat=True)
+
+    def is_requester(self):
+        if settings.HELPDESK_REQUESTERS in self.group_names:
+            return True
+        return False
+
+    def is_operator(self):
+        if settings.HELPDESK_OPERATORS in self.group_names:
+            return True
+        return False
+
+    def is_admin(self):
+        if settings.HELPDESK_ADMINS in self.group_names:
+            return True
+        return False
 
 
 @python_2_unicode_compatible
@@ -164,13 +162,13 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
                                         related_name='tickets')
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
-    requester = models.ForeignKey(user_model_name, verbose_name=_("Requester"),
-                                  related_name="requested_tickets")
-    assignee = models.ForeignKey(user_model_name, verbose_name=_("Assignee"),
+    requester = models.ForeignKey('HelpdeskUser', verbose_name=_('Requester'),
+                                  related_name='requested_tickets')
+    assignee = models.ForeignKey('HelpdeskUser', verbose_name=_('Assignee'),
                                  related_name="assigned_tickets",
                                  blank=True, null=True)
     related_tickets = models.ManyToManyField(
-        "self", verbose_name=_('Related tickets'), blank=True)
+        'self', verbose_name=_('Related tickets'), blank=True)
 
     objects = HeldeskableManager()
 

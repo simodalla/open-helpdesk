@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from .factories import (CategoryFactory, UserFactory,
-                        SiteFactory, TipologyFactory)
-from django.contrib.auth.models import User
+from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
+                               HELPDESK_ADMINS)
 from helpdesk.models import Category, Tipology
+from .factories import (CategoryFactory, UserFactory, GroupFactory,
+                        SiteFactory, TipologyFactory)
 
 
 class CategoryTest(TestCase):
+
     def test_str_method(self):
         category = Category(title="foo")
         self.assertEqual("{}".format(category), "foo")
@@ -51,13 +58,43 @@ class TipologyTest(TestCase):
 
 
 class HelpdeskUserTest(TestCase):
-    def test_is_requester(self):
 
+    @patch('helpdesk.models.HelpdeskUser.groups')
+    def test_group_names_property(self, mock_groups):
         user = UserFactory()
-        print(type(user))
-        auth_user = User.objects.get(pk=user.pk)
-        print(type(auth_user))
-        # helpdesk_user = HelpdeskUser.objects.get(pk=user.pk)
-        # print(type(helpdesk_user))
-        # import ipdb
-        # ipdb.set_trace()
+        mock_groups.values_list.return_value = ['g1', 'g2']
+        group_names = user.group_names
+        self.assertEqual(group_names, ['g1', 'g2'])
+        mock_groups.values_list.assert_is_called_once_with('name', flat=True)
+
+    def test_is_requester_return_false(self):
+        user = UserFactory()
+        self.assertFalse(user.is_requester())
+
+    def test_is_operator_return_false(self):
+        user = UserFactory()
+        self.assertFalse(user.is_operator())
+
+    def test_is_admin_return_false(self):
+        user = UserFactory()
+        self.assertFalse(user.is_admin())
+
+    @patch('helpdesk.models.settings')
+    def test_is_requester_return_true(self, mock_settings):
+        mock_settings.HELPDESK_REQUESTERS = HELPDESK_REQUESTERS[0]
+        user = UserFactory(groups=[GroupFactory(name=HELPDESK_REQUESTERS[0])])
+        self.assertTrue(user.is_requester())
+
+    @patch('helpdesk.models.settings')
+    def test_is_operator_return_true(self, mock_settings):
+        mock_settings.HELPDESK_OPERATORS = HELPDESK_OPERATORS[0]
+        user = UserFactory(groups=[GroupFactory(name=HELPDESK_OPERATORS[0])])
+        self.assertTrue(user.is_operator())
+
+    @patch('helpdesk.models.settings')
+    def test_is_admins_return_true(self, mock_settings):
+        mock_settings.HELPDESK_ADMINS = HELPDESK_ADMINS[0]
+        user = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_ADMINS[0])])
+        self.assertTrue(user.is_admin())
+

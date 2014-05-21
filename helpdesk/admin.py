@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from mezzanine.core.admin import TabularDynamicInlineAdmin, OwnableAdmin
 
-from .models import Category, Tipology, Attachment, Ticket
+from .models import Category, Tipology, Attachment, Ticket, HelpdeskUser
 
 
 class TipologyInline(TabularDynamicInlineAdmin):
@@ -57,11 +57,11 @@ class TicketAdmin(OwnableAdmin):
             pass
 
     def get_fieldsets(self, request, obj=None):
+        user = HelpdeskUser.objects.get(pk=request.user.pk)
         fieldset = super(TicketAdmin, self).get_fieldsets(request, obj=obj)
-        if request.user.is_superuser:
+        if user.is_operator() or user.is_admin():
             fieldset = deepcopy(fieldset)
             fieldset[0][1]['fields'].append('requester')
-        print(fieldset)
         return fieldset
 
     def save_form(self, request, form, change):

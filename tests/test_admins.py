@@ -1,13 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+try:
+    from unittest.mock import patch, Mock
+except ImportError:
+    from mock import patch, Mock
+
 from django.core.urlresolvers import reverse
+from django.contrib.admin import AdminSite
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.test import TestCase
 from lxml.html import fromstring
 
 from helpdesk.models import Ticket
-from helpdesk.defaults import HELPDESK_REQUESTERS, HELPDESK_OPERATORS
+from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
+                               HELPDESK_ADMINS)
+from helpdesk.admin import TicketAdmin
 from .factories import (
     UserFactory, TipologyFactory, CategoryFactory, SiteFactory, GroupFactory)
 
@@ -59,12 +67,57 @@ class AdminCategoryAndTipologyTest(TestCase):
                 len(dom.cssselect('div.result-list table tbody tr')), 1)
 
 
+class AdminTicketByRequestersTest(TestCase):
+    def setUp(self):
+        self.user = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
+                                 permissions=list(HELPDESK_REQUESTERS[1]))])
+        self.client.login(username=self.user.username, password='default')
+        sites = [SiteFactory() for i in range(0, 2)]
+        self.tipologies = [TipologyFactory(category=CategoryFactory(),
+                                           sites=sites) for i in
+                           range(0, 2)]
+
+    def test_field_requester_not_in_form(self):
+        ticket_admin = TicketAdmin(Ticket, AdminSite)
+        mock = Mock()
+        mock.user = self.user
+        print(ticket_admin)
+
+
+        response = self.client.get(
+            reverse(admin_urlname(Ticket._meta, 'add')))
+        dom = fromstring(response.content)
+        self.assertEqual(len(dom.cssselect('#ticket_form #id_requester')), 0)
+
+
 class AdminTicketByOperatorsTest(TestCase):
     def setUp(self):
-        self.operator = UserFactory(
+        self.user = UserFactory(
             groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
-                                 permissions=list(HELPDESK_OPERATORS[1]))])
-        self.client.login(username=self.operator.username, password='default')
+                                 permissions=list(
+                                     HELPDESK_OPERATORS[1]))])
+        self.client.login(username=self.user.username,
+                          password='default')
+        sites = [SiteFactory() for i in range(0, 2)]
+        self.tipologies = [TipologyFactory(category=CategoryFactory(),
+                                           sites=sites) for i in
+                           range(0, 2)]
+
+    def test_field_requester_is_in_form(self):
+        response = self.client.get(
+            reverse(admin_urlname(Ticket._meta, 'add')))
+        dom = fromstring(response.content)
+        self.assertEqual(
+            len(dom.cssselect('#ticket_form #id_requester')), 1)
+
+
+class AdminTicketByAdminsTest(TestCase):
+    def setUp(self):
+        self.user = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_ADMINS[0],
+                                 permissions=list(HELPDESK_ADMINS[1]))])
+        self.client.login(username=self.user.username, password='default')
         sites = [SiteFactory() for i in range(0, 2)]
         self.tipologies = [TipologyFactory(category=CategoryFactory(),
                                            sites=sites) for i in range(0, 2)]
@@ -74,23 +127,3 @@ class AdminTicketByOperatorsTest(TestCase):
             reverse(admin_urlname(Ticket._meta, 'add')))
         dom = fromstring(response.content)
         self.assertEqual(len(dom.cssselect('#ticket_form #id_requester')), 1)
-
-
-class AdminTicketByRequesterTest(TestCase):
-    def setUp(self):
-        self.requester = UserFactory(
-            groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
-                                 permissions=list(HELPDESK_REQUESTERS[1]))])
-        print(self.requester.groups.all())
-        print(self.requester.groups.all()[0].permissions.all())
-        self.client.login(username=self.requester.username, password='default')
-        sites = [SiteFactory() for i in range(0, 2)]
-        self.tipologies = [TipologyFactory(category=CategoryFactory(),
-                                           sites=sites) for i in
-                           range(0, 2)]
-
-    def test_field_requester_not_in_form(self):
-        response = self.client.get(
-            reverse(admin_urlname(Ticket._meta, 'add')))
-        dom = fromstring(response.content)
-        self.assertEqual(len(dom.cssselect('#ticket_form #id_requester')), 0)

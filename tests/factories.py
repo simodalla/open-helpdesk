@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
 import factory
-from django.contrib.auth.models import Group, Permission, User
+from django.contrib.auth.models import Group, Permission
 from django.contrib.sites.models import Site
 
-from helpdesk.models import Category, Tipology
+from helpdesk.models import Category, Tipology, HelpdeskUser as User
 
 
 def _get_perm(perm_name):
