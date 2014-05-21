@@ -59,34 +59,32 @@ class TicketAdmin(OwnableAdmin):
     def get_fieldsets(self, request, obj=None):
         user = HelpdeskUser.objects.get(pk=request.user.pk)
         fieldset = super(TicketAdmin, self).get_fieldsets(request, obj=obj)
+        if user.is_requester():
+            return fieldset
         if user.is_operator() or user.is_admin():
             fieldset = deepcopy(fieldset)
             fieldset[0][1]['fields'].append('requester')
         return fieldset
 
-    def save_form(self, request, form, change):
-        """
-        Set the object's owner as the logged in user.
-        """
-        obj = form.save(commit=False)
-        print("*******", obj.requester_id)
+    def save_model(self, request, obj, form, change):
         if obj.requester_id is None:
             obj.requester = request.user
-        return super(TicketAdmin, self).save_form(request, form, change)
+        return super(TicketAdmin, self).save_model(request, obj, form, change)
 
-    def add_view(self, request, form_url='', extra_context=None):
 
-        if request.method == 'POST':
-            print(request.POST)
-        return super(TicketAdmin, self).add_view(
-            request, form_url=form_url, extra_context=extra_context)
-
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        if request.method == 'POST':
-            print(request.POST)
-
-        return super(TicketAdmin, self).change_view(
-            request, object_id, form_url=form_url, extra_context=extra_context)
+    # def add_view(self, request, form_url='', extra_context=None):
+    #
+    #     if request.method == 'POST':
+    #         print(request.POST)
+    #     return super(TicketAdmin, self).add_view(
+    #         request, form_url=form_url, extra_context=extra_context)
+    #
+    # def change_view(self, request, object_id, form_url='', extra_context=None):
+    #     if request.method == 'POST':
+    #         print(request.POST)
+    #
+    #     return super(TicketAdmin, self).change_view(
+    #         request, object_id, form_url=form_url, extra_context=extra_context)
 
 
 admin.site.register(Category, CategoryAdmin)

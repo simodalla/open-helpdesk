@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import unittest
+
 try:
-    from unittest.mock import patch, Mock
+    from unittest.mock import patch, Mock, call
 except ImportError:
-    from mock import patch, Mock
+    from mock import patch, Mock, call
 
 from django.core.urlresolvers import reverse
 from django.contrib.admin import AdminSite
@@ -12,15 +14,14 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.test import TestCase
 from lxml.html import fromstring
 
-from helpdesk.models import Ticket
-from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
-                               HELPDESK_ADMINS)
+from helpdesk.models import Ticket, HelpdeskUser
+from helpdesk.defaults import (HELPDESK_REQUESTERS)
 from helpdesk.admin import TicketAdmin
 from .factories import (
     UserFactory, TipologyFactory, CategoryFactory, SiteFactory, GroupFactory)
 
 
-class AdminCategoryAndTipologyTest(TestCase):
+class CategoryAndTipologyTest(TestCase):
     def setUp(self):
         self.admin = UserFactory(is_superuser=True)
         self.client.login(username=self.admin.username, password='default')
@@ -67,63 +68,78 @@ class AdminCategoryAndTipologyTest(TestCase):
                 len(dom.cssselect('div.result-list table tbody tr')), 1)
 
 
-class AdminTicketByRequestersTest(TestCase):
+@patch('helpdesk.admin.HelpdeskUser', autospec=True)
+class TicketFieldsetTest(unittest.TestCase):
+
+    def test_field_requester_not_in_form_if_requester_in_request(
+            self, mock_user):
+        request_mock = Mock(user=Mock(pk=1))
+        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
+        mock_helpdesk_user.is_requester.return_value = True
+        mock_user.objects.get.return_value = mock_helpdesk_user
+        ticket_admin = TicketAdmin(Ticket, AdminSite)
+        fieldeset = ticket_admin.get_fieldsets(request_mock)
+        mock_user.objects.get.assert_called_once_with(pk=1)
+        mock_helpdesk_user.is_requester.assert_called_once_with()
+        self.assertFalse(mock_helpdesk_user.is_operator.called)
+        self.assertFalse(mock_helpdesk_user.is_admin.called)
+        self.assertNotIn('requester', fieldeset[0][1]['fields'])
+
+    def test_field_requester_not_in_form_if_operator_in_request(
+            self, mock_user):
+        request_mock = Mock(user=Mock(pk=1))
+        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
+        mock_helpdesk_user.is_requester.return_value = False
+        mock_helpdesk_user.is_operator.return_value = True
+        mock_user.objects.get.return_value = mock_helpdesk_user
+        ticket_admin = TicketAdmin(Ticket, AdminSite)
+        fieldeset = ticket_admin.get_fieldsets(request_mock)
+        mock_user.objects.get.assert_called_once_with(pk=1)
+        mock_helpdesk_user.is_requester.assert_called_once_with()
+        mock_helpdesk_user.is_operator.assert_called_once_with()
+        self.assertFalse(mock_helpdesk_user.is_admin.called)
+        self.assertIn('requester', fieldeset[0][1]['fields'])
+
+    def test_field_requester_not_in_form_if_admin_in_request(
+            self, mock_user):
+        request_mock = Mock(user=Mock(pk=1))
+        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
+        mock_helpdesk_user.is_requester.return_value = False
+        mock_helpdesk_user.is_operator.return_value = False
+        mock_helpdesk_user.is_admin.return_value = True
+        mock_user.objects.get.return_value = mock_helpdesk_user
+        ticket_admin = TicketAdmin(Ticket, AdminSite)
+        fieldeset = ticket_admin.get_fieldsets(request_mock)
+        mock_user.objects.get.assert_called_once_with(pk=1)
+        mock_helpdesk_user.is_requester.assert_called_once_with()
+        mock_helpdesk_user.is_operator.assert_called_once_with()
+        mock_helpdesk_user.is_admin.assert_called_once_with()
+        self.assertIn('requester', fieldeset[0][1]['fields'])
+
+
+class TicketByRequesterTest(TestCase):
     def setUp(self):
         self.user = UserFactory(
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
+        # self.user = UserFactory(
+        #     groups=[GroupFactory(name=HELPDESK_ADMINS[0],
+        #                          permissions=list(HELPDESK_ADMINS[1]))])
         self.client.login(username=self.user.username, password='default')
-        sites = [SiteFactory() for i in range(0, 2)]
-        self.tipologies = [TipologyFactory(category=CategoryFactory(),
-                                           sites=sites) for i in
-                           range(0, 2)]
+        self.category = CategoryFactory(tipologies=('tip1', 'tip2'))
+        self.post_data = {'content': 'helpdesk_content',
+                          'tipologies': [str(t.pk) for t
+                                         in self.category.tipologies.all()],
+                          'priority': 1}
 
-    def test_field_requester_not_in_form(self):
-        ticket_admin = TicketAdmin(Ticket, AdminSite)
-        mock = Mock()
-        mock.user = self.user
-        print(ticket_admin)
-
-
-        response = self.client.get(
-            reverse(admin_urlname(Ticket._meta, 'add')))
-        dom = fromstring(response.content)
-        self.assertEqual(len(dom.cssselect('#ticket_form #id_requester')), 0)
+    def test_add_ticket(self):
+        response = self.client.post(
+            reverse(admin_urlname(Ticket._meta, 'add')), data=self.post_data)
+        print(response.content)
+        self.assertEqual(Ticket.objects.count(), 1)
+        ticket = Ticket.objects.latest()
+        self.assertEqual(ticket.user.pk, self.user.pk)
+        self.assertEqual(ticket.requester.pk, self.user.pk)
 
 
-class AdminTicketByOperatorsTest(TestCase):
-    def setUp(self):
-        self.user = UserFactory(
-            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
-                                 permissions=list(
-                                     HELPDESK_OPERATORS[1]))])
-        self.client.login(username=self.user.username,
-                          password='default')
-        sites = [SiteFactory() for i in range(0, 2)]
-        self.tipologies = [TipologyFactory(category=CategoryFactory(),
-                                           sites=sites) for i in
-                           range(0, 2)]
 
-    def test_field_requester_is_in_form(self):
-        response = self.client.get(
-            reverse(admin_urlname(Ticket._meta, 'add')))
-        dom = fromstring(response.content)
-        self.assertEqual(
-            len(dom.cssselect('#ticket_form #id_requester')), 1)
-
-
-class AdminTicketByAdminsTest(TestCase):
-    def setUp(self):
-        self.user = UserFactory(
-            groups=[GroupFactory(name=HELPDESK_ADMINS[0],
-                                 permissions=list(HELPDESK_ADMINS[1]))])
-        self.client.login(username=self.user.username, password='default')
-        sites = [SiteFactory() for i in range(0, 2)]
-        self.tipologies = [TipologyFactory(category=CategoryFactory(),
-                                           sites=sites) for i in range(0, 2)]
-
-    def test_field_requester_is_in_form(self):
-        response = self.client.get(
-            reverse(admin_urlname(Ticket._meta, 'add')))
-        dom = fromstring(response.content)
-        self.assertEqual(len(dom.cssselect('#ticket_form #id_requester')), 1)

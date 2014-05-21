@@ -6,7 +6,6 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-
 from mezzanine.conf import settings
 from mezzanine.core.models import Ownable, RichText, Slugged, TimeStamped
 from mezzanine.utils.models import (upload_to, get_user_model_name,
@@ -158,13 +157,12 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
                                  choices=TICKET_STATUS_CHOICES,
                                  default=TICKET_STATUS_NEW)
     tipologies = models.ManyToManyField('Tipology',
-                                        verbose_name=_('Tipologies'),
-                                        related_name='tickets')
+                                        verbose_name=_('Tipologies'))
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
-    requester = models.ForeignKey('HelpdeskUser', verbose_name=_('Requester'),
+    requester = models.ForeignKey(user_model_name, verbose_name=_('Requester'),
                                   related_name='requested_tickets')
-    assignee = models.ForeignKey('HelpdeskUser', verbose_name=_('Assignee'),
+    assignee = models.ForeignKey(user_model_name, verbose_name=_('Assignee'),
                                  related_name="assigned_tickets",
                                  blank=True, null=True)
     related_tickets = models.ManyToManyField(
@@ -173,9 +171,10 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
     objects = HeldeskableManager()
 
     class Meta:
+        get_latest_by = 'created'
+        ordering = ('-created',)
         verbose_name = _('Ticket')
         verbose_name_plural = _('Tickets')
-        ordering = ('-created',)
 
     def __str__(self):
         return str(self.pk)
