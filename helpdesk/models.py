@@ -117,7 +117,6 @@ class Tipology(TimeStamped):
     admin_sites.short_description = _('Enable on Sites')
 
 
-@python_2_unicode_compatible
 class Attachment(TimeStamped):
     f = models.FileField(verbose_name=_('File'),
                          upload_to=upload_to('helpdesk.Issue.attachments',
@@ -129,9 +128,6 @@ class Attachment(TimeStamped):
         verbose_name = _('Attachment')
         verbose_name_plural = _('Attachments')
         ordering = ('-created',)
-
-    def __str__(self):
-        return "attachment"
 
 
 TICKET_STATUS_NEW = 1
@@ -178,6 +174,3 @@ class Ticket(Slugged, TimeStamped, Ownable, RichText):
 
     def __str__(self):
         return str(self.pk)
-
-    def set_data_from_request(self, request):
-        self.user = request.user

@@ -33,9 +33,16 @@ class TipologyAdmin(admin.ModelAdmin):
 
 
 class TicketAdmin(OwnableAdmin):
-    filter_horizontal = ("tipologies", "related_tickets")
+    filter_horizontal = ('tipologies', 'related_tickets')
     inlines = [AttachmentInline]
-    radio_fields = {"priority": admin.HORIZONTAL}
+    list_display = ['pk', 'content', 'status', ]
+    list_filter = ['priority', 'status', 'tipologies']
+    list_per_page = 25
+    list_select_related = True
+    radio_fields = {'priority': admin.HORIZONTAL}
+    search_fields = ['content', 'user__username', 'user__first_name',
+                     'user__last_name', 'requester__username',
+                     'requester__first_name', 'requester__last_name']
 
     fieldsets = (
         (None, {
@@ -47,15 +54,6 @@ class TicketAdmin(OwnableAdmin):
         }),
     )
 
-    def __init__(self, *args, **kwargs):
-        super(TicketAdmin, self).__init__(*args, **kwargs)
-        try:
-            self.search_fields = (list(set(
-                list(self.search_fields) +
-                list(self.model.objects.get_search_fields().keys()))))
-        except AttributeError:
-            pass
-
     def get_fieldsets(self, request, obj=None):
         user = HelpdeskUser.objects.get(pk=request.user.pk)
         fieldset = super(TicketAdmin, self).get_fieldsets(request, obj=obj)
@@ -65,6 +63,13 @@ class TicketAdmin(OwnableAdmin):
             fieldset = deepcopy(fieldset)
             fieldset[0][1]['fields'].append('requester')
         return fieldset
+
+    def get_list_filter(self, request):
+        pass
+
+    def get_queryset(self, request):
+        qs = super(TicketAdmin, self).get_queryset(request)
+        return qs
 
     def save_model(self, request, obj, form, change):
         if obj.requester_id is None:

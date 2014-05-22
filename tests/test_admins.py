@@ -135,11 +135,35 @@ class TicketByRequesterTest(TestCase):
     def test_add_ticket(self):
         response = self.client.post(
             reverse(admin_urlname(Ticket._meta, 'add')), data=self.post_data)
-        print(response.content)
         self.assertEqual(Ticket.objects.count(), 1)
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.user.pk, self.user.pk)
         self.assertEqual(ticket.requester.pk, self.user.pk)
 
+
+import pytest
+
+
+@pytest.fixture
+def ticket_admin():
+    return TicketAdmin(Ticket, AdminSite)
+
+
+def test_ticket_admin(ticket_admin):
+    request_mock = Mock(user=Mock(pk=1))
+    mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
+    mock_helpdesk_user.is_requester.return_value = False
+    mock_helpdesk_user.is_operator.return_value = False
+    mock_helpdesk_user.is_admin.return_value = True
+    with patch('helpdesk.admin.HelpdeskUser', autospec=True) as mock_user:
+        mock_user.objects.get.return_value = mock_helpdesk_user
+        # print(ticket_admin)
+        fieldsets = ticket_admin.get_fieldsets(request_mock)
+    print(mock_user)
+    mock_user.objects.get.assert_called_once_with(pk=1)
+    mock_helpdesk_user.is_requester.assert_called_once_with()
+    mock_helpdesk_user.is_operator.assert_called_once_with()
+    mock_helpdesk_user.is_admin.assert_called_once_with()
+    assert 'requester' in fieldsets[0][1]['fields']
 
 
