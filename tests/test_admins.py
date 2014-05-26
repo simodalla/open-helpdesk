@@ -2,14 +2,11 @@
 from __future__ import unicode_literals, absolute_import
 
 import unittest
-from copy import deepcopy
 
 try:
     from unittest.mock import patch, Mock, call
 except ImportError:
     from mock import patch, Mock, call
-
-import pytest
 
 from django.core.urlresolvers import reverse
 from django.contrib.admin import AdminSite
@@ -17,11 +14,12 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.test import TestCase
 from lxml.html import fromstring
 
-from helpdesk.models import Ticket, HelpdeskUser
+from helpdesk.models import Ticket
 from helpdesk.defaults import (HELPDESK_REQUESTERS)
 from helpdesk.admin import TicketAdmin
 from .factories import (
     UserFactory, TipologyFactory, CategoryFactory, SiteFactory, GroupFactory)
+from .helpers import get_mock_request, get_mock_helpdeskuser
 
 
 class CategoryAndTipologyTest(TestCase):
@@ -71,21 +69,6 @@ class CategoryAndTipologyTest(TestCase):
                 len(dom.cssselect('div.result-list table tbody tr')), 1)
 
 
-def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
-                          is_superuser=False):
-    mock_helpdesk_user = Mock()
-    mock_helpdesk_user.is_superuser = is_superuser
-    mock_helpdesk_user.is_requester.return_value = requester
-    mock_helpdesk_user.is_operator.return_value = operator
-    mock_helpdesk_user.is_admin.return_value = admin
-    return mock_helpdesk_user
-
-
-def get_mock_request(user_pk=1):
-    request_mock = Mock(user=Mock(pk=user_pk))
-    return request_mock
-
-
 class TicketTest(unittest.TestCase):
 
     def setUp(self):
@@ -94,8 +77,7 @@ class TicketTest(unittest.TestCase):
     @patch('helpdesk.admin.HelpdeskUser.objects.get',
            return_value=get_mock_helpdeskuser())
     def test_get_request_helpdeskuser(self, mock_get):
-        request = get_mock_request(1)
-        user = self.ticket_admin.get_request_helpdeskuser(request)
+        user = self.ticket_admin.get_request_helpdeskuser(get_mock_request(1))
         mock_get.assert_called_once_with(pk=1)
         self.assertEqual(user, mock_get.return_value)
 

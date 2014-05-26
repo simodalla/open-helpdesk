@@ -1,6 +1,28 @@
+# -*- coding: utf-8 -*-
+
 from django import test
 from django.contrib.auth.models import AnonymousUser
 from django.core.serializers.json import DjangoJSONEncoder
+
+try:
+    from unittest.mock import patch, Mock, call
+except ImportError:
+    from mock import patch, Mock, call
+
+
+def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
+                          is_superuser=False):
+    mock_helpdesk_user = Mock()
+    mock_helpdesk_user.is_superuser = is_superuser
+    mock_helpdesk_user.is_requester.return_value = requester
+    mock_helpdesk_user.is_operator.return_value = operator
+    mock_helpdesk_user.is_admin.return_value = admin
+    return mock_helpdesk_user
+
+
+def get_mock_request(user_pk=1):
+    request_mock = Mock(user=Mock(pk=user_pk))
+    return request_mock
 
 
 class TestViewHelper(object):
