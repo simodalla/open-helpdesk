@@ -2,11 +2,14 @@
 from __future__ import unicode_literals, absolute_import
 
 import unittest
+from copy import deepcopy
 
 try:
     from unittest.mock import patch, Mock, call
 except ImportError:
     from mock import patch, Mock, call
+
+import pytest
 
 from django.core.urlresolvers import reverse
 from django.contrib.admin import AdminSite
@@ -68,64 +71,94 @@ class CategoryAndTipologyTest(TestCase):
                 len(dom.cssselect('div.result-list table tbody tr')), 1)
 
 
+def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
+                          is_superuser=False):
+    mock_helpdesk_user = Mock()
+    mock_helpdesk_user.is_superuser = is_superuser
+    mock_helpdesk_user.is_requester.return_value = requester
+    mock_helpdesk_user.is_operator.return_value = operator
+    mock_helpdesk_user.is_admin.return_value = admin
+    return mock_helpdesk_user
 
-class TicketMethodsTest(unittest.TestCase):
+
+def get_mock_request(user_pk=1):
+    request_mock = Mock(user=Mock(pk=user_pk))
+    return request_mock
+
+
+class TicketTest(unittest.TestCase):
+
+    def setUp(self):
+        self.ticket_admin = TicketAdmin(Ticket, AdminSite)
+
+    @patch('helpdesk.admin.HelpdeskUser.objects.get',
+           return_value=get_mock_helpdeskuser())
+    def test_get_request_helpdeskuser(self, mock_get):
+        request = get_mock_request(1)
+        user = self.ticket_admin.get_request_helpdeskuser(request)
+        mock_get.assert_called_once_with(pk=1)
+        self.assertEqual(user, mock_get.return_value)
+
+
+@patch('helpdesk.admin.TicketAdmin.get_request_helpdeskuser')
+class TicketMethodsByRequesterTypeTest(unittest.TestCase):
 
     def setUp(self):
         self.ticket_admin = TicketAdmin(Ticket, AdminSite)
         self.fake_pk = 1
 
-    def prepare_mocks(self, requester=False, operator=False, admin=False):
-        request_mock = Mock(user=Mock(pk=self.fake_pk))
-        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
-        mock_helpdesk_user.is_requester.return_value = requester
-        mock_helpdesk_user.is_operator.return_value = operator
-        mock_helpdesk_user.is_admin.return_value = admin
-        return request_mock, mock_helpdesk_user
-
-    @patch('helpdesk.admin.HelpdeskUser.objects.get', autospec=True)
-    def test_get_request_helpdeskuser(self, mock_get):
-        request_mock, mock_helpdesk_user = self.prepare_mocks(requester=True)
-        mock_get.return_value = mock_helpdesk_user
-        user = self.ticket_admin.get_request_helpdeskuser(request_mock)
-        mock_get.assert_called_once_with(pk=self.fake_pk)
-        self.assertEqual(user, mock_helpdesk_user)
-
-    @patch('helpdesk.admin.TicketAdmin.get_request_helpdeskuser')
     def test_field_requester_not_in_form_if_requester_in_request(
             self, mock_get):
-        request_mock, mock_get.return_value = self.prepare_mocks(
-            requester=True)
-        fieldeset = self.ticket_admin.get_fieldsets(request_mock)
+        mock_get.return_value = get_mock_helpdeskuser(requester=True)
+        fieldeset = self.ticket_admin.get_fieldsets(get_mock_request())
         self.assertNotIn('requester', fieldeset[0][1]['fields'])
-        self.assertFalse(mock_get.is_operator.called)
-        self.assertFalse(mock_get.is_admin.called)
 
-    @patch('helpdesk.admin.TicketAdmin.get_request_helpdeskuser')
-    # def test_field_requester_not_in_form_if_operator_in_request(
-    #         self, mock_get):
-    #     request_mock, mock_helpdesk_user = self.prepare_mocks(operator=True)
-    #     mock_get.return_value = mock_helpdesk_user
-    #     fieldeset = self.ticket_admin.get_fieldsets(request_mock)
-    #     mock_get.assert_called_once_with(pk=self.fake_pk)
-    #     mock_helpdesk_user.is_requester.assert_called_once_with()
-    #     mock_helpdesk_user.is_operator.assert_called_once_with()
-    #     self.assertFalse(mock_helpdesk_user.is_admin.called)
-    #     self.assertIn('requester', fieldeset[0][1]['fields'])
-    #
-    # def test_field_requester_not_in_form_if_admin_in_request(
-    #         self, mock_get):
-    #     request_mock, mock_helpdesk_user = self.prepare_mocks(admin=True)
-    #     mock_get.return_value = mock_helpdesk_user
-    #     fieldeset = self.ticket_admin.get_fieldsets(request_mock)
-    #     mock_get.assert_called_once_with(pk=1)
-    #     mock_helpdesk_user.is_requester.assert_called_once_with()
-    #     mock_helpdesk_user.is_operator.assert_called_once_with()
-    #     mock_helpdesk_user.is_admin.assert_called_once_with()
-    #     self.assertIn('requester', fieldeset[0][1]['fields'])
+    def test_field_requester_not_in_form_if_operator_in_request(
+            self, mock_get):
+        mock_get.return_value = get_mock_helpdeskuser(
+            operator=True)
+        fieldeset = self.ticket_admin.get_fieldsets(get_mock_request())
+        self.assertIn('requester', fieldeset[0][1]['fields'])
+
+    def test_field_requester_not_in_form_if_admin_in_request(
+            self, mock_get):
+        mock_get.return_value = get_mock_helpdeskuser(admin=True)
+        fieldeset = self.ticket_admin.get_fieldsets(get_mock_request())
+        self.assertIn('requester', fieldeset[0][1]['fields'])
+
+    def test_field_requester_not_in_form_if_superuser_in_request(
+            self, mock_get):
+        mock_get.return_value = get_mock_helpdeskuser(is_superuser=True)
+        fieldeset = self.ticket_admin.get_fieldsets(get_mock_request())
+        self.assertIn('requester', fieldeset[0][1]['fields'])
+
+    def test_list_filter_if_requester_in_request(self, mock_get):
+        mock_get.return_value = get_mock_helpdeskuser(requester=True)
+        list_filter = list(self.ticket_admin.list_filter)
+        result = self.ticket_admin.get_list_filter(get_mock_request())
+        self.assertListEqual(list_filter, result)
+
+    def test_list_filter_if_operator_in_request(self, mock_get):
+        mock_get.return_value = get_mock_helpdeskuser(operator=True)
+        list_filter = list(self.ticket_admin.list_filter)
+        result = self.ticket_admin.get_list_filter(get_mock_request())
+        self.assertListEqual(list_filter + ['requester', 'assignee'], result)
+
+    def test_list_filter_if_admin_in_request(self, mock_get):
+        mock_get.return_value = get_mock_helpdeskuser(admin=True)
+        list_filter = list(self.ticket_admin.list_filter)
+        result = self.ticket_admin.get_list_filter(get_mock_request())
+        self.assertListEqual(list_filter + ['requester', 'assignee'], result)
+
+    def test_list_filter_if_superuser_in_request(self, mock_get):
+        mock_get.return_value = get_mock_helpdeskuser(is_superuser=True)
+        list_filter = list(self.ticket_admin.list_filter)
+        result = self.ticket_admin.get_list_filter(get_mock_request())
+        self.assertListEqual(list_filter + ['requester', 'assignee'],
+                             result)
 
 
-class TicketByRequesterTest(TestCase):
+class FunctionalTicketByRequesterTest(TestCase):
     def setUp(self):
         self.user = UserFactory(
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
@@ -145,5 +178,4 @@ class TicketByRequesterTest(TestCase):
             reverse(admin_urlname(Ticket._meta, 'add')), data=self.post_data)
         self.assertEqual(Ticket.objects.count(), 1)
         ticket = Ticket.objects.latest()
-        self.assertEqual(ticket.user.pk, self.user.pk)
         self.assertEqual(ticket.requester.pk, self.user.pk)

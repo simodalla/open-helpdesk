@@ -32,7 +32,7 @@ class TipologyAdmin(admin.ModelAdmin):
     search_fields = ['title', 'category__title']
 
 
-class TicketAdmin(OwnableAdmin):
+class TicketAdmin(admin.ModelAdmin):
     filter_horizontal = ('tipologies', 'related_tickets')
     inlines = [AttachmentInline]
     list_display = ['pk', 'content', 'status', ]
@@ -58,22 +58,26 @@ class TicketAdmin(OwnableAdmin):
         return HelpdeskUser.objects.get(pk=request.user.pk)
 
     def get_fieldsets(self, request, obj=None):
-        # user = HelpdeskUser.objects.get(pk=request.user.pk)
         user = self.get_request_helpdeskuser(request)
         fieldset = super(TicketAdmin, self).get_fieldsets(request, obj=obj)
-        if user.is_requester():
-            return fieldset
-        if user.is_operator() or user.is_admin():
+        if user.is_superuser or user.is_operator() or user.is_admin():
             fieldset = deepcopy(fieldset)
             fieldset[0][1]['fields'].append('requester')
         return fieldset
 
     def get_list_filter(self, request):
-        pass
+        user = self.get_request_helpdeskuser(request)
+        list_filter = super(TicketAdmin, self).get_list_filter(request)
+        if user.is_superuser or user.is_operator() or user.is_admin():
+            list_filter = list(list_filter) + ['requester', 'assignee']
+        return list_filter
 
-    def get_queryset(self, request):
-        qs = super(TicketAdmin, self).get_queryset(request)
-        return qs
+    # def get_queryset(self, request):
+    #     user = self.get_request_helpdeskuser(request)
+    #     qs = super(OwnableAdmin, self).queryset(request)
+    #     if user.is_superuser or user.is_operator() or user.is_admin():
+    #         return qs
+    #     return qs.filter(user__id=request.user.id)
 
     def save_model(self, request, obj, form, change):
         if obj.requester_id is None:
