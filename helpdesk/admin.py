@@ -54,8 +54,12 @@ class TicketAdmin(OwnableAdmin):
         }),
     )
 
+    def get_request_helpdeskuser(self, request):
+        return HelpdeskUser.objects.get(pk=request.user.pk)
+
     def get_fieldsets(self, request, obj=None):
-        user = HelpdeskUser.objects.get(pk=request.user.pk)
+        # user = HelpdeskUser.objects.get(pk=request.user.pk)
+        user = self.get_request_helpdeskuser(request)
         fieldset = super(TicketAdmin, self).get_fieldsets(request, obj=obj)
         if user.is_requester():
             return fieldset

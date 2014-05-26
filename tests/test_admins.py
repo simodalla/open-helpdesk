@@ -68,53 +68,61 @@ class CategoryAndTipologyTest(TestCase):
                 len(dom.cssselect('div.result-list table tbody tr')), 1)
 
 
-@patch('helpdesk.admin.HelpdeskUser', autospec=True)
-class TicketFieldsetTest(unittest.TestCase):
 
+class TicketMethodsTest(unittest.TestCase):
+
+    def setUp(self):
+        self.ticket_admin = TicketAdmin(Ticket, AdminSite)
+        self.fake_pk = 1
+
+    def prepare_mocks(self, requester=False, operator=False, admin=False):
+        request_mock = Mock(user=Mock(pk=self.fake_pk))
+        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
+        mock_helpdesk_user.is_requester.return_value = requester
+        mock_helpdesk_user.is_operator.return_value = operator
+        mock_helpdesk_user.is_admin.return_value = admin
+        return request_mock, mock_helpdesk_user
+
+    @patch('helpdesk.admin.HelpdeskUser.objects.get', autospec=True)
+    def test_get_request_helpdeskuser(self, mock_get):
+        request_mock, mock_helpdesk_user = self.prepare_mocks(requester=True)
+        mock_get.return_value = mock_helpdesk_user
+        user = self.ticket_admin.get_request_helpdeskuser(request_mock)
+        mock_get.assert_called_once_with(pk=self.fake_pk)
+        self.assertEqual(user, mock_helpdesk_user)
+
+    @patch('helpdesk.admin.TicketAdmin.get_request_helpdeskuser')
     def test_field_requester_not_in_form_if_requester_in_request(
-            self, mock_user):
-        request_mock = Mock(user=Mock(pk=1))
-        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
-        mock_helpdesk_user.is_requester.return_value = True
-        mock_user.objects.get.return_value = mock_helpdesk_user
-        ticket_admin = TicketAdmin(Ticket, AdminSite)
-        fieldeset = ticket_admin.get_fieldsets(request_mock)
-        mock_user.objects.get.assert_called_once_with(pk=1)
-        mock_helpdesk_user.is_requester.assert_called_once_with()
-        self.assertFalse(mock_helpdesk_user.is_operator.called)
-        self.assertFalse(mock_helpdesk_user.is_admin.called)
+            self, mock_get):
+        request_mock, mock_get.return_value = self.prepare_mocks(
+            requester=True)
+        fieldeset = self.ticket_admin.get_fieldsets(request_mock)
         self.assertNotIn('requester', fieldeset[0][1]['fields'])
+        self.assertFalse(mock_get.is_operator.called)
+        self.assertFalse(mock_get.is_admin.called)
 
-    def test_field_requester_not_in_form_if_operator_in_request(
-            self, mock_user):
-        request_mock = Mock(user=Mock(pk=1))
-        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
-        mock_helpdesk_user.is_requester.return_value = False
-        mock_helpdesk_user.is_operator.return_value = True
-        mock_user.objects.get.return_value = mock_helpdesk_user
-        ticket_admin = TicketAdmin(Ticket, AdminSite)
-        fieldeset = ticket_admin.get_fieldsets(request_mock)
-        mock_user.objects.get.assert_called_once_with(pk=1)
-        mock_helpdesk_user.is_requester.assert_called_once_with()
-        mock_helpdesk_user.is_operator.assert_called_once_with()
-        self.assertFalse(mock_helpdesk_user.is_admin.called)
-        self.assertIn('requester', fieldeset[0][1]['fields'])
-
-    def test_field_requester_not_in_form_if_admin_in_request(
-            self, mock_user):
-        request_mock = Mock(user=Mock(pk=1))
-        mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
-        mock_helpdesk_user.is_requester.return_value = False
-        mock_helpdesk_user.is_operator.return_value = False
-        mock_helpdesk_user.is_admin.return_value = True
-        mock_user.objects.get.return_value = mock_helpdesk_user
-        ticket_admin = TicketAdmin(Ticket, AdminSite)
-        fieldeset = ticket_admin.get_fieldsets(request_mock)
-        mock_user.objects.get.assert_called_once_with(pk=1)
-        mock_helpdesk_user.is_requester.assert_called_once_with()
-        mock_helpdesk_user.is_operator.assert_called_once_with()
-        mock_helpdesk_user.is_admin.assert_called_once_with()
-        self.assertIn('requester', fieldeset[0][1]['fields'])
+    @patch('helpdesk.admin.TicketAdmin.get_request_helpdeskuser')
+    # def test_field_requester_not_in_form_if_operator_in_request(
+    #         self, mock_get):
+    #     request_mock, mock_helpdesk_user = self.prepare_mocks(operator=True)
+    #     mock_get.return_value = mock_helpdesk_user
+    #     fieldeset = self.ticket_admin.get_fieldsets(request_mock)
+    #     mock_get.assert_called_once_with(pk=self.fake_pk)
+    #     mock_helpdesk_user.is_requester.assert_called_once_with()
+    #     mock_helpdesk_user.is_operator.assert_called_once_with()
+    #     self.assertFalse(mock_helpdesk_user.is_admin.called)
+    #     self.assertIn('requester', fieldeset[0][1]['fields'])
+    #
+    # def test_field_requester_not_in_form_if_admin_in_request(
+    #         self, mock_get):
+    #     request_mock, mock_helpdesk_user = self.prepare_mocks(admin=True)
+    #     mock_get.return_value = mock_helpdesk_user
+    #     fieldeset = self.ticket_admin.get_fieldsets(request_mock)
+    #     mock_get.assert_called_once_with(pk=1)
+    #     mock_helpdesk_user.is_requester.assert_called_once_with()
+    #     mock_helpdesk_user.is_operator.assert_called_once_with()
+    #     mock_helpdesk_user.is_admin.assert_called_once_with()
+    #     self.assertIn('requester', fieldeset[0][1]['fields'])
 
 
 class TicketByRequesterTest(TestCase):
@@ -139,31 +147,3 @@ class TicketByRequesterTest(TestCase):
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.user.pk, self.user.pk)
         self.assertEqual(ticket.requester.pk, self.user.pk)
-
-
-import pytest
-
-
-@pytest.fixture
-def ticket_admin():
-    return TicketAdmin(Ticket, AdminSite)
-
-
-def test_ticket_admin(ticket_admin):
-    request_mock = Mock(user=Mock(pk=1))
-    mock_helpdesk_user = Mock(spec_set=HelpdeskUser)
-    mock_helpdesk_user.is_requester.return_value = False
-    mock_helpdesk_user.is_operator.return_value = False
-    mock_helpdesk_user.is_admin.return_value = True
-    with patch('helpdesk.admin.HelpdeskUser', autospec=True) as mock_user:
-        mock_user.objects.get.return_value = mock_helpdesk_user
-        # print(ticket_admin)
-        fieldsets = ticket_admin.get_fieldsets(request_mock)
-    print(mock_user)
-    mock_user.objects.get.assert_called_once_with(pk=1)
-    mock_helpdesk_user.is_requester.assert_called_once_with()
-    mock_helpdesk_user.is_operator.assert_called_once_with()
-    mock_helpdesk_user.is_admin.assert_called_once_with()
-    assert 'requester' in fieldsets[0][1]['fields']
-
-

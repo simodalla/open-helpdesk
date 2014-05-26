@@ -35,6 +35,7 @@ htmlcov/
 .project
 .pydevproject
 .idea
+.DS_Store
 
 # Complexity
 output/*.html
@@ -45,3 +46,7 @@ docs/_build
 
 # Database
 *.db
+:memory:
+
+# Static files 
+functional_tests/static/
