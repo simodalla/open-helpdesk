@@ -11,9 +11,9 @@ except ImportError:
 
 
 def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
-                          is_superuser=False):
+                          superuser=False):
     mock_helpdesk_user = Mock()
-    mock_helpdesk_user.is_superuser = is_superuser
+    mock_helpdesk_user.is_superuser = superuser
     mock_helpdesk_user.is_requester.return_value = requester
     mock_helpdesk_user.is_operator.return_value = operator
     mock_helpdesk_user.is_admin.return_value = admin

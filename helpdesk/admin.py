@@ -72,12 +72,12 @@ class TicketAdmin(admin.ModelAdmin):
             list_filter = list(list_filter) + ['requester', 'assignee']
         return list_filter
 
-    # def get_queryset(self, request):
-    #     user = self.get_request_helpdeskuser(request)
-    #     qs = super(OwnableAdmin, self).queryset(request)
-    #     if user.is_superuser or user.is_operator() or user.is_admin():
-    #         return qs
-    #     return qs.filter(user__id=request.user.id)
+    def get_queryset(self, request):
+        user = self.get_request_helpdeskuser(request)
+        qs = super(TicketAdmin, self).get_queryset(request)
+        if user.is_superuser or user.is_operator() or user.is_admin():
+            return qs
+        return qs.filter(requester=user)
 
     def save_model(self, request, obj, form, change):
         if obj.requester_id is None:
