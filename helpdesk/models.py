@@ -145,7 +145,7 @@ TICKET_STATUS_CHOICES = tuple((k, v) for k, v in TICKET_STATUS.items())
 
 
 @python_2_unicode_compatible
-class Ticket(Slugged, TimeStamped, Ownable, RichText):
+class Ticket(Slugged, TimeStamped, RichText):
     """
     A ticket.
     """
