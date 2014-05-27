@@ -1,2 +1,2 @@
-mezzanine>=3.0.9
+mezzanine>=3.1.4
 south>=0.8.4
