@@ -4,7 +4,7 @@ import factory
 from django.contrib.auth.models import Group, Permission
 from django.contrib.sites.models import Site
 
-from helpdesk.models import Category, Tipology, HelpdeskUser as User
+from helpdesk.models import Category, Tipology, HelpdeskUser as User, Ticket
 
 
 def _get_perm(perm_name):
@@ -81,3 +81,14 @@ class TipologyFactory(factory.DjangoModelFactory):
     def sites(self, create, extracted, **kwargs):
         if create and extracted:
             [self.sites.add(site) for site in extracted]
+
+
+class TicketFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Ticket
+
+    content = factory.Sequence(lambda n: 'content of ticket {0}'.format(n))
+
+    @factory.post_generation
+    def tipologies(self, create, extracted, **kwargs):
+        if create and extracted:
+            [self.tipologies.add(tipology) for tipology in extracted]
