@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from mezzanine.conf import settings
-from mezzanine.core.models import Ownable, RichText, Slugged, TimeStamped
+from mezzanine.core.models import RichText, Slugged, TimeStamped
 from mezzanine.utils.models import (upload_to, get_user_model_name,
                                     get_user_model)
 
