@@ -42,7 +42,8 @@ class TicketAdmin(admin.ModelAdmin):
     radio_fields = {'priority': admin.HORIZONTAL}
     search_fields = ['content', 'user__username', 'user__first_name',
                      'user__last_name', 'requester__username',
-                     'requester__first_name', 'requester__last_name']
+                     'requester__first_name', 'requester__last_name',
+                     'tipologies__title']
 
     fieldsets = (
         (None, {
