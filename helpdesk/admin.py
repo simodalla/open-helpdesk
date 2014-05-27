@@ -58,6 +58,11 @@ class TicketAdmin(admin.ModelAdmin):
         return HelpdeskUser.objects.get(pk=request.user.pk)
 
     def get_fieldsets(self, request, obj=None):
+        """
+        Return default fieldsets if request.user is a requester.
+        Otherwise request.user is a operator, an admin or superuser, append
+        'requester' field to fieldsets.
+        """
         user = self.get_request_helpdeskuser(request)
         fieldset = super(TicketAdmin, self).get_fieldsets(request, obj=obj)
         if user.is_superuser or user.is_operator() or user.is_admin():
@@ -66,6 +71,10 @@ class TicketAdmin(admin.ModelAdmin):
         return fieldset
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        Return a tuple with all fields if request.user is a requester.
+        Otherwise return default empty readonly_fields.
+        """
         if obj:
             user = self.get_request_helpdeskuser(request)
             if user.is_requester():
@@ -76,6 +85,11 @@ class TicketAdmin(admin.ModelAdmin):
         return super(TicketAdmin, self).get_readonly_fields(request, obj=obj)
 
     def get_list_filter(self, request):
+        """
+        Return default list_filter if request.user is a requester. Otherwise
+        if request.user is a operator, an admin or superuser, return default
+        list_filter with append more fields.
+        """
         user = self.get_request_helpdeskuser(request)
         list_filter = super(TicketAdmin, self).get_list_filter(request)
         if user.is_superuser or user.is_operator() or user.is_admin():
@@ -83,7 +97,14 @@ class TicketAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_queryset(self, request):
+        """
+        Return a filtered queryset by user that match with request.user if
+        request.user is a requester. Otherwise if request.user is a operator,
+        an admin or superuser, queryset returned is not filtered.
+        """
         user = self.get_request_helpdeskuser(request)
+        # compatibility for django 1.5 where "get_queryset" method is
+        # called "queryset" instead
         f_get_queryset = getattr(
             super(TicketAdmin, self), 'get_queryset', None)
         if not f_get_queryset:
@@ -94,7 +115,10 @@ class TicketAdmin(admin.ModelAdmin):
         return qs.filter(requester=user)
 
     def queryset(self, request):
-        """Compatibility for django 1.5"""
+        """
+        Compatibility for django 1.5 where "get_queryset" method is
+        called "queryset" instead
+        """
         return self.get_queryset(request)
 
     def save_model(self, request, obj, form, change):
