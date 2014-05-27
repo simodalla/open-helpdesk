@@ -84,10 +84,18 @@ class TicketAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         user = self.get_request_helpdeskuser(request)
-        qs = super(TicketAdmin, self).get_queryset(request)
+        f_get_queryset = getattr(
+            super(TicketAdmin, self), 'get_queryset', None)
+        if not f_get_queryset:
+            f_get_queryset = getattr(super(TicketAdmin, self), 'queryset')
+        qs = f_get_queryset(request)
         if user.is_superuser or user.is_operator() or user.is_admin():
             return qs
         return qs.filter(requester=user)
+
+    def queryset(self, request):
+        """Compatibility for django 1.5"""
+        return self.get_queryset(request)
 
     def save_model(self, request, obj, form, change):
         if obj.requester_id is None:

@@ -2,12 +2,12 @@
 from __future__ import unicode_literals, absolute_import
 
 import unittest
-
 try:
     from unittest.mock import patch, Mock
 except ImportError:
     from mock import patch, Mock
 
+from django import VERSION as django_version
 from django.core.urlresolvers import reverse
 from django.contrib.admin import AdminSite
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
@@ -89,6 +89,10 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
     def setUp(self):
         self.ticket_admin = TicketAdmin(Ticket, AdminSite)
         self.fake_pk = 1
+
+    def get_queryset_to_patch(self):
+        return 'django.contrib.admin.ModelAdmin.{}'.format(
+            'queryset' if django_version < (1, 6) else 'get_queryset')
 
     def test_field_requester_not_in_form_if_requester_in_request(
             self, mock_get_req_hpu):
@@ -173,41 +177,37 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         self.assertEqual(
             ('tipologies', 'priority', 'content', 'related_tickets'), result)
 
-    @patch('django.contrib.admin.ModelAdmin.get_queryset')
-    def test_queryset_is_not_filterd_if_is_operator(self, mock_queryset,
-                                                    mock_get_req_hpu):
+    def test_queryset_is_not_filterd_if_is_operator(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(operator=True)
         qs = Mock()
-        mock_queryset.return_value = qs
-        result = self.ticket_admin.get_queryset(get_mock_request(self.fake_pk))
+        with patch(self.get_queryset_to_patch(), return_value=qs):
+            result = self.ticket_admin.get_queryset(
+                get_mock_request(self.fake_pk))
         self.assertTrue(result is qs)
 
-    @patch('django.contrib.admin.ModelAdmin.get_queryset')
-    def test_queryset_is_not_filterd_if_is_admin(self, mock_queryset,
-                                                 mock_get_req_hpu):
+    def test_queryset_is_not_filterd_if_is_admin(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(admin=True)
         qs = Mock()
-        mock_queryset.return_value = qs
-        result = self.ticket_admin.get_queryset(get_mock_request(self.fake_pk))
+        with patch(self.get_queryset_to_patch(), return_value=qs):
+            result = self.ticket_admin.get_queryset(
+                get_mock_request(self.fake_pk))
         self.assertTrue(result is qs)
 
-    @patch('django.contrib.admin.ModelAdmin.get_queryset')
-    def test_queryset_is_not_filterd_if_is_superuser(self, mock_queryset,
-                                                     mock_get_req_hpu):
+    def test_queryset_is_not_filterd_if_is_superuser(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(superuser=True)
         qs = Mock()
-        mock_queryset.return_value = qs
-        result = self.ticket_admin.get_queryset(get_mock_request(self.fake_pk))
+        with patch(self.get_queryset_to_patch(), return_value=qs):
+            result = self.ticket_admin.get_queryset(
+                get_mock_request(self.fake_pk))
         self.assertTrue(result is qs)
 
-    @patch('django.contrib.admin.ModelAdmin.get_queryset')
-    def test_queryset_is_not_filterd_if_is_requester(self, mock_queryset,
-                                                     mock_get_req_hpu):
+    def test_queryset_is_not_filterd_if_is_requester(self, mock_get_req_hpu):
         helpdesk_user = get_mock_helpdeskuser(requester=True)
         mock_get_req_hpu.return_value = helpdesk_user
         qs = Mock()
-        mock_queryset.return_value = qs
-        result = self.ticket_admin.get_queryset(get_mock_request(self.fake_pk))
+        with patch(self.get_queryset_to_patch(), return_value=qs):
+            result = self.ticket_admin.get_queryset(
+                get_mock_request(self.fake_pk))
         qs.filter.assert_called_once_with(requester=helpdesk_user)
         self.assertFalse(result is qs)
 
@@ -247,8 +247,12 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
                            tipologies=self.category.tipologies.all())
              for i in range(0, n)]
         response = self.client.get(self.get_url(Ticket, 'changelist'))
-        tickets_pks = response.context['cl'].queryset.values_list(
-            'pk', flat=True)
+        if django_version < (1, 6):
+            tickets_pks = response.context['cl'].result_list.values_list(
+                'pk', flat=True)
+        else:
+            tickets_pks = response.context['cl'].queryset.values_list(
+                'pk', flat=True)
         self.assertEqual(len(tickets_pks), n)
         self.assertEqual(
             set(tickets_pks),
