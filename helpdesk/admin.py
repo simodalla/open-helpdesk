@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from mezzanine.core.admin import TabularDynamicInlineAdmin, OwnableAdmin
+from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .models import Category, Tipology, Attachment, Ticket, HelpdeskUser
 
@@ -65,6 +65,16 @@ class TicketAdmin(admin.ModelAdmin):
             fieldset[0][1]['fields'].append('requester')
         return fieldset
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            user = self.get_request_helpdeskuser(request)
+            if user.is_requester():
+                fields = []
+                for e in self.fieldsets:
+                    fields += e[1]['fields']
+                return tuple(fields)
+        return super(TicketAdmin, self).get_readonly_fields(request, obj=obj)
+
     def get_list_filter(self, request):
         user = self.get_request_helpdeskuser(request)
         list_filter = super(TicketAdmin, self).get_list_filter(request)
@@ -83,21 +93,6 @@ class TicketAdmin(admin.ModelAdmin):
         if obj.requester_id is None:
             obj.requester = request.user
         return super(TicketAdmin, self).save_model(request, obj, form, change)
-
-
-    # def add_view(self, request, form_url='', extra_context=None):
-    #
-    #     if request.method == 'POST':
-    #         print(request.POST)
-    #     return super(TicketAdmin, self).add_view(
-    #         request, form_url=form_url, extra_context=extra_context)
-    #
-    # def change_view(self, request, object_id, form_url='', extra_context=None):
-    #     if request.method == 'POST':
-    #         print(request.POST)
-    #
-    #     return super(TicketAdmin, self).change_view(
-    #         request, object_id, form_url=form_url, extra_context=extra_context)
 
 
 admin.site.register(Category, CategoryAdmin)

@@ -4,9 +4,9 @@ from __future__ import unicode_literals, absolute_import
 import unittest
 
 try:
-    from unittest.mock import patch, Mock, call
+    from unittest.mock import patch, Mock
 except ImportError:
-    from mock import patch, Mock, call
+    from mock import patch, Mock
 
 from django.core.urlresolvers import reverse
 from django.contrib.admin import AdminSite
@@ -18,8 +18,9 @@ from helpdesk.models import Ticket
 from helpdesk.defaults import (HELPDESK_REQUESTERS)
 from helpdesk.admin import TicketAdmin
 from .factories import (
-    UserFactory, TipologyFactory, CategoryFactory, SiteFactory, GroupFactory)
-from .helpers import get_mock_request, get_mock_helpdeskuser
+    UserFactory, TipologyFactory, CategoryFactory, SiteFactory, GroupFactory,
+    TicketFactory)
+from .helpers import get_mock_request, get_mock_helpdeskuser, AdminTestMixin
 
 
 class CategoryAndTipologyTest(TestCase):
@@ -139,6 +140,39 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         self.assertListEqual(list_filter + ['requester', 'assignee'],
                              result)
 
+    def test_empty_readonly_fields_if_obj_is_none(self, mock_get_req_hpu):
+        result = self.ticket_admin.get_readonly_fields(get_mock_request())
+        self.assertEqual(tuple(), result)
+
+    def test_empty_readonly_fields_if_operator_in_request(self,
+                                                          mock_get_req_hpu):
+        mock_get_req_hpu.return_value = get_mock_helpdeskuser(operator=True)
+        result = self.ticket_admin.get_readonly_fields(
+            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
+        self.assertEqual(tuple(), result)
+
+    def test_empty_readonly_fields_if_admin_in_request(self,
+                                                       mock_get_req_hpu):
+        mock_get_req_hpu.return_value = get_mock_helpdeskuser(admin=True)
+        result = self.ticket_admin.get_readonly_fields(
+            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
+        self.assertEqual(tuple(), result)
+
+    def test_empty_readonly_fields_if_superuser_in_request(self,
+                                                           mock_get_req_hpu):
+        mock_get_req_hpu.return_value = get_mock_helpdeskuser(superuser=True)
+        result = self.ticket_admin.get_readonly_fields(
+            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
+        self.assertEqual(tuple(), result)
+
+    def test_empty_readonly_fields_if_requester_in_request(self,
+                                                           mock_get_req_hpu):
+        mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
+        result = self.ticket_admin.get_readonly_fields(
+            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
+        self.assertItemsEqual(
+            ('tipologies', 'priority', 'content', 'related_tickets'), result)
+
     @patch('django.contrib.admin.ModelAdmin.get_queryset')
     def test_queryset_is_not_filterd_if_is_operator(self, mock_queryset,
                                                     mock_get_req_hpu):
@@ -178,25 +212,50 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         self.assertFalse(result is qs)
 
 
-
-class FunctionalTicketByRequesterTest(TestCase):
+class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
     def setUp(self):
-        self.user = UserFactory(
+        self.requester = UserFactory(
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
-        # self.user = UserFactory(
-        #     groups=[GroupFactory(name=HELPDESK_ADMINS[0],
-        #                          permissions=list(HELPDESK_ADMINS[1]))])
-        self.client.login(username=self.user.username, password='default')
+        self.client.login(username=self.requester.username, password='default')
         self.category = CategoryFactory(tipologies=('tip1', 'tip2'))
         self.post_data = {'content': 'helpdesk_content',
                           'tipologies': [str(t.pk) for t
                                          in self.category.tipologies.all()],
                           'priority': 1}
 
-    def test_add_ticket(self):
-        response = self.client.post(
+    def test_adding_ticket_set_requester_field(self):
+        """
+        Test that adding new ticket, the field requester is setted with
+        logged user.
+        """
+        self.client.post(
             reverse(admin_urlname(Ticket._meta, 'add')), data=self.post_data)
         self.assertEqual(Ticket.objects.count(), 1)
         ticket = Ticket.objects.latest()
-        self.assertEqual(ticket.requester.pk, self.user.pk)
+        self.assertEqual(ticket.requester.pk, self.requester.pk)
+
+    def test_changelist_view_is_filtered(self):
+        """
+        Test that the changelist is filtered by tickets with requester's field
+        matching to logged user.
+        """
+        n = 3
+        for user in [self.requester, UserFactory(
+                groups=self.requester.groups.all())]:
+            [TicketFactory(requester=user,
+                           tipologies=self.category.tipologies.all())
+             for i in range(0, n)]
+        response = self.client.get(self.get_url(Ticket, 'changelist'))
+        tickets_pks = response.context['cl'].queryset.values_list(
+            'pk', flat=True)
+        self.assertEqual(len(tickets_pks), n)
+        self.assertItemsEqual(
+            tickets_pks,
+            self.requester.requested_tickets.values_list('pk', flat=True))
+
+    def test_for_fieldset_object(self):
+        self.client.get(self.get_url(Ticket, 'add'))
+        t = TicketFactory(requester=self.requester,
+                          tipologies=self.category.tipologies.all())
+        self.client.get(self.get_url(Ticket, 'change', args=(t.pk,)))
