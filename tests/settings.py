@@ -162,6 +162,11 @@ OPTIONAL_APPS = (
     PACKAGE_NAME_GRAPPELLI,
 )
 
+# disable debug-toolbar attempting to automatically adjust your project's
+# settings. Reference: http://django-debug-toolbar.readthedocs.org/en/latest/
+# configuration.html#debug-toolbar-patch-settings
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
 ####################
 # DYNAMIC SETTINGS #
 ####################
