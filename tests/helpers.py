@@ -5,9 +5,18 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.serializers.json import DjangoJSONEncoder
 
 try:
-    from unittest.mock import patch, Mock, call
+    from unittest.mock import Mock
 except ImportError:
-    from mock import patch, Mock, call
+    from mock import Mock
+
+from django.core.urlresolvers import reverse
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
+
+
+class AdminTestMixin(object):
+
+    def get_url(self, model, viewname, *args, **kwargs):
+        return reverse(admin_urlname(model._meta, viewname), *args, **kwargs)
 
 
 def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
