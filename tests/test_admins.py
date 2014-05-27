@@ -170,7 +170,7 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
         result = self.ticket_admin.get_readonly_fields(
             get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertItemsEqual(
+        self.assertEqual(
             ('tipologies', 'priority', 'content', 'related_tickets'), result)
 
     @patch('django.contrib.admin.ModelAdmin.get_queryset')
@@ -250,9 +250,9 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
         tickets_pks = response.context['cl'].queryset.values_list(
             'pk', flat=True)
         self.assertEqual(len(tickets_pks), n)
-        self.assertItemsEqual(
-            tickets_pks,
-            self.requester.requested_tickets.values_list('pk', flat=True))
+        self.assertEqual(
+            set(tickets_pks),
+            set(self.requester.requested_tickets.values_list('pk', flat=True)))
 
     def test_for_fieldset_object(self):
         self.client.get(self.get_url(Ticket, 'add'))
