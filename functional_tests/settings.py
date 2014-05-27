@@ -123,7 +123,7 @@ LANGUAGE_CODE = "en"
 # production. Best set to ``True`` in local_settings.py
 DEBUG = True
 
-# Whether a user's session cookie expires when the Web browser is closed.
+# Whether a requester's session cookie expires when the Web browser is closed.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SITE_ID = 1
@@ -214,8 +214,6 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, STATIC_URL.strip("/"))
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = STATIC_URL + "media/"
 
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 
 # Package/module name to import the root urlpatterns from for the project.
