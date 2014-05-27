@@ -97,4 +97,3 @@ class HelpdeskUserTest(TestCase):
         user = UserFactory(
             groups=[GroupFactory(name=HELPDESK_ADMINS[0])])
         self.assertTrue(user.is_admin())
-
