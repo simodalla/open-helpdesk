@@ -15,7 +15,8 @@ from django.test import TestCase
 from lxml.html import fromstring
 
 from helpdesk.models import Ticket
-from helpdesk.defaults import (HELPDESK_REQUESTERS)
+from helpdesk.defaults import (HELPDESK_REQUESTERS,
+                               HELPDESK_TICKET_MAX_TIPOLOGIES)
 from helpdesk.admin import TicketAdmin
 from .factories import (
     UserFactory, TipologyFactory, CategoryFactory, SiteFactory, GroupFactory,
@@ -218,10 +219,11 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
         self.client.login(username=self.requester.username, password='default')
-        self.category = CategoryFactory(tipologies=('tip1', 'tip2'))
+        tipology_names = ['tip{}'.format(i) for i
+                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES-1)]
+        self.category = CategoryFactory(tipologies=tipology_names)
         self.post_data = {'content': 'helpdesk_content',
-                          'tipologies': [str(t.pk) for t
-                                         in self.category.tipologies.all()],
+                          'tipologies': self.category.tipology_pks,
                           'priority': 1}
 
     def test_adding_ticket_set_requester_field(self):
@@ -257,6 +259,43 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
         self.assertEqual(
             set(tickets_pks),
             set(self.requester.requested_tickets.values_list('pk', flat=True)))
+
+    def test_form_with_less_tipologies_fields_is_validate(self):
+        assert (len(self.post_data['tipologies'])
+                < HELPDESK_TICKET_MAX_TIPOLOGIES)
+        response = self.client.post(self.get_url(Ticket, 'add'),
+                                    data=self.post_data)
+        self.assertRedirects(response, self.get_url(Ticket, 'changelist'))
+
+    def test_form_with_equals_tipologies_fields_is_validate(self):
+        tipology_names = ['tip{}'.format(i) for i
+                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES)]
+        category = CategoryFactory(tipologies=tipology_names)
+        self.post_data['tipologies'] = category.tipology_pks
+        assert (len(self.post_data['tipologies'])
+                == HELPDESK_TICKET_MAX_TIPOLOGIES)
+        response = self.client.post(self.get_url(Ticket, 'add'),
+                                    data=self.post_data)
+        self.assertRedirects(response, self.get_url(Ticket, 'changelist'))
+
+    def test_form_with_more_tipologies_fields_is_not_validate(self):
+        tipology_names = ['tip{}'.format(i) for i
+                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES + 1)]
+        category = CategoryFactory(tipologies=tipology_names)
+        self.post_data['tipologies'] = category.tipology_pks
+        assert (len(self.post_data['tipologies'])
+                > HELPDESK_TICKET_MAX_TIPOLOGIES)
+        response = self.client.post(self.get_url(Ticket, 'add'),
+                                    data=self.post_data)
+        self.assertEqual(response.status_code, 200)
+        form = response.context['adminform'].form
+        self.assertIn('tipologies', form.keys())
+        # self.assertEqual()
+        # [error for errors in response.context['errors'] for error in errors]
+        # self.assertEqual()
+        # self.assertFormError(response, response.context['adminform'].form,
+        #                      'tipologies',
+        #                      'Too many tipologies selected. You can select a maximum of 3')
 
     def test_for_fieldset_object(self):
         self.client.get(self.get_url(Ticket, 'add'))

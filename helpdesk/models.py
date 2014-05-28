@@ -67,6 +67,10 @@ class Category(TimeStamped):
     def __str__(self):
         return self.title
 
+    @property
+    def tipology_pks(self):
+        return [str(pk) for pk in self.tipologies.values_list('pk', flat=True)]
+
     def admin_tipologies(self):
         return '<br>'.join(
             ['<a href="{}?id={}" class="view_tipology">{}</a>'.format(

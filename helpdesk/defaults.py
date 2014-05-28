@@ -15,6 +15,7 @@ HELPDESK_ADMINS = ('helpdesk_admins', ['helpdesk.add_ticket',
                                        'helpdesk.add_tipology',
                                        'helpdesk.change_tipology',
                                        'helpdesk.delete_tipology'])
+HELPDESK_TICKET_MAX_TIPOLOGIES = 3
 
 register_setting(
     name="HELPDESK_REQUESTERS",
@@ -35,4 +36,12 @@ register_setting(
     description="The group name of helpdesk admins.",
     editable=False,
     default=HELPDESK_ADMINS[0],
+)
+
+register_setting(
+    name="HELPDESK_TICKET_MAX_TIPOLOGIES",
+    description="The max number of tipologies which can be related to a "
+                "single ticket",
+    editable=True,
+    default=HELPDESK_TICKET_MAX_TIPOLOGIES,
 )

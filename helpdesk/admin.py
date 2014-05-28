@@ -3,11 +3,14 @@ from __future__ import unicode_literals, absolute_import
 
 from copy import deepcopy
 
+
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .models import Category, Tipology, Attachment, Ticket, HelpdeskUser
+from .forms import TicketAdminForm
 
 
 class TipologyInline(TabularDynamicInlineAdmin):
@@ -34,6 +37,7 @@ class TipologyAdmin(admin.ModelAdmin):
 
 class TicketAdmin(admin.ModelAdmin):
     filter_horizontal = ('tipologies', 'related_tickets')
+    form = TicketAdminForm
     inlines = [AttachmentInline]
     list_display = ['pk', 'content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
