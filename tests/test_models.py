@@ -2,18 +2,19 @@
 from __future__ import unicode_literals, absolute_import
 
 try:
-    from unittest.mock import patch
+    from unittest.mock import patch, Mock
 except ImportError:
-    from mock import patch
+    from mock import patch, Mock
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
-from helpdesk.models import Category, Tipology
+from helpdesk.models import (Category, Tipology, Ticket,
+                             TICKET_STATUS_NEW, TICKET_STATUS_OPEN)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
-                        SiteFactory, TipologyFactory)
+                        SiteFactory, TipologyFactory, TicketFactory)
 
 
 class CategoryTest(TestCase):
@@ -97,3 +98,42 @@ class HelpdeskUserTest(TestCase):
         user = UserFactory(
             groups=[GroupFactory(name=HELPDESK_ADMINS[0])])
         self.assertTrue(user.is_admin())
+
+
+class TicketTest(TestCase):
+
+    def setUp(self):
+        self.category = CategoryFactory(tipologies=['tip1', 'tip2'])
+        self.operator = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
+                                 permissions=list(HELPDESK_OPERATORS[1]))])
+
+    def test_open_method_raise_exception_if_not_new(self):
+        """
+        Test that calling of open method on ticket with not "new" status raise
+        an ValueError exception.
+        """
+        ticket = Ticket()
+        ticket.status = TICKET_STATUS_NEW + 1
+        self.assertRaises(ValueError, ticket.open, Mock())
+
+    def test_open_method_set_assignee_and_open_status(self):
+        """
+        Test that calling of open method on ticket with new status set
+        the field status to TICKET_STATUS_OPEN and set 'assignee' field
+        with parameter assignee
+        """
+        ticket = TicketFactory(requester=self.operator,
+                               tipologies=self.category.tipologies.all())
+        ticket.open(self.operator)
+        self.assertEqual(ticket.status, TICKET_STATUS_OPEN)
+        self.assertEqual(ticket.assignee, self.operator)
+
+    def test_open_method_create_status_changelog_related_object(self):
+        ticket = TicketFactory(requester=self.operator,
+                               tipologies=self.category.tipologies.all())
+        ticket.open(self.operator)
+        changelog = ticket.status_changelogs.latest()
+        self.assertEqual(changelog.changer.pk, self.operator.pk)
+        self.assertEqual(changelog.status_from, TICKET_STATUS_NEW)
+        self.assertEqual(changelog.status_to, TICKET_STATUS_OPEN)
