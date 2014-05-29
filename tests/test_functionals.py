@@ -9,7 +9,6 @@ from helpdesk.defaults import (HELPDESK_REQUESTERS,
                                HELPDESK_OPERATORS,
                                HELPDESK_TICKET_MAX_TIPOLOGIES)
 from helpdesk.models import Ticket, Tipology, Category
-
 from .helpers import AdminTestMixin
 from .factories import (
     UserFactory, CategoryFactory, GroupFactory, SiteFactory, TicketFactory,
@@ -23,7 +22,7 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
         self.client.login(username=self.requester.username, password='default')
         tipology_names = ['tip{}'.format(i) for i
-                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES-1)]
+                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES - 1)]
         self.category = CategoryFactory(tipologies=tipology_names)
         self.post_data = {'content': 'helpdesk_content',
                           'tipologies': self.category.tipology_pks,
