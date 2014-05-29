@@ -3,7 +3,7 @@ from __future__ import unicode_literals, absolute_import
 
 from copy import deepcopy
 
-
+from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -11,6 +11,7 @@ from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .models import Category, Tipology, Attachment, Ticket, HelpdeskUser
 from .forms import TicketAdminForm
+from .views import OpenTicketView
 
 
 class TipologyInline(TabularDynamicInlineAdmin):
@@ -118,6 +119,16 @@ class TicketAdmin(admin.ModelAdmin):
         if user.is_superuser or user.is_operator() or user.is_admin():
             return qs
         return qs.filter(requester=user)
+
+    def get_urls(self):
+        admin_prefix_url = '%s_%s' % (self.opts.app_label,
+                                      self.opts.model_name)
+        urls = super(TicketAdmin, self).get_urls()
+        my_urls = patterns(
+            '', url(r'^open/(?P<pk>\d+)$',
+                    self.admin_site.admin_view(OpenTicketView.as_view()),
+                    name='{}_open'.format(admin_prefix_url)))
+        return my_urls + urls
 
     def queryset(self, request):
         """
