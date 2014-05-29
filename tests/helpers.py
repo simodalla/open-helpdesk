@@ -13,10 +13,56 @@ from django.core.urlresolvers import reverse
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
 
+def to_list(value):
+    """
+    Puts value into a list if it's not already one.
+    Returns an empty list if value is None.
+    """
+    if value is None:
+        value = []
+    elif not isinstance(value, list):
+        value = [value]
+    return value
+
+
 class AdminTestMixin(object):
 
     def get_url(self, model, viewname, *args, **kwargs):
         return reverse(admin_urlname(model._meta, viewname), *args, **kwargs)
+
+    def get_admin_form_error(self, response):
+        return response.context['adminform'].form
+
+    def assertAdminFormError(self, response, field, errors, msg_prefix=''):
+        if msg_prefix:
+            msg_prefix += ": "
+        form = self.get_admin_form_error(response)
+        # Put error(s) into a list to simplify processing.
+        errors = to_list(errors)
+        for err in errors:
+            if field:
+                if field in form.errors:
+                    field_errors = form.errors[field]
+                    self.assertTrue(err in field_errors,
+                                    msg_prefix + "The field '%s' on form '%s'"
+                                                 " does not contain the error"
+                                                 " '%s' (actual errors: %s)" %
+                                    (field, form, err, repr(field_errors)))
+                elif field in form.fields:
+                    self.fail(msg_prefix + "The field '%s' on form '%s'"
+                                           "contains no errors" % (field,
+                                                                   form))
+                else:
+                    self.fail(msg_prefix + "The form '%s' does not contain the"
+                                           " field '%s'" % (form, field))
+            else:
+                non_field_errors = form.non_field_errors()
+                self.assertTrue(err in non_field_errors,
+                                msg_prefix + "The form '%s' does not"
+                                             " contain the non-field error "
+                                             " '%s' (actual errors: %s)" %
+                                (form, err, non_field_errors))
+
 
 
 def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
