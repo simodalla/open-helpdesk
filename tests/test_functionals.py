@@ -148,19 +148,18 @@ class CategoryAndTipologyTest(AdminTestMixin, TestCase):
                 1)
 
 
-class OpenTicketViewTest(AdminTestMixin, TestCase):
-
-    def setUp(self):
-        self.operator = UserFactory(
-            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
-                                 permissions=list(HELPDESK_OPERATORS[1]))])
-        self.client.login(username=self.operator.username,
-                          password='default')
-        self.category = CategoryFactory(tipologies=['tip1'])
-        self.ticket = TicketFactory(
-            requester=self.operator, tipologies=self.category.tipologies.all())
-
-    def test_for_call_view(self):
-        response = self.client.get(
-            self.get_url(Ticket, 'open', kwargs={'pk': self.ticket.pk}))
-        print(response)
+# class OpenTicketViewTest(AdminTestMixin, TestCase):
+#
+#     def setUp(self):
+#         self.operator = UserFactory(
+#             groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
+#                                  permissions=list(HELPDESK_OPERATORS[1]))])
+#         self.client.login(username=self.operator.username,
+#                           password='default')
+#         self.category = CategoryFactory(tipologies=['tip1'])
+#         self.ticket = TicketFactory(
+#             requester=self.operator, tipologies=self.category.tipologies.all())
+#
+#     def test_for_call_view(self):
+#         response = self.client.get(
+#             self.get_url(Ticket, 'open', kwargs={'pk': self.ticket.pk}))
