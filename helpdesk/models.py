@@ -180,7 +180,7 @@ class Ticket(Slugged, TimeStamped, RichText):
         """Logic 'open' ticket operation.
 
         Opening the ticket. Set status to open, assignee user and create an
-        StatusChagesLog.
+        StatusChangesLog.
 
         :param assignee: user to set 'assignee' field
         :type assignee: django.contrib.auth.get_user_model
@@ -196,9 +196,9 @@ class Ticket(Slugged, TimeStamped, RichText):
 
 
 @python_2_unicode_compatible
-class StatusChagesLog(TimeStamped):
+class StatusChangesLog(TimeStamped):
     """
-    StatusChagesLog model for record the changes of status of Tickets objects.
+    StatusChangesLog model for record the changes of status of Tickets objects.
     """
     ticket = models.ForeignKey('Ticket', related_name='status_changelogs')
     status_from = models.IntegerField(choices=TICKET_STATUS_CHOICES)
@@ -212,8 +212,8 @@ class StatusChagesLog(TimeStamped):
         verbose_name_plural = _('Status Changelogs')
 
     def __str__(self):
-        return ('{self.ticket.pk} {self.created:%Y-%m-%d %H:%M:%S}:'
-                ' {status_from} ==> {status_to}'.format(
-                    self=self,
-                    status_from=TICKET_STATUS[self.status_to],
-                    status_to=TICKET_STATUS[self.status_from]))
+        return ('{ticket.pk} {created}: {status_from} ==> {status_to}'.format(
+            ticket=self.ticket,
+            created=self.created.strftime('%Y-%m-%d %H:%M:%S'),
+            status_from=TICKET_STATUS[self.status_from],
+            status_to=TICKET_STATUS[self.status_to]))

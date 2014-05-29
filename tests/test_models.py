@@ -11,7 +11,7 @@ from django.test import TestCase
 
 from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
-from helpdesk.models import (Category, Tipology, Ticket,
+from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
                              TICKET_STATUS_NEW, TICKET_STATUS_OPEN)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
@@ -137,3 +137,23 @@ class TicketTest(TestCase):
         self.assertEqual(changelog.changer.pk, self.operator.pk)
         self.assertEqual(changelog.status_from, TICKET_STATUS_NEW)
         self.assertEqual(changelog.status_to, TICKET_STATUS_OPEN)
+
+
+class StatusChagesLogTest(TestCase):
+
+    def setUp(self):
+        category = CategoryFactory(tipologies=['tip1'])
+        self.ticket = TicketFactory(requester=UserFactory(),
+                                    tipologies=category.tipologies.all())
+
+    def test_str_method(self):
+        created = Mock()
+        fake_date = '10/09/1980'
+        created.strftime.return_value = fake_date
+        changelog = StatusChangesLog()
+        changelog.ticket = self.ticket
+        changelog.created = created
+        changelog.status_from = TICKET_STATUS_NEW
+        changelog.status_to = TICKET_STATUS_OPEN
+        self.assertEqual(str(changelog), '{} {}: New ==> Open'.format(
+            self.ticket.pk, fake_date, TICKET_STATUS_NEW, TICKET_STATUS_OPEN))
