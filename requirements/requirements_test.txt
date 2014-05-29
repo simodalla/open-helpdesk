@@ -10,3 +10,4 @@ tox
 six
 lxml
 cssselect
+django-braces
