@@ -6,7 +6,6 @@ from copy import deepcopy
 from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .models import Category, Tipology, Attachment, Ticket, HelpdeskUser
@@ -121,8 +120,10 @@ class TicketAdmin(admin.ModelAdmin):
         return qs.filter(requester=user)
 
     def get_urls(self):
+        # getattr is for re-compatibility django 1.5
         admin_prefix_url = '%s_%s' % (self.opts.app_label,
-                                      self.opts.model_name)
+                                      getattr(self.opts, 'model_name',
+                                              self.opts.module_name))
         urls = super(TicketAdmin, self).get_urls()
         my_urls = patterns(
             '', url(r'^open/(?P<pk>\d+)$',
