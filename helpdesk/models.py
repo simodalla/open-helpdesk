@@ -2,6 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import models
+try:
+    from django.db.transaction import atomic
+except ImportError:  # pragma: no cover
+    from django.db.transaction import commit_on_success as atomic
+
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
@@ -176,6 +181,7 @@ class Ticket(Slugged, TimeStamped, RichText):
     def __str__(self):
         return str(self.pk)
 
+    @atomic
     def open(self, assignee):
         """Logic 'open' ticket operation.
 
