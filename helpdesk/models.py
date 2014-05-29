@@ -150,9 +150,6 @@ TICKET_STATUS_CHOICES = tuple((k, v) for k, v in TICKET_STATUS.items())
 
 @python_2_unicode_compatible
 class Ticket(Slugged, TimeStamped, RichText):
-    """
-    A ticket.
-    """
     status = models.IntegerField(_('Status'),
                                  choices=TICKET_STATUS_CHOICES,
                                  default=TICKET_STATUS_NEW)
@@ -178,3 +175,45 @@ class Ticket(Slugged, TimeStamped, RichText):
 
     def __str__(self):
         return str(self.pk)
+
+    def open(self, assignee):
+        """Logic 'open' ticket operation.
+
+        Opening the ticket. Set status to open, assignee user and create an
+        StatusChagesLog.
+
+        :param assignee: user to set 'assignee' field
+        :type assignee: django.contrib.auth.get_user_model
+        """
+        if self.status != TICKET_STATUS_NEW:
+            raise ValueError(_('Ticket is not "New"'))
+        self.assignee = assignee
+        self.status = TICKET_STATUS_OPEN
+        self.save()
+        self.status_changelogs.create(status_from=TICKET_STATUS_NEW,
+                                      status_to=TICKET_STATUS_OPEN,
+                                      changer=assignee)
+
+
+@python_2_unicode_compatible
+class StatusChagesLog(TimeStamped):
+    """
+    StatusChagesLog model for record the changes of status of Tickets objects.
+    """
+    ticket = models.ForeignKey('Ticket', related_name='status_changelogs')
+    status_from = models.IntegerField(choices=TICKET_STATUS_CHOICES)
+    status_to = models.IntegerField(choices=TICKET_STATUS_CHOICES)
+    changer = models.ForeignKey(user_model_name, verbose_name=_('Changer'))
+
+    class Meta:
+        get_latest_by = 'created'
+        ordering = ('ticket', 'created')
+        verbose_name = _('Status Changelog')
+        verbose_name_plural = _('Status Changelogs')
+
+    def __str__(self):
+        return ('{self.ticket.pk} {self.created:%Y-%m-%d %H:%M:%S}:'
+                ' {status_from} ==> {status_to}'.format(
+                    self=self,
+                    status_from=TICKET_STATUS[self.status_to],
+                    status_to=TICKET_STATUS[self.status_from]))
