@@ -64,7 +64,6 @@ class AdminTestMixin(object):
                                 (form, err, non_field_errors))
 
 
-
 def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
                           superuser=False):
     mock_helpdesk_user = Mock()
