@@ -6,7 +6,6 @@ from django.test import TestCase
 from lxml.html import fromstring
 
 from helpdesk.defaults import (HELPDESK_REQUESTERS,
-                               HELPDESK_OPERATORS,
                                HELPDESK_TICKET_MAX_TIPOLOGIES)
 from helpdesk.models import Ticket, Tipology, Category
 from .helpers import AdminTestMixin
@@ -158,7 +157,8 @@ class CategoryAndTipologyTest(AdminTestMixin, TestCase):
 #                           password='default')
 #         self.category = CategoryFactory(tipologies=['tip1'])
 #         self.ticket = TicketFactory(
-#             requester=self.operator, tipologies=self.category.tipologies.all())
+#             requester=self.operator,
+#             tipologies=self.category.tipologies.all())
 #
 #     def test_for_call_view(self):
 #         response = self.client.get(
