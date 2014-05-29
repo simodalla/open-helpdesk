@@ -112,7 +112,7 @@ class TicketAdmin(admin.ModelAdmin):
         # called "queryset" instead
         f_get_queryset = getattr(
             super(TicketAdmin, self), 'get_queryset', None)
-        if not f_get_queryset:
+        if not f_get_queryset:  # pragma: no cover
             f_get_queryset = getattr(super(TicketAdmin, self), 'queryset')
         qs = f_get_queryset(request)
         if user.is_superuser or user.is_operator() or user.is_admin():
@@ -136,7 +136,7 @@ class TicketAdmin(admin.ModelAdmin):
         Compatibility for django 1.5 where "get_queryset" method is
         called "queryset" instead
         """
-        return self.get_queryset(request)
+        return self.get_queryset(request)  # pragma: no cover
 
     def save_model(self, request, obj, form, change):
         if obj.requester_id is None:
