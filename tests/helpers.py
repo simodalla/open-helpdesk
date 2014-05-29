@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from django import test
-from django.contrib.auth.models import AnonymousUser
-from django.core.serializers.json import DjangoJSONEncoder
-
 try:
     from unittest.mock import Mock
 except ImportError:
     from mock import Mock
 
+from django import test
+from django.contrib.auth.models import AnonymousUser
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
