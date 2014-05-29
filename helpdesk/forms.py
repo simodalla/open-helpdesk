@@ -20,7 +20,6 @@ class TicketAdminForm(forms.ModelForm):
         tipologies = self.cleaned_data['tipologies']
         if len(tipologies) > max_tipologies:
             msg = _('Too many tipologies selected. You can select a maximum'
-                    ' of %(max)s.')
-            raise ValidationError(msg, code='too_many_tipologies',
-                                  params={'max': max_tipologies})
+                    ' of %(max)s.') % {'max': max_tipologies}
+            raise ValidationError(msg, code='too_many_tipologies')
         return self.cleaned_data['tipologies']
