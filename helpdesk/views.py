@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView
 
 from braces.views import GroupRequiredMixin
@@ -24,15 +25,20 @@ class OpenTicketView(GroupRequiredMixin, RedirectView):
         ticket_pk = kwargs.get('pk')
         ticket_changelist_url = reverse(admin_urlname(Ticket._meta,
                                                       'changelist'))
+        error_msg_prefix = _('An error occurs.')
         try:
             ticket = Ticket.objects.get(pk=ticket_pk)
             ticket.open(self.request.user)
-            messages.success(self.request, 'Profile details updated.')
+            msg = _('Ticket n.%(pk)s is opened and assigned.') % {
+                'pk': ticket_pk}
+            messages.success(self.request, msg)
         except Ticket.DoesNotExist:
-            # TODO: messaggio di errore per ticket non trovato
+            msg = _('Ticket n.%(pk)s does not exist.') % {'pk': ticket_pk}
+            messages.error(self.request, '{} {}'.format(error_msg_prefix, msg))
             return ticket_changelist_url
-        except ValueError:
-            # TODO: messaggio di errore per open che ha lanciato un'eccezione
+        except ValueError as ve:
+            messages.error(self.request, '{} {}'.format(error_msg_prefix,
+                                                        str(ve)))
             return ticket_changelist_url
         return reverse(admin_urlname(Ticket._meta, 'change'),
                        args=(ticket_pk,))
