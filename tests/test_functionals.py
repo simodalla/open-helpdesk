@@ -6,6 +6,7 @@ from django.test import TestCase
 from lxml.html import fromstring
 
 from helpdesk.defaults import (HELPDESK_REQUESTERS,
+                               HELPDESK_OPERATORS,
                                HELPDESK_TICKET_MAX_TIPOLOGIES)
 from helpdesk.models import Ticket, Tipology, Category
 
@@ -146,3 +147,21 @@ class CategoryAndTipologyTest(AdminTestMixin, TestCase):
             self.assertEqual(
                 len(dom.cssselect('div.result-list table tbody tr')),
                 1)
+
+
+class OpenTicketViewTest(AdminTestMixin, TestCase):
+
+    def setUp(self):
+        self.operator = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
+                                 permissions=list(HELPDESK_OPERATORS[1]))])
+        self.client.login(username=self.operator.username,
+                          password='default')
+        self.category = CategoryFactory(tipologies=['tip1'])
+        self.ticket = TicketFactory(
+            requester=self.operator, tipologies=self.category.tipologies.all())
+
+    def test_for_call_view(self):
+        response = self.client.get(
+            self.get_url(Ticket, 'open', kwargs={'pk': self.ticket.pk}))
+        print(response)
