@@ -21,22 +21,18 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
         self.client.login(username=self.requester.username, password='default')
-        tipology_names = ['tip{}'.format(i) for i
-                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES - 1)]
-        self.category = CategoryFactory(tipologies=tipology_names)
         self.post_data = {'content': 'helpdesk_content',
                           'tipologies': None,
                           'priority': 1}
         self.default_site = Site.objects.get(pk=1)
-        [t.sites.add(self.default_site) for t
-         in self.category.tipologies.all()]
 
-    def get_category(self, n_tipologies=None, site_pk=1):
+    def get_category(self, n_tipologies=None, site=None):
         if not n_tipologies:
             n_tipologies = HELPDESK_TICKET_MAX_TIPOLOGIES
         tipology_names = ['tip{}'.format(i) for i in range(0, n_tipologies)]
         category = CategoryFactory(tipologies=tipology_names)
-        site = Site.objects.get(pk=site_pk)
+        if site is None:
+            site = self.default_site
         [t.sites.add(site) for t in category.tipologies.all()]
         self.post_data.update({'tipologies': category.tipology_pks})
         return category
@@ -58,11 +54,11 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
         matching to logged user.
         """
         n = 2
-        self.get_category(1)
+        category = self.get_category(1)
         for user in [self.requester, UserFactory(
                 groups=self.requester.groups.all())]:
             [TicketFactory(requester=user,
-                           tipologies=self.category.tipologies.all())
+                           tipologies=category.tipologies.all())
              for i in range(0, n)]
         response = self.client.get(self.get_url(Ticket, 'changelist'))
         if DJANGO_VERSION < (1, 6):
@@ -103,6 +99,19 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
                                   'Too many tipologies selected. You can'
                                   ' select a maximum of {}.'.format(
                                       HELPDESK_TICKET_MAX_TIPOLOGIES))
+
+    def test_tipologies_field_is_filtered_by_current_site(self):
+        category_in_site = self.get_category(2)
+        category_not_in_site = self.get_category(2, site=SiteFactory())
+        response = self.client.get(self.get_url(Ticket, 'add'))
+        dom = fromstring(response.content)
+        form_tipologies = {int(option.attrib['value']) for option
+                           in dom.cssselect('#id_tipologies option')}
+        self.assertSetEqual(form_tipologies,
+                            {c.pk for c in category_in_site.tipologies.all()})
+        self.assertSetEqual(
+            form_tipologies.intersection(
+                {c.pk for c in category_not_in_site.tipologies.all()}), set())
 
 
 class CategoryAndTipologyTest(AdminTestMixin, TestCase):
