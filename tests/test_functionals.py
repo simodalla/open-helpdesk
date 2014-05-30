@@ -58,7 +58,7 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
         matching to logged user.
         """
         n = 2
-        category = self.get_category(1)
+        self.get_category(1)
         for user in [self.requester, UserFactory(
                 groups=self.requester.groups.all())]:
             [TicketFactory(requester=user,
