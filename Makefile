@@ -28,7 +28,7 @@ lint:
 	flake8 --exclude=migrations,urls.py helpdesk tests functional_tests
 
 test:
-	py.test -vs tests
+	py.test tests
 
 test-functional:
 	python functional_tests/manage.py test fts
