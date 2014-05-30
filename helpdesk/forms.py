@@ -2,13 +2,22 @@
 from __future__ import unicode_literals, absolute_import
 
 from django import forms
+from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
+from mezzanine.utils.sites import current_site_id
 
 
 class TicketAdminForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(TicketAdminForm, self).__init__(*args, **kwargs)
+        # tipologies is filtered by current site
+        site = Site.objects.get(pk=current_site_id())
+        self.fields['tipologies'].queryset = site.tipologies.all()
+
     def clean_tipologies(self):
         """
         Additional validation for 'tipologies' field. If the number of
