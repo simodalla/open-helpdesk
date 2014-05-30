@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, absolute_import
 
 from django import VERSION as DJANGO_VERSION
+from django.contrib.sites.models import Site
 from django.test import TestCase
 from lxml.html import fromstring
 
@@ -24,14 +25,28 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
                           in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES - 1)]
         self.category = CategoryFactory(tipologies=tipology_names)
         self.post_data = {'content': 'helpdesk_content',
-                          'tipologies': self.category.tipology_pks,
+                          'tipologies': None,
                           'priority': 1}
+        self.default_site = Site.objects.get(pk=1)
+        [t.sites.add(self.default_site) for t
+         in self.category.tipologies.all()]
+
+    def get_category(self, n_tipologies=None, site_pk=1):
+        if not n_tipologies:
+            n_tipologies = HELPDESK_TICKET_MAX_TIPOLOGIES
+        tipology_names = ['tip{}'.format(i) for i in range(0, n_tipologies)]
+        category = CategoryFactory(tipologies=tipology_names)
+        site = Site.objects.get(pk=site_pk)
+        [t.sites.add(site) for t in category.tipologies.all()]
+        self.post_data.update({'tipologies': category.tipology_pks})
+        return category
 
     def test_adding_ticket_set_requester_field(self):
         """
         Test that adding new ticket, the field requester is setted with
         logged user.
         """
+        self.get_category(2)
         self.client.post(self.get_url(Ticket, 'add'), data=self.post_data)
         self.assertEqual(Ticket.objects.count(), 1)
         ticket = Ticket.objects.latest()
@@ -42,7 +57,8 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
         Test that the changelist is filtered by tickets with requester's field
         matching to logged user.
         """
-        n = 3
+        n = 2
+        category = self.get_category(1)
         for user in [self.requester, UserFactory(
                 groups=self.requester.groups.all())]:
             [TicketFactory(requester=user,
@@ -61,6 +77,7 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
             set(self.requester.requested_tickets.values_list('pk', flat=True)))
 
     def test_form_with_less_tipologies_fields_is_validate(self):
+        self.get_category(HELPDESK_TICKET_MAX_TIPOLOGIES - 1)
         assert (len(self.post_data['tipologies'])
                 < HELPDESK_TICKET_MAX_TIPOLOGIES)
         response = self.client.post(self.get_url(Ticket, 'add'),
@@ -68,10 +85,7 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
         self.assertRedirects(response, self.get_url(Ticket, 'changelist'))
 
     def test_form_with_equals_tipologies_fields_is_validate(self):
-        tipology_names = ['tip{}'.format(i) for i
-                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES)]
-        category = CategoryFactory(tipologies=tipology_names)
-        self.post_data['tipologies'] = category.tipology_pks
+        self.get_category(HELPDESK_TICKET_MAX_TIPOLOGIES)
         assert (len(self.post_data['tipologies'])
                 == HELPDESK_TICKET_MAX_TIPOLOGIES)
         response = self.client.post(self.get_url(Ticket, 'add'),
@@ -79,10 +93,7 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
         self.assertRedirects(response, self.get_url(Ticket, 'changelist'))
 
     def test_form_with_more_tipologies_fields_is_not_validate(self):
-        tipology_names = ['tip{}'.format(i) for i
-                          in range(0, HELPDESK_TICKET_MAX_TIPOLOGIES + 1)]
-        category = CategoryFactory(tipologies=tipology_names)
-        self.post_data['tipologies'] = category.tipology_pks
+        self.get_category(HELPDESK_TICKET_MAX_TIPOLOGIES + 1)
         assert (len(self.post_data['tipologies'])
                 > HELPDESK_TICKET_MAX_TIPOLOGIES)
         response = self.client.post(self.get_url(Ticket, 'add'),
@@ -92,12 +103,6 @@ class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
                                   'Too many tipologies selected. You can'
                                   ' select a maximum of {}.'.format(
                                       HELPDESK_TICKET_MAX_TIPOLOGIES))
-
-    # def test_for_fieldset_object(self):
-    #     self.client.get(self.get_url(Ticket, 'add'))
-    #     t = TicketFactory(requester=self.requester,
-    #                       tipologies=self.category.tipologies.all())
-    #     self.client.get(self.get_url(Ticket, 'change', args=(t.pk,)))
 
 
 class CategoryAndTipologyTest(AdminTestMixin, TestCase):
