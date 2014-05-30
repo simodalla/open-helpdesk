@@ -87,12 +87,17 @@ class Category(TimeStamped):
 
 @python_2_unicode_compatible
 class Tipology(TimeStamped):
+    """
+    Model for tipologies of tickets. Field sites is a 'ManyToManyField'
+    because one tipology can be visible on more sites.
+    """
     title = models.CharField(_('Title'), max_length=500)
     category = models.ForeignKey('Category',
                                  verbose_name=_('Categories'),
                                  related_name='tipologies')
     sites = models.ManyToManyField('sites.Site', blank=True,
-                                   verbose_name=_('Enable on Sites'))
+                                   verbose_name=_('Enable on Sites'),
+                                   related_name='tipologies')
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
 
