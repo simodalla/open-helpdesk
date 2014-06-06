@@ -12,7 +12,8 @@ from django.test import TestCase
 from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
 from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
-                             TICKET_STATUS_NEW, TICKET_STATUS_OPEN)
+                             TICKET_STATUS_NEW, TICKET_STATUS_OPEN,
+                             TICKET_STATUS_PENDING)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
 
@@ -157,6 +158,57 @@ class PendingTicketTest(TestCase):
         """
         self.ticket.status = TICKET_STATUS_OPEN + 1
         self.assertRaises(ValueError, self.ticket.put_on_pending, Mock())
+
+    def test_put_on_pending_method_set_pending_status(self):
+        """
+        Test that calling of "put_on_pending" method on ticket with open status
+        set the field status to TICKET_STATUS_PENDING
+        """
+        self.ticket.put_on_pending(self.operator)
+        self.assertEqual(self.ticket.status, TICKET_STATUS_PENDING)
+
+    def test_put_on_pending_method_create_status_changelog_related_object(
+            self):
+        """
+        Test that calling of "put_on_pending" method on ticket with open status
+        create an related StatusChangesLog object with right data on fields
+        """
+        self.ticket.put_on_pending(self.operator)
+        changelog = self.ticket.status_changelogs.latest()
+        self.assertEqual(changelog.changer.pk, self.operator.pk)
+        self.assertEqual(changelog.status_from, TICKET_STATUS_OPEN)
+        self.assertEqual(changelog.status_to, TICKET_STATUS_PENDING)
+
+    def test_remove_from_pending_method_raise_exception_if_not_open(self):
+        """
+        Test that calling of "remove_from_pending" method on ticket with not
+        "pending" status raise an ValueError exception.
+        """
+        self.ticket.status = TICKET_STATUS_PENDING - 1
+        self.assertRaises(ValueError, self.ticket.remove_from_pending, Mock())
+
+    def test_remove_from_pending_method_set_open_status(self):
+        """
+        Test that calling of "remove_from_pending" method on ticket with
+        pending status set the field status to TICKET_STATUS_OPEN
+        """
+        self.ticket.status = TICKET_STATUS_PENDING
+        self.ticket.remove_from_pending(self.operator)
+        self.assertEqual(self.ticket.status, TICKET_STATUS_OPEN)
+
+    def test_remove_from_pending_method_create_status_changelog_related_object(
+            self):
+        """
+        Test that calling of "remove_from_pending" method on ticket with
+        pending status create an related StatusChangesLog object with right
+        data on fields
+        """
+        self.ticket.status = TICKET_STATUS_PENDING
+        self.ticket.remove_from_pending(self.operator)
+        changelog = self.ticket.status_changelogs.latest()
+        self.assertEqual(changelog.changer.pk, self.operator.pk)
+        self.assertEqual(changelog.status_from, TICKET_STATUS_PENDING)
+        self.assertEqual(changelog.status_to, TICKET_STATUS_OPEN)
 
 
 class StatusChagesLogTest(TestCase):

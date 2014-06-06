@@ -206,6 +206,7 @@ class Ticket(Slugged, TimeStamped, RichText):
                                       status_to=TICKET_STATUS_OPEN,
                                       changer=assignee)
 
+    @atomic
     def put_on_pending(self, user):
         """Logic 'put_on_pending' ticket operation.
 
@@ -219,6 +220,31 @@ class Ticket(Slugged, TimeStamped, RichText):
                 _('Ticket is not "%(status)s"') % {
                     'status': str(TICKET_STATUS[TICKET_STATUS_OPEN])
                 })
+        self.status = TICKET_STATUS_PENDING
+        self.save()
+        self.status_changelogs.create(status_from=TICKET_STATUS_OPEN,
+                                      status_to=TICKET_STATUS_PENDING,
+                                      changer=user)
+
+    @atomic
+    def remove_from_pending(self, user):
+        """Logic 'remove_from_pending' ticket operation.
+
+        Put on status 'open' from 'pending' the ticket.
+
+        :param user: user to set into status_changelogs related object
+        :type user: django.contrib.auth.get_user_model
+        """
+        if self.status != TICKET_STATUS_PENDING:
+            raise ValueError(
+                _('Ticket is not "%(status)s"') % {
+                    'status': str(TICKET_STATUS[TICKET_STATUS_PENDING])
+                })
+        self.status = TICKET_STATUS_OPEN
+        self.save()
+        self.status_changelogs.create(status_from=TICKET_STATUS_PENDING,
+                                      status_to=TICKET_STATUS_OPEN,
+                                      changer=user)
 
 
 @python_2_unicode_compatible
