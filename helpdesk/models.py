@@ -152,7 +152,7 @@ TICKET_STATUS = {
     TICKET_STATUS_NEW: _('New'),
     TICKET_STATUS_OPEN: _('Open'),
     TICKET_STATUS_PENDING: _('Pending'),
-    TICKET_STATUS_SOLVED: _('Solved'),
+    TICKET_STATUS_SOLVED: _('Closed'),
 }
 
 TICKET_STATUS_CHOICES = tuple((k, v) for k, v in TICKET_STATUS.items())
@@ -197,13 +197,28 @@ class Ticket(Slugged, TimeStamped, RichText):
         :type assignee: django.contrib.auth.get_user_model
         """
         if self.status != TICKET_STATUS_NEW:
-            raise ValueError(_('Ticket is not "New"'))
+            raise ValueError(_('Ticket is not "%(status)s"') %
+                             {'status': str(TICKET_STATUS[TICKET_STATUS_NEW])})
         self.assignee = assignee
         self.status = TICKET_STATUS_OPEN
         self.save()
         self.status_changelogs.create(status_from=TICKET_STATUS_NEW,
                                       status_to=TICKET_STATUS_OPEN,
                                       changer=assignee)
+
+    def put_on_pending(self, user):
+        """Logic 'put_on_pending' ticket operation.
+
+        Put on status 'pending' the ticket.
+
+        :param user: user to set into status_changelogs related object
+        :type user: django.contrib.auth.get_user_model
+        """
+        if self.status != TICKET_STATUS_OPEN:
+            raise ValueError(
+                _('Ticket is not "%(status)s"') % {
+                    'status': str(TICKET_STATUS[TICKET_STATUS_OPEN])
+                })
 
 
 @python_2_unicode_compatible

@@ -100,7 +100,7 @@ class HelpdeskUserTest(TestCase):
         self.assertTrue(user.is_admin())
 
 
-class TicketTest(TestCase):
+class OpenTicketTest(TestCase):
 
     def setUp(self):
         self.category = CategoryFactory(tipologies=['tip1', 'tip2'])
@@ -137,6 +137,26 @@ class TicketTest(TestCase):
         self.assertEqual(changelog.changer.pk, self.operator.pk)
         self.assertEqual(changelog.status_from, TICKET_STATUS_NEW)
         self.assertEqual(changelog.status_to, TICKET_STATUS_OPEN)
+
+
+class PendingTicketTest(TestCase):
+
+    def setUp(self):
+        self.category = CategoryFactory(tipologies=['tip1', 'tip2'])
+        self.operator = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
+                                 permissions=list(HELPDESK_OPERATORS[1]))])
+        self.ticket = TicketFactory(requester=self.operator,
+                                    tipologies=self.category.tipologies.all(),
+                                    status=TICKET_STATUS_OPEN)
+
+    def test_put_on_pending_method_raise_exception_if_not_open(self):
+        """
+        Test that calling of "put_on_pending" method on ticket with not "open"
+        status raise an ValueError exception.
+        """
+        self.ticket.status = TICKET_STATUS_OPEN + 1
+        self.assertRaises(ValueError, self.ticket.put_on_pending, Mock())
 
 
 class StatusChagesLogTest(TestCase):
