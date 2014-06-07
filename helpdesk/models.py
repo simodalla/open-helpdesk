@@ -231,6 +231,65 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
 
 
 @python_2_unicode_compatible
+class Message(TimeStamped, RichText):
+    sender = models.ForeignKey(user_model_name, verbose_name=_('Sender'),
+                               related_name='sender_of_messages')
+    recipient = models.ForeignKey(user_model_name, verbose_name=_('Recipient'),
+                                  blank=True, null=True,
+                                  related_name='recipent_of_messages')
+    ticket = models.ForeignKey('Ticket', related_name='messages',
+                               blank=True, null=True)
+
+    class Meta:
+        get_latest_by = 'created'
+        ordering = ('-created',)
+        verbose_name = _('Message')
+        verbose_name_plural = _('Messages')
+
+    def __str__(self):
+        return self.content
+
+
+@python_2_unicode_compatible
+class Report(Message):
+    action_on_ticket = models.IntegerField()
+    visible_from_requester = models.BooleanField(default=True)
+
+    class Meta:
+        get_latest_by = 'created'
+        ordering = ('-created',)
+        verbose_name = _('Report')
+        verbose_name_plural = _('Reports')
+
+    def __str__(self):
+        return self.content
+
+
+@python_2_unicode_compatible
+class Activity(TimeStamped, RichText):
+    maker = models.ForeignKey(user_model_name, verbose_name=_('Maker'),
+                              related_name='maker_of_activities')
+    co_maker = models.ManyToManyField(user_model_name,
+                                      verbose_name=_('Co Makers'),
+                                      blank=True, null=True,
+                                      related_name='co_maker_of_activities')
+    ticket = models.ForeignKey('Ticket', related_name='activities',
+                               blank=True, null=True)
+    report = models.OneToOneField('Report', blank=True, null=True)
+    scheduled_at = models.DateTimeField(blank=True, null=True,
+                                        verbose_name=_('Scheduled at'))
+
+    class Meta:
+        get_latest_by = 'created'
+        ordering = ('-created',)
+        verbose_name = _('Activity')
+        verbose_name_plural = _('Activities')
+
+    def __str__(self):
+        return self.content
+
+
+@python_2_unicode_compatible
 class StatusChangesLog(TimeStamped):
     """
     StatusChangesLog model for record the changes of status of Tickets objects.
