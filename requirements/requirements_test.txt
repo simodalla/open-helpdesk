@@ -10,4 +10,5 @@ tox
 six
 lxml
 cssselect
-django-braces
+django-model-utils>=2.0.3
+django-braces>=1.4.0

@@ -25,7 +25,6 @@ before_install:
 # command to install dependencies
 install:
   - pip install Django==$DJANGO_VERSION mezzanine==$MEZZANINE_VERSION --download-cache $HOME/.pip-cache
-  - pip install mezzanine==3.1.4
   - pip install -q -r requirements/requirements_test.txt --download-cache $HOME/.pip-cache
 
 #before_script:
