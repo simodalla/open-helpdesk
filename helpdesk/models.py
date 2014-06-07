@@ -9,9 +9,9 @@ except ImportError:  # pragma: no cover
 
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import truncatewords
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
-from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
@@ -180,17 +180,12 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     def get_clean_content(self, words=10):
         """
         Return self.content with html tags stripped and truncate after a
-        "words" number of words. Inspired by django template filter
+        "words" number of words with use of django template filter
         'truncatewords'.
 
         :param words: Number of words to truncate after
         """
-        try:
-            length = int(words)
-        except ValueError:  # Invalid literal for int().
-            return self.content  # Fail silently.
-        return Truncator(strip_tags(self.content)).words(
-            length, truncate=' ...')
+        return truncatewords(strip_tags(self.content), words)
 
     def admin_content(self):
         return self.get_clean_content(words=12)
