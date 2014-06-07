@@ -8,7 +8,6 @@ from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.urlresolvers import reverse
 from django.test import LiveServerTestCase
-
 from selenium import webdriver
 
 try:
@@ -42,19 +41,6 @@ class FunctionalTest(LiveServerTestCase):
         if self.display:
             time.sleep(1)
 
-    # def _test_has_failed(self):
-    #     if getattr(self, '_resultForDoCleanups', None):
-    #         if (self._resultForDoCleanups.failures
-    #                 or self._resultForDoCleanups.errors):
-    #             return True
-    #     elif getattr(self, '_outcomeForDoCleanups', None):
-    #         if not self._outcomeForDoCleanups.success:
-    #             return True
-    #     elif getattr(self, '_outcome', None):
-    #         if not self._outcome.success:
-    #             return True
-    #     return False
-
     def get_url(self, url, args=None, kwargs=None):
         if url.startswith('/'):
             return '%s%s/' % (self.live_server_url, url.rstrip('/'))
@@ -75,3 +61,13 @@ class FunctionalTest(LiveServerTestCase):
             path='/',
         ))
         return session.session_key
+
+    def set_content_to_tinymce(self, content=''):
+        """
+        Set content of tinyMCE.
+
+        :param content: text to set at content of tinyMCE
+        :return:
+        """
+        script = "tinyMCE.activeEditor.setContent('{}');".format(content)
+        return self.browser.execute_script(script)
