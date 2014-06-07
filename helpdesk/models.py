@@ -192,6 +192,10 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         return Truncator(strip_tags(self.content)).words(
             length, truncate=' ...')
 
+    def admin_content(self):
+        return self.get_clean_content(words=12)
+    admin_content.short_description = _('Content')
+
     @atomic
     def change_state(self, status_from, status_to, user):
         self.status = status_to

@@ -38,7 +38,7 @@ class TicketAdmin(admin.ModelAdmin):
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
     inlines = [AttachmentInline]
-    list_display = ['pk', 'content', 'status', ]
+    list_display = ['pk', 'admin_content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
     list_per_page = 25
     list_select_related = True
