@@ -20,4 +20,7 @@ class TicketAutocomplete(autocomplete_light.AutocompleteModelBase):
             self.choices = self.choices.filter(requester=user)
         return super(TicketAutocomplete, self).choices_for_request()
 
+    def choice_label(self, choice):
+        return "n.{} [{}]".format(choice.id, choice.get_clean_content(10))
+
 autocomplete_light.register(Ticket, TicketAutocomplete)
