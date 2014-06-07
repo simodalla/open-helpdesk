@@ -11,9 +11,9 @@ from django.test import TestCase
 
 from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
-from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
-                             TICKET_STATUS_NEW, TICKET_STATUS_OPEN,
-                             TICKET_STATUS_PENDING)
+from helpdesk.models import Category, Tipology, Ticket, StatusChangesLog
+from helpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
+                           TicketIsClosedError, TicketStatusError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
 
@@ -115,8 +115,10 @@ class OpenTicketTest(TestCase):
         an ValueError exception.
         """
         ticket = Ticket()
-        ticket.status = TICKET_STATUS_NEW + 1
-        self.assertRaises(ValueError, ticket.open, Mock())
+        ticket.status = Ticket.STATUS.closed
+        self.assertRaisesMessage(
+            TicketIsNotNewError, 'Ticket not in status "New"',
+            ticket.opening, Mock())
 
     def test_open_method_set_assignee_and_open_status(self):
         """
@@ -126,18 +128,18 @@ class OpenTicketTest(TestCase):
         """
         ticket = TicketFactory(requester=self.operator,
                                tipologies=self.category.tipologies.all())
-        ticket.open(self.operator)
-        self.assertEqual(ticket.status, TICKET_STATUS_OPEN)
+        ticket.opening(self.operator)
+        self.assertEqual(ticket.status, Ticket.STATUS.open)
         self.assertEqual(ticket.assignee, self.operator)
 
     def test_open_method_create_status_changelog_related_object(self):
         ticket = TicketFactory(requester=self.operator,
                                tipologies=self.category.tipologies.all())
-        ticket.open(self.operator)
+        ticket.opening(self.operator)
         changelog = ticket.status_changelogs.latest()
         self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.status_from, TICKET_STATUS_NEW)
-        self.assertEqual(changelog.status_to, TICKET_STATUS_OPEN)
+        self.assertEqual(changelog.status_from, Ticket.STATUS.new)
+        self.assertEqual(changelog.status_to, Ticket.STATUS.open)
 
 
 class PendingTicketTest(TestCase):
@@ -149,23 +151,25 @@ class PendingTicketTest(TestCase):
                                  permissions=list(HELPDESK_OPERATORS[1]))])
         self.ticket = TicketFactory(requester=self.operator,
                                     tipologies=self.category.tipologies.all(),
-                                    status=TICKET_STATUS_OPEN)
+                                    status=Ticket.STATUS.open)
 
     def test_put_on_pending_method_raise_exception_if_not_open(self):
         """
         Test that calling of "put_on_pending" method on ticket with not "open"
         status raise an ValueError exception.
         """
-        self.ticket.status = TICKET_STATUS_OPEN + 1
-        self.assertRaises(ValueError, self.ticket.put_on_pending, Mock())
+        self.ticket.status = Ticket.STATUS.closed
+        self.assertRaisesMessage(
+            TicketIsNotOpenError, 'Ticket not in status "Open"',
+            self.ticket.put_on_pending, Mock())
 
     def test_put_on_pending_method_set_pending_status(self):
         """
         Test that calling of "put_on_pending" method on ticket with open status
-        set the field status to TICKET_STATUS_PENDING
+        set the field status to Ticket.STATUS.pending
         """
         self.ticket.put_on_pending(self.operator)
-        self.assertEqual(self.ticket.status, TICKET_STATUS_PENDING)
+        self.assertEqual(self.ticket.status, Ticket.STATUS.pending)
 
     def test_put_on_pending_method_create_status_changelog_related_object(
             self):
@@ -176,39 +180,52 @@ class PendingTicketTest(TestCase):
         self.ticket.put_on_pending(self.operator)
         changelog = self.ticket.status_changelogs.latest()
         self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.status_from, TICKET_STATUS_OPEN)
-        self.assertEqual(changelog.status_to, TICKET_STATUS_PENDING)
+        self.assertEqual(changelog.status_from, Ticket.STATUS.open)
+        self.assertEqual(changelog.status_to, Ticket.STATUS.pending)
 
-    def test_remove_from_pending_method_raise_exception_if_not_open(self):
-        """
-        Test that calling of "remove_from_pending" method on ticket with not
-        "pending" status raise an ValueError exception.
-        """
-        self.ticket.status = TICKET_STATUS_PENDING - 1
-        self.assertRaises(ValueError, self.ticket.remove_from_pending, Mock())
 
-    def test_remove_from_pending_method_set_open_status(self):
-        """
-        Test that calling of "remove_from_pending" method on ticket with
-        pending status set the field status to TICKET_STATUS_OPEN
-        """
-        self.ticket.status = TICKET_STATUS_PENDING
-        self.ticket.remove_from_pending(self.operator)
-        self.assertEqual(self.ticket.status, TICKET_STATUS_OPEN)
+class ClosedTicketTest(TestCase):
 
-    def test_remove_from_pending_method_create_status_changelog_related_object(
-            self):
+    def setUp(self):
+        self.category = CategoryFactory(tipologies=['tip1', 'tip2'])
+        self.operator = UserFactory(
+            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
+                                 permissions=list(HELPDESK_OPERATORS[1]))])
+        self.ticket = TicketFactory(requester=self.operator,
+                                    tipologies=self.category.tipologies.all(),
+                                    status=Ticket.STATUS.open)
+
+    def test_closing_method_raise_exception_if_ticket_is_already_closed(self):
+        self.ticket.status = Ticket.STATUS.closed
+        self.assertRaisesMessage(
+            TicketIsClosedError, 'Ticket is already in "Closed" status',
+            self.ticket.closing, Mock())
+
+    def test_closing_method_raise_exception_if_ticket_is_new(self):
+        self.ticket.status = Ticket.STATUS.new
+        self.assertRaisesMessage(
+            TicketStatusError, 'The ticket is still open',
+            self.ticket.closing, Mock())
+
+    def test_closing_method_set_closed_status(self):
         """
-        Test that calling of "remove_from_pending" method on ticket with
-        pending status create an related StatusChangesLog object with right
-        data on fields
+        Test that calling of "closing" method on ticket with open status
+        set the field status to Ticket.STATUS.closed
         """
-        self.ticket.status = TICKET_STATUS_PENDING
-        self.ticket.remove_from_pending(self.operator)
+        self.ticket.closing(self.operator)
+        self.assertEqual(self.ticket.status, Ticket.STATUS.closed)
+
+    def test_closing_method_create_status_changelog_related_object(self):
+        """
+        Test that calling of "closing" method on ticket with open status
+        create an related StatusChangesLog object with right data on fields
+        """
+        status_from = self.ticket.status
+        self.ticket.closing(self.operator)
         changelog = self.ticket.status_changelogs.latest()
         self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.status_from, TICKET_STATUS_PENDING)
-        self.assertEqual(changelog.status_to, TICKET_STATUS_OPEN)
+        self.assertEqual(changelog.status_from, status_from)
+        self.assertEqual(changelog.status_to, Ticket.STATUS.closed)
 
 
 class StatusChagesLogTest(TestCase):
@@ -225,7 +242,7 @@ class StatusChagesLogTest(TestCase):
         changelog = StatusChangesLog()
         changelog.ticket = self.ticket
         changelog.created = created
-        changelog.status_from = TICKET_STATUS_NEW
-        changelog.status_to = TICKET_STATUS_OPEN
-        self.assertEqual(str(changelog), '{} {}: New ==> Open'.format(
-            self.ticket.pk, fake_date, TICKET_STATUS_NEW, TICKET_STATUS_OPEN))
+        changelog.status_from = Ticket.STATUS.new
+        changelog.status_to = Ticket.STATUS.open
+        self.assertEqual(str(changelog), '{} {}: new ==> open'.format(
+            self.ticket.pk, fake_date))

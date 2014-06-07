@@ -11,11 +11,17 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
 from mezzanine.conf import settings
-from mezzanine.core.models import RichText, Slugged, TimeStamped
+from mezzanine.core.models import RichText, SiteRelated, TimeStamped
 from mezzanine.utils.models import (upload_to, get_user_model_name,
                                     get_user_model)
 
+from model_utils.models import StatusModel
+from model_utils import Choices
+
+from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
+                   TicketStatusError, TicketIsClosedError)
 from .managers import HeldeskableManager
 
 
@@ -144,25 +150,9 @@ class Attachment(TimeStamped):
         ordering = ('-created',)
 
 
-TICKET_STATUS_NEW = 1
-TICKET_STATUS_OPEN = 2
-TICKET_STATUS_PENDING = 3
-TICKET_STATUS_SOLVED = 4
-TICKET_STATUS = {
-    TICKET_STATUS_NEW: _('New'),
-    TICKET_STATUS_OPEN: _('Open'),
-    TICKET_STATUS_PENDING: _('Pending'),
-    TICKET_STATUS_SOLVED: _('Closed'),
-}
-
-TICKET_STATUS_CHOICES = tuple((k, v) for k, v in TICKET_STATUS.items())
-
-
 @python_2_unicode_compatible
-class Ticket(Slugged, TimeStamped, RichText):
-    status = models.IntegerField(_('Status'),
-                                 choices=TICKET_STATUS_CHOICES,
-                                 default=TICKET_STATUS_NEW)
+class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
+    STATUS = Choices(*TICKET_STATUSES)
     tipologies = models.ManyToManyField('Tipology',
                                         verbose_name=_('Tipologies'))
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
@@ -187,7 +177,15 @@ class Ticket(Slugged, TimeStamped, RichText):
         return str(self.pk)
 
     @atomic
-    def open(self, assignee):
+    def change_state(self, status_from, status_to, user):
+        self.status = status_to
+        self.save()
+        self.status_changelogs.create(status_from=status_from,
+                                      status_to=status_to,
+                                      changer=user)
+
+    @atomic
+    def opening(self, assignee):
         """Logic 'open' ticket operation.
 
         Opening the ticket. Set status to open, assignee user and create an
@@ -196,55 +194,40 @@ class Ticket(Slugged, TimeStamped, RichText):
         :param assignee: user to set 'assignee' field
         :type assignee: django.contrib.auth.get_user_model
         """
-        if self.status != TICKET_STATUS_NEW:
-            raise ValueError(_('Ticket is not "%(status)s"') %
-                             {'status': str(TICKET_STATUS[TICKET_STATUS_NEW])})
+        if self.status != Ticket.STATUS.new:
+            raise TicketIsNotNewError()
+        self.change_state(Ticket.STATUS.new, Ticket.STATUS.open, assignee)
         self.assignee = assignee
-        self.status = TICKET_STATUS_OPEN
         self.save()
-        self.status_changelogs.create(status_from=TICKET_STATUS_NEW,
-                                      status_to=TICKET_STATUS_OPEN,
-                                      changer=assignee)
 
     @atomic
     def put_on_pending(self, user):
         """Logic 'put_on_pending' ticket operation.
 
-        Put on status 'pending' the ticket.
+        Set status to pending and create an StatusChangesLog object.
 
         :param user: user to set into status_changelogs related object
         :type user: django.contrib.auth.get_user_model
         """
-        if self.status != TICKET_STATUS_OPEN:
-            raise ValueError(
-                _('Ticket is not "%(status)s"') % {
-                    'status': str(TICKET_STATUS[TICKET_STATUS_OPEN])
-                })
-        self.status = TICKET_STATUS_PENDING
-        self.save()
-        self.status_changelogs.create(status_from=TICKET_STATUS_OPEN,
-                                      status_to=TICKET_STATUS_PENDING,
-                                      changer=user)
+        if self.status != Ticket.STATUS.open:
+            raise TicketIsNotOpenError()
+        self.change_state(Ticket.STATUS.open, Ticket.STATUS.pending, user)
 
     @atomic
-    def remove_from_pending(self, user):
-        """Logic 'remove_from_pending' ticket operation.
+    def closing(self, user):
+        """Logic 'closing' ticket operation.
 
-        Put on status 'open' from 'pending' the ticket.
+        Closing the ticket. Set status to closed and create an
+        StatusChangesLog object.
 
-        :param user: user to set into status_changelogs related object
+        :param user: user to set 'user' field
         :type user: django.contrib.auth.get_user_model
         """
-        if self.status != TICKET_STATUS_PENDING:
-            raise ValueError(
-                _('Ticket is not "%(status)s"') % {
-                    'status': str(TICKET_STATUS[TICKET_STATUS_PENDING])
-                })
-        self.status = TICKET_STATUS_OPEN
-        self.save()
-        self.status_changelogs.create(status_from=TICKET_STATUS_PENDING,
-                                      status_to=TICKET_STATUS_OPEN,
-                                      changer=user)
+        if self.status == Ticket.STATUS.closed:
+            raise TicketIsClosedError()
+        if self.status == Ticket.STATUS.new:
+            raise TicketStatusError("The ticket is still open")
+        self.change_state(self.status, Ticket.STATUS.closed, user)
 
 
 @python_2_unicode_compatible
@@ -253,8 +236,8 @@ class StatusChangesLog(TimeStamped):
     StatusChangesLog model for record the changes of status of Tickets objects.
     """
     ticket = models.ForeignKey('Ticket', related_name='status_changelogs')
-    status_from = models.IntegerField(choices=TICKET_STATUS_CHOICES)
-    status_to = models.IntegerField(choices=TICKET_STATUS_CHOICES)
+    status_from = models.CharField(max_length=100)
+    status_to = models.CharField(max_length=100)
     changer = models.ForeignKey(user_model_name, verbose_name=_('Changer'))
 
     class Meta:
@@ -267,5 +250,5 @@ class StatusChangesLog(TimeStamped):
         return ('{ticket.pk} {created}: {status_from} ==> {status_to}'.format(
             ticket=self.ticket,
             created=self.created.strftime('%Y-%m-%d %H:%M:%S'),
-            status_from=TICKET_STATUS[self.status_from],
-            status_to=TICKET_STATUS[self.status_to]))
+            status_from=self.status_from,
+            status_to=self.status_to))
