@@ -123,8 +123,7 @@ class Tipology(TimeStamped):
                 url=reverse('admin:helpdesk_category_changelist'),
                 category=self.category))
     admin_category.allow_tags = True
-    # TODO set orderable
-    # admin_category.order
+    admin_category.admin_order_field = 'category'
     admin_category.short_description = _('Enable on Sites')
 
     def admin_sites(self):
