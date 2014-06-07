@@ -14,9 +14,11 @@ class TicketAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TicketAdminForm, self).__init__(*args, **kwargs)
-        # tipologies is filtered by current site
-        site = Site.objects.get(pk=current_site_id())
-        self.fields['tipologies'].queryset = site.tipologies.all()
+        # tipologies is filtered by current site if 'tipologies' in
+        # self.fields. If field is read_only isn't in self.fields
+        if 'tipologies' in self.fields:
+            site = Site.objects.get(pk=current_site_id())
+            self.fields['tipologies'].queryset = site.tipologies.all()
 
     def clean_tipologies(self):
         """
