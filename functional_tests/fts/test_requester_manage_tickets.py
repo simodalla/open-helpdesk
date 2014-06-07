@@ -26,20 +26,31 @@ class RequesterTicketsTest(FunctionalTest):
             TipologyFactory(sites=(site,), category=self.category)
             for i in range(0, 2)]
         self.create_pre_authenticated_session(self.requester)
+        self.ticket_content = "<p>foo</p>"
 
     def test_add_booking_type(self):
-        """
-        <QueryDict: {u'content': [u'<p>sdfksj l&ograve;dfja lskdjfal&ograve;
-        </p>'], u'csrfmiddlewaretoken': [u'dQQkQODAudr5iGHoCRFYjCklQTzmYQXD'],
-        u'_save': [u'Save'], u'tipologies': [u'2', u'3']}>
-        """
         self.browser.get(
             self.get_url(admin_urlname(Ticket._meta, 'add')))
-        self.browser.find_element_by_css_selector(
-            "#id_tipologies_from option[value='{}']".format(
-                self.tipologies[0].pk)).click()
-        self.browser.find_element_by_css_selector(
-            '#id_tipologies_add_link').click()
-        self.browser.find_element_by_name('_save').click()
         import ipdb
         ipdb.set_trace()
+        # select tipologies
+        # for t in self.tipologies:
+        #     self.browser.find_element_by_css_selector(
+        #         "#id_tipologies_from option[value='{}']".format(t.pk)).click()
+        # self.browser.find_element_by_css_selector(
+        #     '#id_tipologies_add_link').click()
+        # # set content of tipology
+        # self.set_content_to_tinymce(self.ticket_content)
+        # # select priority to PRIORITY_NORMAL
+        # self.browser.find_element_by_css_selector(
+        #     "#id_priority input[value='{}']".format(PRIORITY_NORMAL)).click()
+        # self.browser.find_element_by_name('_save').click()
+        # ticket = Ticket.objects.latest()
+        # self.assertEqual(ticket.requester.pk, self.requester.pk)
+        # self.assertEqual(ticket.priority, PRIORITY_NORMAL)
+        # self.assertEqual(ticket.content, self.ticket_content)
+        # self.assertEqual(set(ticket.tipologies.all()),
+        #                  set(self.tipologies))
+        # self.browser.get(
+        #     self.get_url(admin_urlname(Ticket._meta, 'change'),
+        #                  args=(ticket.pk,)))

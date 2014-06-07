@@ -5,11 +5,10 @@ from copy import deepcopy
 
 from django.conf.urls import patterns, url
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
+from .forms import TicketAdminAutocompleteForm
 from .models import Category, Tipology, Attachment, Ticket, HelpdeskUser
-from .forms import TicketAdminForm
 from .views import OpenTicketView
 
 
@@ -36,8 +35,8 @@ class TipologyAdmin(admin.ModelAdmin):
 
 
 class TicketAdmin(admin.ModelAdmin):
-    filter_horizontal = ('tipologies', 'related_tickets')
-    form = TicketAdminForm
+    filter_horizontal = ('tipologies',)
+    form = TicketAdminAutocompleteForm
     inlines = [AttachmentInline]
     list_display = ['pk', 'content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
@@ -48,14 +47,9 @@ class TicketAdmin(admin.ModelAdmin):
                      'user__last_name', 'requester__username',
                      'requester__first_name', 'requester__last_name',
                      'tipologies__title']
-
     fieldsets = (
         (None, {
-            "fields": ["tipologies", "priority", "content"],
-        }),
-        (_("Related tickets"), {
-            "classes": ("collapse-closed",),
-            "fields": ("related_tickets",)
+            "fields": ["tipologies", "priority", "content", "related_tickets"],
         }),
     )
 

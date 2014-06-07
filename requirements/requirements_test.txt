@@ -12,3 +12,4 @@ lxml
 cssselect
 django-model-utils>=2.0.3
 django-braces>=1.4.0
+django-autocomplete-light>=2.0.0a1

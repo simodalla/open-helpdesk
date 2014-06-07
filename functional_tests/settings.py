@@ -249,6 +249,7 @@ INSTALLED_APPS = (
     "mezzanine.galleries",
     "helpdesk",
     "fts",
+    'autocomplete_light',
 )
 
 # List of processors used by RequestContext to populate the context.

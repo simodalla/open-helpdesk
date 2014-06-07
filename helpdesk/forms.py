@@ -5,9 +5,11 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-
 from mezzanine.conf import settings
 from mezzanine.utils.sites import current_site_id
+from autocomplete_light import ModelForm as AutocompleteModelForm
+
+from .models import Ticket
 
 
 class TicketAdminForm(forms.ModelForm):
@@ -34,3 +36,10 @@ class TicketAdminForm(forms.ModelForm):
                     ' of %(max)s.') % {'max': max_tipologies}
             raise ValidationError(msg, code='too_many_tipologies')
         return self.cleaned_data['tipologies']
+
+
+class TicketAdminAutocompleteForm(AutocompleteModelForm, TicketAdminForm):
+    class Meta:
+        model = Ticket
+        autocomplete_fields = ('related_tickets',)
+
