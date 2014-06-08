@@ -25,6 +25,7 @@ before_install:
 # command to install dependencies
 install:
   - pip install Django==$DJANGO_VERSION mezzanine==$MEZZANINE_VERSION --download-cache $HOME/.pip-cache
+  - if [[ $DJANGO_VERSION == '1.5.8' ]]; then pip install django-discover-runner --download-cache $HOME/.pip-cache; fi
   - pip install -q -r requirements/requirements_test.txt --download-cache $HOME/.pip-cache
 
 #before_script:
