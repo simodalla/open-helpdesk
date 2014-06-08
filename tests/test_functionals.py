@@ -15,15 +15,16 @@ from .factories import (
     TipologyFactory)
 
 
-class FunctionalTicketByRequesterTest(AdminTestMixin, TestCase):
+class RequestMakeTicketTest(AdminTestMixin, TestCase):
     def setUp(self):
         self.requester = UserFactory(
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
         self.client.login(username=self.requester.username, password='default')
-        self.post_data = {'content': 'helpdesk_content',
-                          'tipologies': None,
-                          'priority': 1}
+        self.post_data = self.get_formset_post_data(
+            data={'content': 'helpdesk_content', 'tipologies': None,
+                  'priority': 1},
+            formset='attachment_set')
         self.default_site = Site.objects.get(pk=1)
 
     def get_category(self, n_tipologies=None, site=None):
