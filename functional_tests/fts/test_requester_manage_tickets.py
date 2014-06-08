@@ -41,8 +41,8 @@ class RequesterTicketsTest(FunctionalTest):
         # select priority to PRIORITY_NORMAL
         self.browser.find_element_by_css_selector(
             "#id_priority input[value='{}']".format(PRIORITY_NORMAL)).click()
-        import ipdb
-        ipdb.set_trace()
+        # import ipdb
+        # ipdb.set_trace()
         self.browser.find_element_by_name('_save').click()
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.requester.pk, self.requester.pk)
