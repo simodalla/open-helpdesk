@@ -62,6 +62,18 @@ class AdminTestMixin(object):
                                              " '%s' (actual errors: %s)" %
                                 (form, err, non_field_errors))
 
+    def get_formset_post_data(self, data={}, formset='', total_forms='1',
+                              initial_forms='0', max_num_forms=''):
+        """
+        Update the "data" dict with formset keys requested for validation
+        Refs: https://docs.djangoproject.com/en/1.6/topics/forms/formsets/#for
+        mset-validation. The keys are composed by "formset_XXX_FORMS".
+        """
+        data.update({"{}-{}".format(formset, key.upper()): str(value)
+                     for (key, value) in locals().items()
+                     if key.endswith('forms')})
+        return data
+
 
 def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
                           superuser=False):
