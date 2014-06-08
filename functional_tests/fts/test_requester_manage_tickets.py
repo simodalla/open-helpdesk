@@ -29,6 +29,9 @@ class RequesterTicketsTest(FunctionalTest):
         self.ticket_content = "<p>foo</p>"
 
     def test_add_booking_type(self):
+        from django.conf import settings
+        settings.DEBUG = True
+
         self.browser.get(
             self.get_url(admin_urlname(Ticket._meta, 'add')))
         for t in self.tipologies:
@@ -41,8 +44,6 @@ class RequesterTicketsTest(FunctionalTest):
         # select priority to PRIORITY_NORMAL
         self.browser.find_element_by_css_selector(
             "#id_priority input[value='{}']".format(PRIORITY_NORMAL)).click()
-        # import ipdb
-        # ipdb.set_trace()
         self.browser.find_element_by_name('_save').click()
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.requester.pk, self.requester.pk)
@@ -53,3 +54,5 @@ class RequesterTicketsTest(FunctionalTest):
         self.browser.get(
             self.get_url(admin_urlname(Ticket._meta, 'change'),
                          args=(ticket.pk,)))
+        import ipdb
+        ipdb.set_trace()
