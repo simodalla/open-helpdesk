@@ -252,14 +252,15 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
 
 
 @python_2_unicode_compatible
-class Message(TimeStamped, RichText):
+class Message(TimeStamped):
+    content = models.TextField(_('Content'))
     sender = models.ForeignKey(user_model_name, verbose_name=_('Sender'),
                                related_name='sender_of_messages')
     recipient = models.ForeignKey(user_model_name, verbose_name=_('Recipient'),
                                   blank=True, null=True,
                                   related_name='recipent_of_messages')
     ticket = models.ForeignKey('Ticket', related_name='messages',
-                               blank=True, null=True)
+                               blank=True, null=True, verbose_name=_('Ticket'))
 
     class Meta:
         get_latest_by = 'created'

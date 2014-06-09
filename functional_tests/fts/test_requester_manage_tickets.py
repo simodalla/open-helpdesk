@@ -5,9 +5,9 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.sites.models import Site
 
 from helpdesk.defaults import HELPDESK_REQUESTERS
-from helpdesk.models import Ticket, PRIORITY_NORMAL
+from helpdesk.models import Ticket, PRIORITY_NORMAL, Message
 from tests.factories import (UserFactory, GroupFactory, CategoryFactory,
-                             TipologyFactory)
+                             TipologyFactory, TicketFactory)
 from .base import FunctionalTest
 
 
@@ -26,11 +26,9 @@ class RequesterTicketsTest(FunctionalTest):
             TipologyFactory(sites=(site,), category=self.category)
             for i in range(0, 2)]
         self.create_pre_authenticated_session(self.requester)
-        self.ticket_content = "foo " * 20
+        self.ticket_content = ("foo " * 20).rstrip()
 
     def test_add_booking_type(self):
-        from django.conf import settings
-        settings.DEBUG = True
 
         self.browser.get(
             self.get_url(admin_urlname(Ticket._meta, 'add')))
@@ -48,11 +46,23 @@ class RequesterTicketsTest(FunctionalTest):
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.requester.pk, self.requester.pk)
         self.assertEqual(ticket.priority, PRIORITY_NORMAL)
-        # self.assertEqual(ticket.content, self.ticket_content)
+        self.assertIn(self.ticket_content, ticket.content)
         self.assertEqual(set(ticket.tipologies.all()),
                          set(self.tipologies))
         self.browser.get(
             self.get_url(admin_urlname(Ticket._meta, 'change'),
                          args=(ticket.pk,)))
-        import ipdb
-        ipdb.set_trace()
+
+    # def test_change_booking_type(self):
+    #     from django.conf import settings
+    #     settings.DEBUG = True
+    #     ticket = TicketFactory(content=self.ticket_content,
+    #                            requester=self.requester,
+    #                            tipologies=self.tipologies)
+    #     [Message.objects.create(ticket=ticket, sender=self.requester,
+    #                             content="bla bla bla") for i in range(0, 2)]
+    #     self.browser.get(
+    #         self.get_url(admin_urlname(Ticket._meta, 'change'),
+    #                      args=(ticket.pk,)))
+    #     import ipdb
+    #     ipdb.set_trace()

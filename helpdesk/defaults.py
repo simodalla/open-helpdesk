@@ -7,7 +7,7 @@ from mezzanine.conf import register_setting
 HELPDESK_REQUESTERS = ('helpdesk_requesters', [
     'helpdesk.add_ticket', 'helpdesk.change_ticket',
     'helpdesk.add_attachment', 'helpdesk.change_attachment',
-    'helpdesk.delete_attachment'
+    'helpdesk.delete_attachment', 'helpdesk.add_message',
 ])
 HELPDESK_OPERATORS = ('helpdesk_operators', [
     'helpdesk.add_ticket', 'helpdesk.change_ticket'])

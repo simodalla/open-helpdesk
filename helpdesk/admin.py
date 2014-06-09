@@ -8,7 +8,8 @@ from django.contrib import admin
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm
-from .models import Category, Tipology, Attachment, Ticket, HelpdeskUser
+from .models import (
+    Category, Tipology, Attachment, Ticket, HelpdeskUser, Message)
 from .views import OpenTicketView
 
 
@@ -20,6 +21,11 @@ class TipologyInline(TabularDynamicInlineAdmin):
 class AttachmentInline(TabularDynamicInlineAdmin):
     extra = 1
     model = Attachment
+
+
+class MessageInline(TabularDynamicInlineAdmin):
+    extra = 1
+    model = Message
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -37,7 +43,7 @@ class TipologyAdmin(admin.ModelAdmin):
 class TicketAdmin(admin.ModelAdmin):
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
-    inlines = [AttachmentInline]
+    inlines = [AttachmentInline, MessageInline]
     list_display = ['pk', 'admin_content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
     list_per_page = 25
@@ -80,6 +86,13 @@ class TicketAdmin(admin.ModelAdmin):
                 except ValueError:  # pragma: no cover
                     pass
         return fieldset
+    
+    # def get_inline_instances(self, request, obj=None):
+    #     # user = self.get_request_helpdeskuser(request)
+    #     inlines = super(TicketAdmin, self).get_inline_instances(request, obj=None)
+    #     # if user.is_requester() and obj:
+    #     inlines += [MessageInline]
+    #     return inlines
 
     def get_readonly_fields(self, request, obj=None):
         """
