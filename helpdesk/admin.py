@@ -52,7 +52,6 @@ class TicketAdmin(admin.ModelAdmin):
             "fields": ["tipologies", "priority", "content", "related_tickets"],
         }),
     )
-    readonly_fields = ['safe_content']
 
     def get_request_helpdeskuser(self, request):
         return HelpdeskUser.objects.get(pk=request.user.pk)
@@ -68,8 +67,18 @@ class TicketAdmin(admin.ModelAdmin):
             request, obj=obj))
         if user.is_superuser or user.is_operator() or user.is_admin():
             fieldset[0][1]['fields'].append('requester')
-        elif obj:#
-            fieldset[0][1]['fields'].append('safe_content')
+        if user.is_requester() and obj:
+            # add custom fields so that they are in form. Otherwise are
+            # ignored into "readonly_fields". Custom fields are methods of
+            # Ticket model calleds 'admin_readonly_FIELD' where FIELD match
+            # with a Ticket field.
+            for field in ['content']:
+                try:
+                    index = fieldset[0][1]['fields'].index(field)
+                    fieldset[0][1]['fields'][index] = (
+                        'admin_readonly_{}'.format(field))
+                except ValueError:  # pragma: no cover
+                    pass
         return fieldset
 
     def get_readonly_fields(self, request, obj=None):
@@ -80,10 +89,9 @@ class TicketAdmin(admin.ModelAdmin):
         if obj:
             user = self.get_request_helpdeskuser(request)
             if user.is_requester():
-                fields = deepcopy(TicketAdmin.readonly_fields)
-                for e in self.fieldsets:
+                fields = []
+                for e in self.get_fieldsets(request, obj=obj):
                     fields += e[1]['fields']
-                print(fields)
                 return tuple(fields)
         return super(TicketAdmin, self).get_readonly_fields(request, obj=obj)
 
@@ -140,12 +148,6 @@ class TicketAdmin(admin.ModelAdmin):
         if obj.requester_id is None:
             obj.requester = request.user
         return super(TicketAdmin, self).save_model(request, obj, form, change)
-
-    def safe_content(self, instance):
-        return '<div style="width: 85%; float:right;">{}</div>'.format(
-            instance.content)
-    safe_content.short_description = 'Safe Content'
-    safe_content.allow_tags = True
 
 
 admin.site.register(Category, CategoryAdmin)

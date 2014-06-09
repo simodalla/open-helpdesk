@@ -191,6 +191,12 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         return self.get_clean_content(words=12)
     admin_content.short_description = _('Content')
 
+    def admin_readonly_content(self):
+        return '<div style="width: 85%; float:right;">{}</div>'.format(
+            self.content)
+    admin_readonly_content.short_description = 'Content'
+    admin_readonly_content.allow_tags = True
+
     @atomic
     def change_state(self, status_from, status_to, user):
         self.status = status_to

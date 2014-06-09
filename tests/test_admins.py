@@ -66,6 +66,16 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         fieldeset = self.ticket_admin.get_fieldsets(get_mock_request())
         self.assertIn('requester', fieldeset[0][1]['fields'])
 
+    def test_field_admin_readonly_content_in_fieldset_if_requester(
+            self, mock_get_req_hpu):
+        """
+        Test that if request.user is a requester and obj isn't None, iterable
+        returns by get_fieldsets that contains 'admin_readonly_content'
+        """
+        mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
+        fieldeset = self.ticket_admin.get_fieldsets(get_mock_request(), Mock())
+        self.assertIn('admin_readonly_content', fieldeset[0][1]['fields'])
+
     def test_list_filter_if_requester_in_request(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
         list_filter = list(self.ticket_admin.list_filter)
@@ -122,7 +132,8 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         result = self.ticket_admin.get_readonly_fields(
             get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
         self.assertEqual(
-            ('tipologies', 'priority', 'content', 'related_tickets'), result)
+            ('tipologies', 'priority', 'admin_readonly_content',
+             'related_tickets'), result)
 
     def test_queryset_is_not_filterd_if_is_operator(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(operator=True)
