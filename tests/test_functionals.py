@@ -9,13 +9,14 @@ from lxml.html import fromstring
 from helpdesk.defaults import (HELPDESK_REQUESTERS,
                                HELPDESK_TICKET_MAX_TIPOLOGIES)
 from helpdesk.models import Ticket, Tipology, Category
+from helpdesk.admin import MessageInline
 from .helpers import AdminTestMixin
 from .factories import (
     UserFactory, CategoryFactory, GroupFactory, SiteFactory, TicketFactory,
     TipologyFactory)
 
 
-class RequestMakeTicketTest(AdminTestMixin, TestCase):
+class RequesterMakeTicketTest(AdminTestMixin, TestCase):
     def setUp(self):
         self.requester = UserFactory(
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
@@ -113,6 +114,26 @@ class RequestMakeTicketTest(AdminTestMixin, TestCase):
         self.assertSetEqual(
             form_tipologies.intersection(
                 {c.pk for c in category_not_in_site.tipologies.all()}), set())
+
+    def test_add_ticket_dont_have_messageinline_in_formset(self):
+        """
+        Test that in add ticket view, MessageInline not in formsets.
+        """
+        self.get_category(2)
+        response = self.client.get(self.get_url(Ticket, 'add'))
+        self.assertInlineClassNotInFormset(response, MessageInline)
+
+    def test_chnage_ticket_have_messageinline_in_formset(self):
+        """
+        Test that in change ticket view, MessageInline in formsets.
+        """
+        category = self.get_category(1)
+        ticket = TicketFactory(content='',
+                               requester=self.requester,
+                               tipologies=category.tipologies.all())
+        response = self.client.get(
+            self.get_url(Ticket, 'change', args=(ticket.pk,)))
+        self.assertInlineClassInFormset(response, MessageInline)
 
 
 class CategoryAndTipologyTest(AdminTestMixin, TestCase):
