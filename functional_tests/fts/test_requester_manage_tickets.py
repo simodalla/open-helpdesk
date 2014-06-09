@@ -29,7 +29,6 @@ class RequesterTicketsTest(FunctionalTest):
         self.ticket_content = ("foo " * 20).rstrip()
 
     def test_add_booking_type(self):
-
         self.browser.get(
             self.get_url(admin_urlname(Ticket._meta, 'add')))
         for t in self.tipologies:
@@ -49,20 +48,17 @@ class RequesterTicketsTest(FunctionalTest):
         self.assertIn(self.ticket_content, ticket.content)
         self.assertEqual(set(ticket.tipologies.all()),
                          set(self.tipologies))
+
+    def test_change_booking_type(self):
+        from django.conf import settings
+        settings.DEBUG = True
+        ticket = TicketFactory(content=self.ticket_content,
+                               requester=self.requester,
+                               tipologies=self.tipologies)
+        [Message.objects.create(ticket=ticket, sender=self.requester,
+                                content="bla bla bla") for i in range(0, 2)]
         self.browser.get(
             self.get_url(admin_urlname(Ticket._meta, 'change'),
                          args=(ticket.pk,)))
-
-    # def test_change_booking_type(self):
-    #     from django.conf import settings
-    #     settings.DEBUG = True
-    #     ticket = TicketFactory(content=self.ticket_content,
-    #                            requester=self.requester,
-    #                            tipologies=self.tipologies)
-    #     [Message.objects.create(ticket=ticket, sender=self.requester,
-    #                             content="bla bla bla") for i in range(0, 2)]
-    #     self.browser.get(
-    #         self.get_url(admin_urlname(Ticket._meta, 'change'),
-    #                      args=(ticket.pk,)))
-    #     import ipdb
-    #     ipdb.set_trace()
+        # import ipdb
+        # ipdb.set_trace()

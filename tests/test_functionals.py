@@ -199,3 +199,15 @@ class CategoryAndTipologyTest(AdminTestMixin, TestCase):
 #     def test_for_call_view(self):
 #         response = self.client.get(
 #             self.get_url(Ticket, 'open', kwargs={'pk': self.ticket.pk}))
+
+
+# def test_live_server(live_server, admin_client):
+#     print(live_server)
+#     response = admin_client.get('/admin/')
+#     from selenium import webdriver
+#     browser = webdriver.Firefox()
+#     browser.set_window_size(1024, 768)
+#     browser.implicitly_wait(5)
+#     browser.get(live_server + '/admin/')
+#     # browser.quit()
+#     # print(Site.objects.all())
