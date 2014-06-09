@@ -26,10 +26,12 @@ def to_list(value):
 
 class AdminTestMixin(object):
 
-    def get_url(self, model, viewname, *args, **kwargs):
+    @staticmethod
+    def get_url(model, viewname, *args, **kwargs):
         return reverse(admin_urlname(model._meta, viewname), *args, **kwargs)
 
-    def get_admin_form_error(self, response):
+    @staticmethod
+    def get_admin_form_error(response):
         return response.context['adminform'].form
 
     def assertAdminFormError(self, response, field, errors, msg_prefix=''):
@@ -62,7 +64,18 @@ class AdminTestMixin(object):
                                              " '%s' (actual errors: %s)" %
                                 (form, err, non_field_errors))
 
-    def get_formset_post_data(self, data={}, formset='', total_forms='1',
+    def assertInlineClassInFormset(self, response, inline_class):
+        self.assertIn(inline_class,
+                      [i.opts.__class__ for i in
+                       response.context['inline_admin_formsets']])
+
+    def assertInlineClassNotInFormset(self, response, inline_class):
+        self.assertNotIn(inline_class,
+                         [i.opts.__class__ for i in
+                          response.context['inline_admin_formsets']])
+
+    @staticmethod
+    def get_formset_post_data(data={}, formset='', total_forms='1',
                               initial_forms='0', max_num_forms=''):
         """
         Update the "data" dict with formset keys requested for validation
