@@ -86,13 +86,16 @@ class TicketAdmin(admin.ModelAdmin):
                 except ValueError:  # pragma: no cover
                     pass
         return fieldset
-    
-    # def get_inline_instances(self, request, obj=None):
-    #     # user = self.get_request_helpdeskuser(request)
-    #     inlines = super(TicketAdmin, self).get_inline_instances(request, obj=None)
-    #     # if user.is_requester() and obj:
-    #     inlines += [MessageInline]
-    #     return inlines
+
+    def get_formsets(self, request, obj=None):
+        user = self.get_request_helpdeskuser(request)
+        for inline in self.get_inline_instances(request, obj):
+            if isinstance(inline, MessageInline):
+                # hide MessageInline in the add view or user not is
+                # a requester
+                if obj is None or not user.is_requester():
+                    continue  # pragma: no cover
+            yield inline.get_formset(request, obj)
 
     def get_readonly_fields(self, request, obj=None):
         """
