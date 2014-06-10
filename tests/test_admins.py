@@ -171,13 +171,6 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         qs.filter.assert_called_once_with(requester=helpdesk_user)
         self.assertFalse(result is qs)
 
-    @patch('helpdesk.admin.admin.ModelAdmin.change_view')
-    def test_change_view_by_requester_set_messages_in_extra_content(
-            self, mock_get_req_hpu):
-        helpdesk_user = get_mock_helpdeskuser(requester=True)
-        mock_get_req_hpu.return_value = helpdesk_user
-        self.ticket_admin.change_view(get_mock_request())
-
 
 
 @pytest.fixture
@@ -196,7 +189,7 @@ class TestTicketAdminChangeViewByRequester(object):
             self, mock_cv, ticket_admin_change_view):
         request, object_id, ticket_admin = ticket_admin_change_view
         messages = [1, 2, 3]
-        setattr(request.user, 'get_messages_of_ticket',
+        setattr(request.user, 'get_messages_by_ticket',
                 lambda ticket_id: messages)
         ticket_admin.change_view(request, object_id)
         mock_cv.assert_called_once_with(request, object_id, form_url='',
