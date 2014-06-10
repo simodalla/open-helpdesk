@@ -172,7 +172,6 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         self.assertFalse(result is qs)
 
 
-
 @pytest.fixture
 def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
     monkeypatch.setattr('helpdesk.admin.TicketAdmin.get_request_helpdeskuser',
