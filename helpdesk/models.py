@@ -217,18 +217,18 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     admin_readonly_content.allow_tags = True
 
     @atomic
-    def change_state(self, status_from, status_to, user):
+    def change_state(self, before, after, user):
         """Change status of ticket an record changelog for this.
 
-        :param status_from: Ticket.STATUS, status that will be
-        :param status_to: Ticket.STATUS, status before changing
+        :param before: Ticket.STATUS, status that will be
+        :param after: Ticket.STATUS, status before changing
         :param user: django.contrib.auth.get_user_model
         :return: boolean
         """
-        self.status = status_to
+        self.status = after
         self.save()
-        self.status_changelogs.create(status_from=status_from,
-                                      status_to=status_to,
+        self.status_changelogs.create(before=before,
+                                      after=after,
                                       changer=user)
         return True
 
@@ -344,8 +344,8 @@ class StatusChangesLog(TimeStamped):
     StatusChangesLog model for record the changes of status of Tickets objects.
     """
     ticket = models.ForeignKey('Ticket', related_name='status_changelogs')
-    status_from = models.CharField(max_length=100)
-    status_to = models.CharField(max_length=100)
+    before = models.CharField(max_length=100)
+    after = models.CharField(max_length=100)
     changer = models.ForeignKey(user_model_name, verbose_name=_('Changer'))
 
     class Meta:
@@ -355,8 +355,7 @@ class StatusChangesLog(TimeStamped):
         verbose_name_plural = _('Status Changelogs')
 
     def __str__(self):
-        return ('{ticket.pk} {created}: {status_from} ==> {status_to}'.format(
-            ticket=self.ticket,
-            created=self.created.strftime('%Y-%m-%d %H:%M:%S'),
-            status_from=self.status_from,
-            status_to=self.status_to))
+        return ('{self.ticket_id} {created}: {self.before} ==> '
+                '{self.after}'.format(self=self,
+                                      created=self.created.strftime(
+                                          '%Y-%m-%d %H:%M:%S')))

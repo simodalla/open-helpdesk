@@ -138,8 +138,8 @@ class OpenTicketTest(TestCase):
         ticket.opening(self.operator)
         changelog = ticket.status_changelogs.latest()
         self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.status_from, Ticket.STATUS.new)
-        self.assertEqual(changelog.status_to, Ticket.STATUS.open)
+        self.assertEqual(changelog.before, Ticket.STATUS.new)
+        self.assertEqual(changelog.after, Ticket.STATUS.open)
 
 
 class PendingTicketTest(TestCase):
@@ -180,8 +180,8 @@ class PendingTicketTest(TestCase):
         self.ticket.put_on_pending(self.operator)
         changelog = self.ticket.status_changelogs.latest()
         self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.status_from, Ticket.STATUS.open)
-        self.assertEqual(changelog.status_to, Ticket.STATUS.pending)
+        self.assertEqual(changelog.before, Ticket.STATUS.open)
+        self.assertEqual(changelog.after, Ticket.STATUS.pending)
 
 
 class ClosedTicketTest(TestCase):
@@ -220,12 +220,12 @@ class ClosedTicketTest(TestCase):
         Test that calling of "closing" method on ticket with open status
         create an related StatusChangesLog object with right data on fields
         """
-        status_from = self.ticket.status
+        status_before = self.ticket.status
         self.ticket.closing(self.operator)
         changelog = self.ticket.status_changelogs.latest()
         self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.status_from, status_from)
-        self.assertEqual(changelog.status_to, Ticket.STATUS.closed)
+        self.assertEqual(changelog.before, status_before)
+        self.assertEqual(changelog.after, Ticket.STATUS.closed)
 
 
 class StatusChagesLogTest(TestCase):
@@ -242,8 +242,8 @@ class StatusChagesLogTest(TestCase):
         changelog = StatusChangesLog()
         changelog.ticket = self.ticket
         changelog.created = created
-        changelog.status_from = Ticket.STATUS.new
-        changelog.status_to = Ticket.STATUS.open
+        changelog.before = Ticket.STATUS.new
+        changelog.after = Ticket.STATUS.open
         self.assertEqual(str(changelog), '{} {}: new ==> open'.format(
             self.ticket.pk, fake_date))
 
