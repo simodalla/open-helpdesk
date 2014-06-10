@@ -54,26 +54,36 @@ class HelpdeskUser(User):
         return self.groups.values_list('name', flat=True)
 
     def is_requester(self):
+        """Test if user belong to settings.HELPDESK_REQUESTERS group."""
         if settings.HELPDESK_REQUESTERS in self.group_names:
             return True
         return False
 
     def is_operator(self):
+        """Test if user belong to settings.HELPDESK_OPERATORS group."""
         if settings.HELPDESK_OPERATORS in self.group_names:
             return True
         return False
 
     def is_admin(self):
+        """Test if user belong to settings.HELPDESK_ADMINS group."""
         if settings.HELPDESK_ADMINS in self.group_names:
             return True
         return False
 
-    def get_messages_of_ticket(self, ticket_id):
-        # TODO: docstring
+    def get_messages_by_ticket(self, ticket_id):
+        """
+        Returns all Messages object filterd by 'ticket_id' parameter and
+        by sender or recipient is self user. Queryset is ordered by createion
+        date.
+
+        :param ticket_id: ticket id
+        :return: recordset of Message objects
+        """
         messages = Message.objects.filter(
             ticket_id=ticket_id).filter(
                 Q(sender__id=self.id) | Q(recipient__id=self.id)
-            ).ordery_by('created')
+            ).order_by('created')
         return messages
 
 
@@ -208,11 +218,19 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
 
     @atomic
     def change_state(self, status_from, status_to, user):
+        """Change status of ticket an record changelog for this.
+
+        :param status_from: Ticket.STATUS, status that will be
+        :param status_to: Ticket.STATUS, status before changing
+        :param user: django.contrib.auth.get_user_model
+        :return: boolean
+        """
         self.status = status_to
         self.save()
         self.status_changelogs.create(status_from=status_from,
                                       status_to=status_to,
                                       changer=user)
+        return True
 
     @atomic
     def opening(self, assignee):
