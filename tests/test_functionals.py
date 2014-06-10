@@ -123,7 +123,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
         response = self.client.get(self.get_url(Ticket, 'add'))
         self.assertInlineClassNotInFormset(response, MessageInline)
 
-    def test_chnage_ticket_have_messageinline_in_formset(self):
+    def test_change_ticket_have_messageinline_in_formset(self):
         """
         Test that in change ticket view, MessageInline in formsets.
         """
