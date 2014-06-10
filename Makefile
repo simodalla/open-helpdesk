@@ -37,7 +37,7 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source helpdesk --omit=*/migrations/* $(shell which py.test) tests
+	coverage run --source helpdesk --omit=*/migrations/*,*/demo* $(shell which py.test) tests
 	coverage report -m
 
 coverage-html: coverage
