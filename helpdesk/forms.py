@@ -42,4 +42,3 @@ class TicketAdminAutocompleteForm(AutocompleteModelForm, TicketAdminForm):
     class Meta:
         model = Ticket
         autocomplete_fields = ('related_tickets', 'requester',)
-

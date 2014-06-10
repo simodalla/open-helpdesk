@@ -165,6 +165,15 @@ class TicketAdmin(admin.ModelAdmin):
             obj.requester = request.user
         return super(TicketAdmin, self).save_model(request, obj, form, change)
 
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        user = self.get_request_helpdeskuser(request)
+        if user.is_requester():
+            messages = user.get_messages_of_ticket(object_id)
+            extra_context.update({'messages': messages})
+        return super(TicketAdmin, self).change_view(
+            request, object_id, form_url=form_url, extra_context=extra_context)
+
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Tipology, TipologyAdmin)
