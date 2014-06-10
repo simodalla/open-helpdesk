@@ -246,3 +246,23 @@ class StatusChagesLogTest(TestCase):
         changelog.status_to = Ticket.STATUS.open
         self.assertEqual(str(changelog), '{} {}: new ==> open'.format(
             self.ticket.pk, fake_date))
+
+# TODO: to delete or complete, implement
+# import pytest
+# from helpdesk.models import Message, Report
+#
+# @pytest.mark.django_db
+# class TestMessages(object):
+#     def test_message(self):
+#         category = CategoryFactory(tipologies=['tip1'])
+#         requester = UserFactory()
+#         ticket = TicketFactory(requester=requester,
+#                                tipologies=category.tipologies.all())
+#         for i in range(0, 3):
+#             Message.objects.create(content="foo", sender=requester)
+#             Report.objects.create(content="foo", sender=requester)
+#         print(Message.objects.all())
+#         print(Report.objects.all())
+
+
+
