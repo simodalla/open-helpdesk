@@ -43,3 +43,37 @@ def rf_with_helpdeskuser(request, rf):
         rf.user = HelpdeskUser()
     return rf
 
+@pytest.fixture(scope='session')
+def display(request):
+    try:
+        from pyvirtualdisplay import Display
+        display = Display(visible=0, size=(1024, 768))
+        display.start()
+
+        def fin():
+            print("finalizing pyvirtualdisplay...")
+            display.stop()
+
+        requester.addfinalizer(fin)
+        return display
+    except ImportError:
+        pass
+    except Exception as e:
+        print("Error with pyvirtualdisplay.Display: {}".format(str(e)))
+    return None
+
+
+@pytest.fixture(scope='module')
+def browser(request, display):
+    from selenium import webdriver
+    driver = webdriver.Firefox()
+    driver.set_window_size(1024, 768)
+    driver.implicitly_wait(5)
+    print("*********", display)
+
+    def fin():
+        print("finalizing firefox webdriver")
+        driver.quit()
+
+    request.addfinalizer(fin)
+    return driver
