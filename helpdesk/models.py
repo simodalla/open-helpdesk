@@ -9,6 +9,7 @@ except ImportError:  # pragma: no cover
 
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.template.defaultfilters import truncatewords
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
@@ -66,6 +67,14 @@ class HelpdeskUser(User):
         if settings.HELPDESK_ADMINS in self.group_names:
             return True
         return False
+
+    def get_messages_of_ticket(self, ticket_id):
+        # TODO: docstring
+        messages = Message.objects.filter(
+            ticket_id=ticket_id).filter(
+                Q(sender__id=self.id) | Q(recipient__id=self.id)
+            ).ordery_by('created')
+        return messages
 
 
 @python_2_unicode_compatible
@@ -274,7 +283,7 @@ class Message(TimeStamped):
 
 @python_2_unicode_compatible
 class Report(Message):
-    action_on_ticket = models.IntegerField()
+    action_on_ticket = models.IntegerField(blank=True, null=True)
     visible_from_requester = models.BooleanField(default=True)
 
     class Meta:
