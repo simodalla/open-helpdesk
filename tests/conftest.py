@@ -43,6 +43,7 @@ def rf_with_helpdeskuser(request, rf):
         rf.user = HelpdeskUser()
     return rf
 
+
 @pytest.fixture(scope='session')
 def display(request):
     try:
@@ -54,7 +55,7 @@ def display(request):
             print("finalizing pyvirtualdisplay...")
             display.stop()
 
-        requester.addfinalizer(fin)
+        request.addfinalizer(fin)
         return display
     except ImportError:
         pass
@@ -69,10 +70,9 @@ def browser(request, display):
     driver = webdriver.Firefox()
     driver.set_window_size(1024, 768)
     driver.implicitly_wait(5)
-    print("*********", display)
 
     def fin():
-        print("finalizing firefox webdriver")
+        print("finalizing firefox webdriver...")
         driver.quit()
 
     request.addfinalizer(fin)
