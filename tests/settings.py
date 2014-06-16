@@ -53,15 +53,13 @@ NEVERCACHE_KEY = "0987654321"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
-        "USER": "",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "mezzanine-helpdesk",
+        "USER": "postgres",
         "PASSWORD": "",
-        "HOST": "",
-        "PORT": "",
+        "HOST": "127.0.0.1",
     }
 }
-
 
 #########
 # PATHS #

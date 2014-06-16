@@ -30,8 +30,8 @@ install:
   - if [[ $DJANGO_VERSION == '1.5.8' ]]; then pip install django-discover-runner --download-cache $HOME/.pip-cache; fi
   - pip install -q -r requirements/requirements_test.txt --download-cache $HOME/.pip-cache
 
-#before_script:
-#  - psql -c 'create database mezzanine-helpdesk;' -U postgres
+before_script:
+  - psql -c 'create database mezzanine-helpdesk;' -U postgres
 
 # command to run tests using coverage
 script:
