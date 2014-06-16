@@ -70,6 +70,16 @@ class LiveBrowser(object):
         ))
         return session.session_key
 
+    def set_content_to_tinymce(self, content=''):
+        """
+        Set content of tinyMCE.
+
+        :param content: text to set at content of tinyMCE
+        :return:
+        """
+        script = "tinyMCE.activeEditor.setContent('{}');".format(content)
+        return self.driver.execute_script(script)
+
 
 @pytest.fixture(scope='module')
 def browser(request, display, live_server):

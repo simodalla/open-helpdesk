@@ -43,3 +43,8 @@ def requester():
 @pytest.fixture(scope='module')
 def operator():
     return helpdesker('HELPDESK_OPERATORS')
+
+
+@pytest.fixture(scope='class')
+def requester_cls(request, requester):
+     setattr(request.cls, 'requester', requester)
