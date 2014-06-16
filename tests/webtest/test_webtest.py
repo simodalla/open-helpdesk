@@ -1,5 +1,5 @@
-# # -*- coding: utf-8 -*-
-# from __future__ import unicode_literals, absolute_import
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals, absolute_import
 #
 # from django.contrib.admin.templatetags.admin_urls import admin_urlname
 # from django.core.urlresolvers import reverse
@@ -24,3 +24,6 @@
 #         print(index.form)
 #         # import pytest
 #         # pytest.set_trace()
+
+def test_a(settings):
+    print(settings.DATABASES)

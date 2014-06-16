@@ -60,7 +60,6 @@ class UserFactory(factory.DjangoModelFactory):
 
 class SiteFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Site
-    FACTORY_DJANGO_GET_OR_CREATE = ('pk',)
 
     domain = factory.Sequence(lambda n: 'example{0}.com'.format(n))
     name = factory.Sequence(lambda n: 'example{0}'.format(n))
