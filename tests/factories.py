@@ -4,6 +4,8 @@ import factory
 from django.contrib.auth.models import Group, Permission
 from django.contrib.sites.models import Site
 
+from mezzanine.core.models import SitePermission
+
 from helpdesk.models import Category, Tipology, HelpdeskUser as User, Ticket
 
 
@@ -20,6 +22,7 @@ def _get_perm(perm_name):
 
 class GroupFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Group
+    FACTORY_DJANGO_GET_OR_CREATE = ('name',)
 
     name = factory.Sequence(lambda n: 'group{0}'.format(n))
 
@@ -32,6 +35,7 @@ class GroupFactory(factory.DjangoModelFactory):
 
 class UserFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
+    FACTORY_DJANGO_GET_OR_CREATE = ('username',)
 
     username = factory.Sequence(lambda n: 'user{0}'.format(n))
     first_name = factory.Sequence(lambda n: 'John {0}'.format(n))
@@ -56,9 +60,18 @@ class UserFactory(factory.DjangoModelFactory):
 
 class SiteFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Site
+    FACTORY_DJANGO_GET_OR_CREATE = ('pk',)
 
     domain = factory.Sequence(lambda n: 'example{0}.com'.format(n))
     name = factory.Sequence(lambda n: 'example{0}'.format(n))
+
+
+class SitePermissionF(factory.DjangoModelFactory):
+    FACTORY_FOR = SitePermission
+
+
+class HelpdeskerF(UserFactory):
+    site_permission = factory.RelatedFactory(SitePermissionF, 'user')
 
 
 class CategoryFactory(factory.DjangoModelFactory):

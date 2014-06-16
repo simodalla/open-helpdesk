@@ -13,39 +13,31 @@ def stringios():
     return cStringIO(), cStringIO()
 
 
-@pytest.fixture(scope="class")
-def helpdesker(request):
-    helpdesker_conf = (getattr(request.cls, 'helpdesker_conf', None)
-                       or getattr(request.module, 'helpdesker_conf', None))
-    if not helpdesker_conf:
-        return None
+def helpdesker(helpdesker_conf):
+    from django.contrib.sites.models import Site
     import helpdesk.defaults
-    from tests.factories import UserFactory, GroupFactory
+    from .factories import UserFactory, GroupFactory
+    from .settings import SITE_ID
+
     helpdesker_conf = getattr(helpdesk.defaults, helpdesker_conf, None)
     if not helpdesker_conf:
         return None
-    request.cls.user = UserFactory(
+    user = UserFactory(
         groups=[GroupFactory(name=helpdesker_conf[0],
                              permissions=list(helpdesker_conf[1]))])
+    sp = user.sitepermissions.create(user=user)
+    sp.sites.add(Site.objects.get(pk=SITE_ID))
+    return user
 
 
 @pytest.fixture(scope='module')
 def requester():
-    from tests.factories import UserFactory, GroupFactory
-    from helpdesk.defaults import HELPDESK_REQUESTERS
-    user = UserFactory(groups=[GroupFactory(name=HELPDESK_REQUESTERS[0])],
-                       permissions=list(HELPDESK_REQUESTERS[1]))
-    return user
+    return helpdesker('HELPDESK_REQUESTERS')
 
 
-@pytest.fixture(scope="class")
-def helpdesker_live(request, helpdesker):
-    from django.contrib.sites.models import Site
-    from mezzanine.core.models import SitePermission
-    from .settings import SITE_ID
-    sp = SitePermission.objects.create(user=request.cls.user)
-    sp.sites.add(Site.objects.get(pk=SITE_ID))
-    # request.cls.user = request.cls.user
+@pytest.fixture(scope='module')
+def operator():
+    return helpdesker('HELPDESK_OPERATORS')
 
 
 @pytest.fixture
@@ -113,12 +105,12 @@ class LiveBrowser(object):
         return self.driver.get('{}{}'.format(
             self.live_server, reverse(url, args=args, kwargs=kwargs)))
 
-    def create_pre_authenticated_session(self):
+    def create_pre_authenticated_session(self, user):
         from django.contrib.sessions.backends.db import SessionStore
         from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY
         from django.conf import settings
         session = SessionStore()
-        session[SESSION_KEY] = self.user.pk
+        session[SESSION_KEY] = user.pk
         session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
         session.save()
         # to set a cookie we need fo first visit the domain.
@@ -132,22 +124,22 @@ class LiveBrowser(object):
         return session.session_key
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope='module')
 def browser(request, display, live_server):
     from selenium import webdriver
     driver = webdriver.Firefox()
     live_browser = LiveBrowser(driver, str(live_server))
 
     def fin():
-        print("finalizing firefox webdriver...")
+        print('finalizing firefox webdriver...')
         live_browser.quit()
 
     request.addfinalizer(fin)
-    request.cls.browser = browser
+    return live_browser
 
 
-@pytest.fixture(scope="class")
-def authenticated_browser(request, browser, helpdesker_live):
-    browser.user = request.cls.user
-    browser.create_pre_authenticated_session()
-    request.cls.browser = browser
+@pytest.fixture(scope='module')
+def browser_requestered(browser, requester):
+    print(browser, requester)
+    browser.create_pre_authenticated_session(requester)
+    return browser, requester
