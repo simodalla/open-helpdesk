@@ -28,7 +28,7 @@ postgres-db:
 	dropdb pytest_django$(UID); createdb pytest_django$(UID)
 
 lint:
-	flake8 --exclude=migrations,urls.py helpdesk tests functional_tests
+	flake8 --exclude=migrations,urls.py helpdesk tests
 
 test:
 	py.test tests $(arg1)
@@ -40,7 +40,7 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source helpdesk --omit=*/migrations/*,*/demo* $(shell which py.test) tests $(REUSE_DB)
+	coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(shell which py.test) -vs tests
 	coverage report -m
 
 coverage-html: coverage

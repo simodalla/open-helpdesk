@@ -82,8 +82,8 @@ class HelpdeskUser(User):
         """
         messages = Message.objects.filter(
             ticket_id=ticket_id).filter(
-                Q(sender__id=self.id) | Q(recipient__id=self.id)
-            ).order_by('created')
+                Q(sender__id=self.id) |
+                Q(recipient__id=self.id)).order_by('created')
         return messages
 
 
