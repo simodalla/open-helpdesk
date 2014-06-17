@@ -8,6 +8,7 @@ flake8
 selenium
 tox
 six
+psycopg2
 lxml
 cssselect
 django-model-utils>=2.0.3
