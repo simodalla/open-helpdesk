@@ -38,7 +38,7 @@ before_script:
 
 # command to run tests using coverage
 script:
-  - py.test tests
+  - py.test tests/test_markdb.py
   #- make test-functional
 
 # report coverage to coveralls.io
