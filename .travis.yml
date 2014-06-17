@@ -4,13 +4,11 @@ language: python
 
 python:
   - "3.4"
-  - "3.3"
+#  - "3.3"
   - "2.7"
 
 env:
-  - DJANGO_VERSION=1.5.8 MEZZANINE_VERSION=3.1.4
-  - DJANGO_VERSION=1.6.5 MEZZANINE_VERSION=3.1.4
-  - DJANGO_VERSION=1.5.8 MEZZANINE_VERSION=3.1.5
+#  - DJANGO_VERSION=1.5.8 MEZZANINE_VERSION=3.1.5
   - DJANGO_VERSION=1.6.5 MEZZANINE_VERSION=3.1.5
 
 services:
@@ -39,6 +37,7 @@ before_script:
 # command to run tests using coverage
 script:
   - py.test tests/test_markdb.py
+  - py.test tests/test_functionals.py
   #- make test-functional
 
 # report coverage to coveralls.io
