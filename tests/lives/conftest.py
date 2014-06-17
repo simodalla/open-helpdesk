@@ -93,8 +93,7 @@ def browser(request, display, live_server):
     return live_browser
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def browser_requestered(browser, requester):
-    print(browser, requester)
     browser.create_pre_authenticated_session(requester)
     return browser, requester

@@ -16,6 +16,10 @@ from .factories import (
     TipologyFactory)
 
 
+# import pytest
+#
+# pytestmark = pytest.mark.django_db
+
 class RequesterMakeTicketTest(AdminTestMixin, TestCase):
     def setUp(self):
         self.requester = UserFactory(
@@ -49,7 +53,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
         self.assertEqual(Ticket.objects.count(), 1)
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.requester.pk, self.requester.pk)
-
+#
     def test_changelist_view_is_filtered(self):
         """
         Test that the changelist is filtered by tickets with requester's field
@@ -104,7 +108,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
 
     def test_tipologies_field_is_filtered_by_current_site(self):
         category_in_site = self.get_category(2)
-        category_not_in_site = self.get_category(2, site=SiteFactory())
+        category_not_in_site = self.get_category(2, site=SiteFactory.create())
         response = self.client.get(self.get_url(Ticket, 'add'))
         dom = fromstring(response.content)
         form_tipologies = {int(option.attrib['value']) for option

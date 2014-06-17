@@ -10,7 +10,7 @@ from six.moves import cStringIO
 
 def pytest_configure():
     if not settings.configured:
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings_postgres'
 
 
 @pytest.fixture(scope='module')
@@ -22,7 +22,7 @@ def helpdesker(helpdesker_conf):
     from django.contrib.sites.models import Site
     import helpdesk.defaults
     from tests.factories import UserFactory, GroupFactory
-    from tests.settings import SITE_ID
+    from tests.settings_base import SITE_ID
 
     helpdesker_conf = getattr(helpdesk.defaults, helpdesker_conf, None)
     if not helpdesker_conf:
@@ -35,16 +35,16 @@ def helpdesker(helpdesker_conf):
     return user
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def requester():
     return helpdesker('HELPDESK_REQUESTERS')
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def operator():
     return helpdesker('HELPDESK_OPERATORS')
 
 
 @pytest.fixture(scope='class')
-def requester_cls(request, requester):
-    setattr(request.cls, 'requester', requester)
+def requester_cls(request):
+    setattr(request.cls, 'requester', helpdesker('HELPDESK_REQUESTERS'))

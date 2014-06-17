@@ -3,15 +3,15 @@
 language: python
 
 python:
-  - "3.4"
-#  - "3.3"
-  - "2.7"
+#  - "3.4"
+  - "3.3"
+#  - "2.7"
 
-env:
-#  - DJANGO_VERSION=1.5.8 MEZZANINE_VERSION=3.1.4
-#  - DJANGO_VERSION=1.6.5 MEZZANINE_VERSION=3.1.4
-#  - DJANGO_VERSION=1.5.8 MEZZANINE_VERSION=3.1.5
-  - DJANGO_VERSION=1.6.5 MEZZANINE_VERSION=3.1.5
+#env:
+##  - DJANGO_VERSION=1.5.8 MEZZANINE_VERSION=3.1.4
+##  - DJANGO_VERSION=1.6.5 MEZZANINE_VERSION=3.1.4
+##  - DJANGO_VERSION=1.5.8 MEZZANINE_VERSION=3.1.5
+#  - DJANGO_VERSION=1.6.5 MEZZANINE_VERSION=3.1.5
 
 services:
   - rabbitmq
@@ -27,19 +27,31 @@ before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 
-# command to install dependencies
-install:
-   - pip install -q -r requirements/requirements_test.txt --download-cache $HOME/.pip-cache
-   - pip install Django==$DJANGO_VERSION mezzanine==$MEZZANINE_VERSION --download-cache $HOME/.pip-cache
-   - if [[ $DJANGO_VERSION == '1.5.8' ]]; then pip install django-discover-runner --download-cache $HOME/.pip-cache; fi
+## command to install dependencies
+#install:
+#   - pip install -q -r requirements/requirements_test.txt --download-cache $HOME/.pip-cache
+#   - pip install Django==$DJANGO_VERSION mezzanine==$MEZZANINE_VERSION --download-cache $HOME/.pip-cache
+#   - if [[ $DJANGO_VERSION == '1.5.8' ]]; then pip install django-discover-runner --download-cache $HOME/.pip-cache; fi
 
-before_script:
-  - psql -c 'create database mezzanine_helpdesk;' -U postgres
+#before_script:
+#  - psql -c 'create database mezzanine_helpdesk;' -U postgres
 
-# command to run tests using coverage
-script:
-  - coverage run --source helpdesk --omit=*/migrations/*,*/demo* $(which py.test) tests
-  #- make test-functional
+## command to run tests using coverage
+#script:
+#  - coverage run --source helpdesk --omit=*/migrations/*,*/demo* $(which py.test) tests
+#  #- make test-functional
 
 # report coverage to coveralls.io
 after_success: coveralls
+
+env:
+  - TESTENV=py27-django15
+  - TESTENV=py27-django16
+  - TESTENV=py33-django15
+  - TESTENV=py33-django16
+  - TESTENV=py34-django15
+  - TESTENV=py33-django16
+
+install:
+  - pip install tox
+script: tox -e $TESTENV

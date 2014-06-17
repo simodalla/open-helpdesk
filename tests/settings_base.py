@@ -181,3 +181,10 @@ except ImportError:
     pass
 else:
     set_dynamic_settings(globals())
+
+uid = os.getenv('UID', '')
+
+if uid:
+    db_suffix = '_%s' % uid
+else:
+    db_suffix = ''

@@ -3,34 +3,13 @@ from __future__ import unicode_literals, absolute_import
 
 import pytest
 
-from django.contrib.sites.models import Site
-
 from helpdesk.models import Ticket, PRIORITY_NORMAL
-
-from ..factories import CategoryFactory, TipologyFactory
-from ..settings import SITE_ID
 
 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture(scope='module')
-def tipologies():
-    category = CategoryFactory()
-    site = Site.objects.get(pk=SITE_ID)
-    tipologies = [
-        TipologyFactory(sites=(site,), category=category).pk
-        for i in range(0, 2)]
-    return tipologies
-
-
-@pytest.fixture(scope='module')
-def ticket_content(scope='module'):
-    return ("foo " * 20).rstrip()
-
-
 def test_add_booking_type(browser_requestered, tipologies, ticket_content):
-    print(tipologies, ticket_content)
     browser, requester = browser_requestered
     browser.get('admin:helpdesk_ticket_add')
     for t in tipologies:
