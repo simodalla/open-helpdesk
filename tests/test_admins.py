@@ -7,8 +7,6 @@ try:
 except ImportError:
     from mock import patch, Mock
 
-import pytest
-
 from django import VERSION as DJANGO_VERSION
 from django.contrib.admin import AdminSite
 
@@ -170,26 +168,3 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
                 get_mock_request(self.fake_pk))
         qs.filter.assert_called_once_with(requester=helpdesk_user)
         self.assertFalse(result is qs)
-
-
-@pytest.fixture
-def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
-    monkeypatch.setattr('helpdesk.admin.TicketAdmin.get_request_helpdeskuser',
-                        lambda self, request: request.user)
-    return rf_with_helpdeskuser, 1, TicketAdmin(Ticket, AdminSite)
-
-
-@pytest.mark.django_db
-class TestTicketAdminChangeViewByRequester(object):
-    is_requester = True
-
-    @patch('django.contrib.admin.ModelAdmin.change_view')
-    def test_view_calls_has_messages_in_extra_content(
-            self, mock_cv, ticket_admin_change_view):
-        request, object_id, ticket_admin = ticket_admin_change_view
-        messages = [1, 2, 3]
-        setattr(request.user, 'get_messages_by_ticket',
-                lambda ticket_id: messages)
-        ticket_admin.change_view(request, object_id)
-        mock_cv.assert_called_once_with(request, object_id, form_url='',
-                                        extra_context={'messages': messages})
