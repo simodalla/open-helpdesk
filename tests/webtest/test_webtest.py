@@ -27,10 +27,11 @@ class TestRequestAddTicket(WebTest):
         #     groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
         #                          permissions=list(HELPDESK_REQUESTERS[1]))])
         # print(admin_urlname(Ticket._meta, 'add'))
-        index = self.app.get(
+        response = self.app.get(
             reverse(admin_urlname(Ticket._meta, 'add')), user=self.requester)
-        print(index.form)
+        print(response.form)
         print(id(self.requester))
+        response.showbrowser()
         # import pytest
         # pytest.set_trace()
 

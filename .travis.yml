@@ -38,7 +38,7 @@ before_script:
 
 # command to run tests using coverage
 script:
-  - coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(which py.test) tests -k test_call_initihelpsedk_command
+  - py.test tests --create-db -k test_call_initihelpsedk_command
   #- make test-functional
 
 # report coverage to coveralls.io
