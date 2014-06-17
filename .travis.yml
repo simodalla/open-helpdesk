@@ -29,17 +29,17 @@ before_install:
 
 # command to install dependencies
 install:
-  - pip install Django==$DJANGO_VERSION mezzanine==$MEZZANINE_VERSION --download-cache $HOME/.pip-cache
-  - if [[ $DJANGO_VERSION == '1.5.8' ]]; then pip install django-discover-runner --download-cache $HOME/.pip-cache; fi
-  - pip install -q -r requirements/requirements_test.txt --download-cache $HOME/.pip-cache
+   - pip install -q -r requirements/requirements_test.txt --download-cache $HOME/.pip-cache
+   - pip install Django==$DJANGO_VERSION mezzanine==$MEZZANINE_VERSION --download-cache $HOME/.pip-cache
+   - if [[ $DJANGO_VERSION == '1.5.8' ]]; then pip install django-discover-runner --download-cache $HOME/.pip-cache; fi
 
 before_script:
   - psql -c 'create database mezzanine_helpdesk;' -U postgres
 
 # command to run tests using coverage
 script:
-  - coverage run --source helpdesk --omit=*/migrations/*,*/demo* $(which py.test) tests
-  - make test-functional
+  - coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(which py.test) tests -k test_call_initihelpsedk_command
+  #- make test-functional
 
 # report coverage to coveralls.io
 after_success: coveralls
