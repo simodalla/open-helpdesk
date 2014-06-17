@@ -2,7 +2,7 @@
 from __future__ import unicode_literals, absolute_import
 
 from django.contrib.auth.models import Group, Permission
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from helpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     can_import_settings = True
     usage = lambda foo, bar: ("usage: %prog [appname1] [appname2] [options] "
-                              "\n" + Command.__doc__.rstrip())
+                              "\n" + str(Command.__doc__.rstrip()))
 
     app_label = 'helpdesk'
 
@@ -37,5 +37,3 @@ class Command(BaseCommand):
                 codename__in=permission_codenames))
             self.stdout.write('Add permissions to {}: {}.\n\n'.format(
                 group.name, permission_codenames))
-
-

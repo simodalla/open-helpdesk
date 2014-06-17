@@ -263,6 +263,3 @@ class StatusChagesLogTest(TestCase):
 #             Report.objects.create(content="foo", sender=requester)
 #         print(Message.objects.all())
 #         print(Report.objects.all())
-
-
-

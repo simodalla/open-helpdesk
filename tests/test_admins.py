@@ -193,4 +193,3 @@ class TestTicketAdminChangeViewByRequester(object):
         ticket_admin.change_view(request, object_id)
         mock_cv.assert_called_once_with(request, object_id, form_url='',
                                         extra_context={'messages': messages})
-

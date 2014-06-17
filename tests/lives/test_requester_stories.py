@@ -5,7 +5,7 @@ import pytest
 
 from django.contrib.sites.models import Site
 
-from helpdesk.models import Ticket, PRIORITY_NORMAL, Message
+from helpdesk.models import Ticket, PRIORITY_NORMAL
 
 from ..factories import CategoryFactory, TipologyFactory
 from ..settings import SITE_ID
