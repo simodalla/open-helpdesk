@@ -24,6 +24,9 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
+postgres-db:
+	dropdb pytest_django$(UID); createdb pytest_django$(UID)
+
 lint:
 	flake8 --exclude=migrations,urls.py helpdesk tests functional_tests
 
