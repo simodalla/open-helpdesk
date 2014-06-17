@@ -31,7 +31,7 @@ class TestRequestAddTicket(WebTest):
             reverse(admin_urlname(Ticket._meta, 'add')), user=self.requester)
         print(response.form)
         print(id(self.requester))
-        print(response.pyquery('#id_attachment_set-0-f'))
+        # print(response.pyquery('#id_attachment_set-0-f'))
         response.showbrowser()
         # import pytest
         # pytest.set_trace()
