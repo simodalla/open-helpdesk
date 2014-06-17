@@ -13,6 +13,17 @@ def pytest_configure():
         os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings_postgres'
 
 
+def pytest_addoption(parser):
+    parser.addoption('--livetest', action='store_true',
+                     help='run live  tests')
+
+
+def pytest_runtest_setup(item):
+    if ('livetest' in item.keywords and
+            not item.config.getoption('--livetest')):
+        pytest.skip('need --livetest option to run')
+
+
 @pytest.fixture(scope='module')
 def stringios():
     return cStringIO(), cStringIO()

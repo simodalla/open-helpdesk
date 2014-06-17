@@ -28,7 +28,7 @@ lint:
 	flake8 --exclude=migrations,urls.py helpdesk tests functional_tests
 
 test:
-	py.test tests
+	py.test tests $(arg1)
 
 test-functional:
 	python functional_tests/manage.py test fts
@@ -37,7 +37,7 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source helpdesk --omit=*/migrations/*,*/demo* $(shell which py.test) tests
+	coverage run --source helpdesk --omit=*/migrations/*,*/demo* $(shell which py.test) tests $(REUSE_DB)
 	coverage report -m
 
 coverage-html: coverage

@@ -9,6 +9,7 @@ from helpdesk.models import Ticket, PRIORITY_NORMAL
 pytestmark = pytest.mark.django_db
 
 
+@pytest.mark.livetest
 def test_add_booking_type(browser_requestered, tipologies, ticket_content):
     browser, requester = browser_requestered
     browser.get('admin:helpdesk_ticket_add')

@@ -3,11 +3,6 @@ from __future__ import unicode_literals, absolute_import
 
 import pytest
 
-from django.contrib.sites.models import Site
-
-from .factories import CategoryFactory, TipologyFactory
-from .settings_base import SITE_ID
-
 
 @pytest.fixture
 def rf_with_helpdeskuser(request, rf):
@@ -27,6 +22,9 @@ def rf_with_helpdeskuser(request, rf):
 
 
 def get_tipologies(n_tipologies):
+    from django.contrib.sites.models import Site
+    from .factories import CategoryFactory, TipologyFactory
+    from .settings_base import SITE_ID
     category = CategoryFactory()
     site = Site.objects.get(pk=SITE_ID)
     tipologies = [
