@@ -47,4 +47,4 @@ def operator():
 
 @pytest.fixture(scope='class')
 def requester_cls(request, requester):
-     setattr(request.cls, 'requester', requester)
+    setattr(request.cls, 'requester', requester)
