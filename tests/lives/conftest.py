@@ -60,7 +60,7 @@ class LiveBrowser(object):
         session.save()
         # to set a cookie we need fo first visit the domain.
         # 404 pages load the quicktest!
-        self.driver.get('{0}/404_no_such_url/'.format(self.live_server))
+        self.driver.get('{}/404_no_such_url/'.format(str(self.live_server)))
         self.driver.add_cookie(dict(
             name=settings.SESSION_COOKIE_NAME,
             value=session.session_key,
