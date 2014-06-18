@@ -107,7 +107,7 @@ INSTALLED_APPS = (
     "mezzanine.generic",
     # "mezzanine.blog",
     # "mezzanine.forms",
-    # "mezzanine.pages",
+    "mezzanine.pages",
     # "mezzanine.galleries",
     "helpdesk",
 )
