@@ -43,6 +43,6 @@ def tipologies_cls(request):
     setattr(request.cls, 'tipologies', get_tipologies(5))
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def ticket_content(scope='module'):
     return ("foo " * 20).rstrip()
