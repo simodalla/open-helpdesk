@@ -27,6 +27,9 @@ pip-log.txt
 nosetests.xml
 htmlcov/
 
+# Config files
+.coveralls.yml
+
 # Translations
 *.mo
 
