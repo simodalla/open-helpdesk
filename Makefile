@@ -33,8 +33,8 @@ lint:
 test:
 	py.test tests $(arg1)
 
-test-functional:
-	python functional_tests/manage.py test fts
+test-live:
+	py.test -m livetest --livetest
 
 test-all:
 	tox
