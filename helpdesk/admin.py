@@ -26,6 +26,7 @@ class AttachmentInline(TabularDynamicInlineAdmin):
 class MessageInline(TabularDynamicInlineAdmin):
     extra = 1
     model = Message
+    fields = ('content', 'recipient',)
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -164,6 +165,14 @@ class TicketAdmin(admin.ModelAdmin):
         if obj.requester_id is None:
             obj.requester = request.user
         return super(TicketAdmin, self).save_model(request, obj, form, change)
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            if isinstance(instance, Message):
+                instance.sender = request.user
+                instance.save()
+        formset.save_m2m()
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}

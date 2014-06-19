@@ -1,16 +1,11 @@
-{% overextends "admin/change_form.html" %}
-
-{% block extrahead %}
-    {{ block.super }}
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js" type="text/javascript"></script>
-    {% include 'autocomplete_light/static.html' %}
-{% endblock %}
+{% overextends "admin/helpdesk/change_form.html" %}
 
 {% block after_field_sets %}
-    {% if object_id %}
+    {% if messages %}
     <fieldset class="module aligned {{ fieldset.classes }}">
-        <div class="form-row">bla bla</div>
-        <div class="form-row">bla bla</div>
+        {% for message in messages %}
+            <div class="form-row">{{ message }}</div>
+        {% endfor %}
     </fieldset>
     {% endif %}
 {% endblock %}

@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
+import os
 import pytest
+
+
+def pytest_configure():
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.lives.settings_lives'
 
 
 @pytest.fixture(scope='session')
@@ -54,8 +59,9 @@ class LiveBrowser(object):
         from django.contrib.sessions.backends.db import SessionStore
         from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY
         from django.conf import settings
+        self.user = user
         session = SessionStore()
-        session[SESSION_KEY] = user.pk
+        session[SESSION_KEY] = self.user.pk
         session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
         session.save()
         # to set a cookie we need fo first visit the domain.
@@ -94,6 +100,6 @@ def browser(request, display, live_server):
 
 
 @pytest.fixture
-def browser_requestered(browser, requester):
+def browser_r(browser, requester):
     browser.create_pre_authenticated_session(requester)
-    return browser, requester
+    return browser

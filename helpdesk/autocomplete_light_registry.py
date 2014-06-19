@@ -2,7 +2,9 @@
 from __future__ import unicode_literals, absolute_import
 
 from django.utils.translation import ugettext_lazy as _
+
 import autocomplete_light
+
 from mezzanine.utils.models import get_user_model
 from mezzanine.conf import settings
 

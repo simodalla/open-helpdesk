@@ -27,7 +27,7 @@ class TestRequesterAddTicket(WebTest):
         form = index.forms['ticket_form']
         form['content'] = self.ticket_content
         form['priority'] = PRIORITY_NORMAL
-        tipologies_selected = [t for t in self.tipologies[0:2]]
+        tipologies_selected = [t.pk for t in self.tipologies[0:2]]
         form['tipologies'] = tipologies_selected
         response = form.submit('_save').follow()
         response.lxml.cssselect('.result-list')

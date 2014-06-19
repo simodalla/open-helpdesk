@@ -16,10 +16,6 @@ from .factories import (
     TipologyFactory)
 
 
-# import pytest
-#
-# pytestmark = pytest.mark.django_db
-
 class RequesterMakeTicketTest(AdminTestMixin, TestCase):
     def setUp(self):
         self.requester = UserFactory(

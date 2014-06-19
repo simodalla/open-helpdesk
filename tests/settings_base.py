@@ -19,16 +19,19 @@ TIME_ZONE = "Europe/Rome"
 USE_TZ = True
 
 LANGUAGE_CODE = "en"
+_ = lambda s: s
+LANGUAGES = (
+    ('en', _('English')),
+)
 
-DEBUG = True
+DEBUG = False
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SITE_ID = 1
 
-USE_I18N = False
+USE_I18N = True
 
-INTERNAL_IPS = ("127.0.0.1",)
 
 TEMPLATE_LOADERS = (
     "django.template.loaders.filesystem.Loader",
@@ -85,7 +88,8 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 
 ROOT_URLCONF = 'tests.urls'
 
-TEMPLATE_DIRS = (os.path.join(PROJECT_ROOT, "templates"),)
+TEMPLATE_DIRS = (os.path.join(PROJECT_ROOT, "templates"),
+                 os.path.join(PROJECT_ROOT, "../helpdesk", "templates"))
 
 
 ################
@@ -109,6 +113,7 @@ INSTALLED_APPS = (
     # "mezzanine.forms",
     "mezzanine.pages",
     # "mezzanine.galleries",
+    "autocomplete_light",
     "helpdesk",
 )
 
@@ -159,11 +164,6 @@ OPTIONAL_APPS = (
     PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
-
-# disable debug-toolbar attempting to automatically adjust your project's
-# settings. Reference: http://django-debug-toolbar.readthedocs.org/en/latest/
-# configuration.html#debug-toolbar-patch-settings
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 ####################
 # DYNAMIC SETTINGS #
