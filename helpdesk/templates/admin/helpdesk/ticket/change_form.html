@@ -2,13 +2,14 @@
 
 {% block after_field_sets %}
     {% if messages %}
-    <fieldset class="module aligned {{ fieldset.classes }}">
-        {% for message in messages %}
-            <div class="form-row">{{ message }}</div>
+    <fieldset id="ticket_messages" class="module aligned">
+        {% for message in ticket_messages %}
+            <div id="ticket_message_{{ message.id }}" class="form-row">
+                {{ message }}
+            </div>
         {% endfor %}
     </fieldset>
     {% endif %}
 {% endblock %}
-{% block after_related_objects %}
-    ####
-{% endblock %}
+
+{% block after_related_objects %}{% endblock %}

@@ -176,6 +176,7 @@ class TicketAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
+        # get the ticket's messages only if is change form
         user = self.get_request_helpdeskuser(request)
         if user.is_requester() and object_id:
             messages = user.get_messages_by_ticket(object_id)

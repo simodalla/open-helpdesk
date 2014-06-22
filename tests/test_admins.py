@@ -178,7 +178,7 @@ def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
     return rf_with_helpdeskuser, 1, TicketAdmin(Ticket, AdminSite)
 
 
-class TestTicketAdminChangeViewByRequester(object):
+class TestTicketAdminByRequester(object):
     is_requester = True
 
     @patch('django.contrib.admin.ModelAdmin.change_view')
@@ -189,5 +189,6 @@ class TestTicketAdminChangeViewByRequester(object):
         setattr(request.user, 'get_messages_by_ticket',
                 lambda ticket_id: messages)
         ticket_admin.change_view(request, object_id)
-        mock_cv.assert_called_once_with(request, object_id, form_url='',
-                                        extra_context={'messages': messages})
+        mock_cv.assert_called_once_with(
+            request, object_id, form_url='',
+            extra_context={'ticket_messages': messages})

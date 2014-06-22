@@ -49,7 +49,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
         self.assertEqual(Ticket.objects.count(), 1)
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.requester.pk, self.requester.pk)
-#
+
     def test_changelist_view_is_filtered(self):
         """
         Test that the changelist is filtered by tickets with requester's field
