@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
 import pytest
-
-
-def pytest_configure():
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.lives.settings_lives'
 
 
 @pytest.fixture(scope='session')

@@ -16,6 +16,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'pytest_django' + db_suffix,
         'HOST': 'localhost',
-        'USER': '',
+        'USER': 'postgres',
     },
 }

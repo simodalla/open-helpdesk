@@ -31,7 +31,7 @@ lint:
 	flake8 --exclude=migrations,urls.py helpdesk tests
 
 test:
-	py.test tests $(arg1)
+	py.test tests
 
 test-live:
 	py.test -m livetest --livetest
@@ -40,7 +40,7 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(shell which py.test) -vs tests
+	coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(shell which py.test) tests --livetest
 	coverage report -m
 
 coverage-html: coverage
