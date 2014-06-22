@@ -80,8 +80,8 @@ class HelpdeskUser(User):
         :param ticket_id: ticket id
         :return: recordset of Message objects
         """
-        messages = Message.objects.filter(
-            ticket_id=ticket_id).filter(
+        messages = Message.objects.select_related(
+            'sender', 'recipient').filter(ticket_id=ticket_id).filter(
                 Q(sender__id=self.id) |
                 Q(recipient__id=self.id)).order_by('created')
         return messages
