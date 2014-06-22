@@ -12,7 +12,7 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.livetest
-def test_add_booking_type(browser_r, tipologies, ticket_content):
+def test_add_ticket(browser_r, tipologies, ticket_content):
     browser_r.get('admin:helpdesk_ticket_add')
     print(id(browser_r))
     tipologies_pks = []
@@ -58,4 +58,9 @@ def test_add_message_to_new_ticket(browser_r, new_ticket, operator, settings):
     assert message.content == message_content
     assert message.sender.pk == browser_r.user.pk
     assert message.recipient.pk == operator.pk
-    # pytest.set_trace()
+    fieldset_messages = browser_r.driver.find_element_by_id('ticket_messages')
+    assert len(fieldset_messages.find_elements_by_css_selector(
+        'div.form-row')) == 1
+    ticket_message = fieldset_messages.find_element_by_id(
+        'ticket_message_{}'.format(message.id))
+    assert message.content in ticket_message.text
