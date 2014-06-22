@@ -46,6 +46,7 @@ def tipologies_cls(request):
 def ticket_content():
     return ("foo " * 20).rstrip()
 
+
 @pytest.fixture
 def new_ticket(requester, tipologies, ticket_content):
     """Return a ticket into 'new' status."""
