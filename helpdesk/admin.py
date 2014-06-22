@@ -177,9 +177,9 @@ class TicketAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         user = self.get_request_helpdeskuser(request)
-        if user.is_requester():
+        if user.is_requester() and object_id:
             messages = user.get_messages_by_ticket(object_id)
-            extra_context.update({'messages': messages})
+            extra_context.update({'ticket_messages': messages})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
