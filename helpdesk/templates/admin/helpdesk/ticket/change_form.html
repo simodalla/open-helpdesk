@@ -1,12 +1,12 @@
 {% overextends "admin/helpdesk/change_form.html" %}
 
+{% load helpdesk_tags %}
+
 {% block after_field_sets %}
-    {% if messages %}
+    {% if ticket_messages %}
     <fieldset id="ticket_messages" class="module aligned">
-        {% for message in ticket_messages %}
-            <div id="ticket_message_{{ message.id }}" class="form-row">
-                {{ message }}
-            </div>
+        {% for ticket_message in ticket_messages %}
+            {% format_ticket_message ticket_message %}
         {% endfor %}
     </fieldset>
     {% endif %}

@@ -1,0 +1,5 @@
+<div id="ticket_message_{{ message.id }}"{% if css_class %} class="{{ css_class }}"{% endif %}{% if css_style %}style="{{ css_style }}"{% endif %}>
+    {% if model == 'message' %}<i class="fa fa-envelope fa-2x"></i>&nbsp;&nbsp;{% endif %}
+    <b>{{ message.content }}</b>&nbsp;&nbsp;at&nbsp;{{ message.created }}
+    {% if model == 'report' %}&nbsp;by{{ message.sender }}&nbsp;&nbsp;<i class="fa fa-mail-reply fa-2x"></i>{% endif %}
+</div>
