@@ -78,14 +78,3 @@ class TestFormatTicketTag(object):
         context = format_ticket_message(message, css_class='foo')
         assert 'css_class' in context.keys()
         assert context['css_class'] == 'foo'
-
-
-
-
-
-
-
-
-
-
-
