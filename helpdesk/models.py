@@ -162,7 +162,7 @@ class Attachment(TimeStamped):
                          upload_to=upload_to('helpdesk.Issue.attachments',
                                              'helpdesk/attachments'), )
     description = models.CharField(_('Description'), max_length=500)
-    issue = models.ForeignKey('Ticket')
+    ticket = models.ForeignKey('Ticket', blank=True, null=True  )
 
     class Meta:
         verbose_name = _('Attachment')

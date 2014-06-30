@@ -9,7 +9,8 @@ from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm
 from .models import (
-    Category, Tipology, Attachment, Ticket, HelpdeskUser, Message)
+    Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
+    Report)
 from .views import OpenTicketView
 
 
@@ -18,15 +19,21 @@ class TipologyInline(TabularDynamicInlineAdmin):
     model = Tipology
 
 
-class AttachmentInline(TabularDynamicInlineAdmin):
-    extra = 1
-    model = Attachment
-
-
 class MessageInline(TabularDynamicInlineAdmin):
     extra = 1
     model = Message
     fields = ('content', 'recipient',)
+
+
+class ReportTicketInline(TabularDynamicInlineAdmin):
+    extra = 1
+    model = Report
+    fields = ('content', 'action_on_ticket', 'visible_from_requester')
+
+
+class AttachmentInline(TabularDynamicInlineAdmin):
+    extra = 1
+    model = Attachment
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -44,7 +51,7 @@ class TipologyAdmin(admin.ModelAdmin):
 class TicketAdmin(admin.ModelAdmin):
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
-    inlines = [AttachmentInline, MessageInline]
+    inlines = [ReportTicketInline, AttachmentInline, MessageInline,]
     list_display = ['pk', 'admin_content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
     list_per_page = 25
@@ -91,6 +98,7 @@ class TicketAdmin(admin.ModelAdmin):
     def get_formsets(self, request, obj=None):
         user = self.get_request_helpdeskuser(request)
         for inline in self.get_inline_instances(request, obj):
+            print("====", inline)
             if isinstance(inline, MessageInline):
                 # hide MessageInline in the add view or user not is
                 # a requester
