@@ -8,6 +8,7 @@ except ImportError:  # pragma: no cover
     from django.db.transaction import commit_on_success as atomic
 
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
+from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.template.defaultfilters import truncatewords
@@ -17,8 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
 from mezzanine.core.models import RichText, SiteRelated, TimeStamped
-from mezzanine.utils.models import (upload_to, get_user_model_name,
-                                    get_user_model)
+from mezzanine.utils.models import (get_user_model_name, get_user_model)
 
 from model_utils.models import StatusModel
 from model_utils import Choices
@@ -81,10 +81,11 @@ class HelpdeskUser(User):
         :return: recordset of Message objects
         """
         messages = Message.objects.select_related(
-            'sender', 'recipient').filter(ticket_id=ticket_id).filter(
-                Q(sender__id=self.id) |
-                Q(recipient__id=self.id)).order_by('created')
-        return messages
+            'sender', 'recipient').filter(ticket_id=ticket_id)
+        if self.is_requester():
+            messages = messages.filter(
+                Q(sender__id=self.id) | Q(recipient__id=self.id))
+        return messages.order_by('created')
 
 
 @python_2_unicode_compatible
@@ -159,10 +160,12 @@ class Tipology(TimeStamped):
 
 class Attachment(TimeStamped):
     f = models.FileField(verbose_name=_('File'),
-                         upload_to=upload_to('helpdesk.Issue.attachments',
-                                             'helpdesk/attachments'), )
-    description = models.CharField(_('Description'), max_length=500)
-    ticket = models.ForeignKey('Ticket', blank=True, null=True)
+                         upload_to='helpdesk/attachments/%Y/%m/%d')
+    description = models.CharField(_('Description'), max_length=500,
+                                   blank=True)
+    content_type = models.ForeignKey('contenttypes.ContentType')
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         verbose_name = _('Attachment')
@@ -291,7 +294,7 @@ class Message(TimeStamped):
 
     class Meta:
         get_latest_by = 'created'
-        ordering = ('-created',)
+        ordering = ('created',)
         verbose_name = _('Message')
         verbose_name_plural = _('Messages')
 
@@ -306,7 +309,7 @@ class Report(Message):
 
     class Meta:
         get_latest_by = 'created'
-        ordering = ('-created',)
+        ordering = ('created',)
         verbose_name = _('Report')
         verbose_name_plural = _('Reports')
 
