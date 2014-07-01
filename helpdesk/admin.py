@@ -5,6 +5,7 @@ from copy import deepcopy
 
 from django.conf.urls import patterns, url
 from django.contrib import admin
+from django.contrib.contenttypes.generic import GenericTabularInline
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm
@@ -12,6 +13,10 @@ from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
     Report)
 from .views import OpenTicketView
+
+
+def get_request_helpdeskuser(request):
+    return HelpdeskUser.objects.get(pk=request.user.pk)
 
 
 class TipologyInline(TabularDynamicInlineAdmin):
@@ -30,8 +35,15 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
     model = Report
     fields = ('content', 'action_on_ticket', 'visible_from_requester')
 
+    def get_queryset(self, request):
+        user = get_request_helpdeskuser(request)
+        qs = super(ReportTicketInline, self).get_queryset(request)
+        if user.is_superuser or user.is_admin():
+            return qs
+        return qs.filter(sender=user)
 
-class AttachmentInline(TabularDynamicInlineAdmin):
+
+class AttachmentInline(TabularDynamicInlineAdmin, GenericTabularInline):
     extra = 1
     model = Attachment
 
@@ -51,7 +63,7 @@ class TipologyAdmin(admin.ModelAdmin):
 class TicketAdmin(admin.ModelAdmin):
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
-    inlines = [ReportTicketInline, AttachmentInline, MessageInline,]
+    inlines = [ReportTicketInline, AttachmentInline, MessageInline]
     list_display = ['pk', 'admin_content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
     list_per_page = 25
@@ -66,6 +78,7 @@ class TicketAdmin(admin.ModelAdmin):
             "fields": ["tipologies", "priority", "content", "related_tickets"],
         }),
     )
+    operator_read_only_fields = ('content', 'related_tickets',)
 
     def get_request_helpdeskuser(self, request):
         return HelpdeskUser.objects.get(pk=request.user.pk)
@@ -98,7 +111,6 @@ class TicketAdmin(admin.ModelAdmin):
     def get_formsets(self, request, obj=None):
         user = self.get_request_helpdeskuser(request)
         for inline in self.get_inline_instances(request, obj):
-            print("====", inline)
             if isinstance(inline, MessageInline):
                 # hide MessageInline in the add view or user not is
                 # a requester
@@ -118,6 +130,8 @@ class TicketAdmin(admin.ModelAdmin):
                 for e in self.get_fieldsets(request, obj=obj):
                     fields += e[1]['fields']
                 return tuple(fields)
+            elif user.is_operator() or user.is_admin() or user.is_superuser:
+                return tuple(TicketAdmin.operator_read_only_fields)
         return super(TicketAdmin, self).get_readonly_fields(request, obj=obj)
 
     def get_list_filter(self, request):
@@ -179,7 +193,7 @@ class TicketAdmin(admin.ModelAdmin):
         for instance in instances:
             if isinstance(instance, Message):
                 instance.sender = request.user
-                instance.save()
+            instance.save()
         formset.save_m2m()
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
