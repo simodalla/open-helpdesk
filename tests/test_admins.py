@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
-import pytest
 import unittest
+
+import pytest
+
 try:
     from unittest.mock import patch, Mock
 except ImportError:
@@ -106,29 +108,25 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         result = self.ticket_admin.get_readonly_fields(get_mock_request())
         self.assertEqual(tuple(), result)
 
-    def test_empty_readonly_fields_if_operator_in_request(self,
-                                                          mock_get_req_hpu):
+    def test_readonly_fields_if_operator_in_request(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(operator=True)
         result = self.ticket_admin.get_readonly_fields(
             get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertEqual(tuple(), result)
+        self.assertEqual(TicketAdmin.operator_read_only_fields, result)
 
-    def test_empty_readonly_fields_if_admin_in_request(self,
-                                                       mock_get_req_hpu):
+    def test_readonly_fields_if_admin_in_request(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(admin=True)
         result = self.ticket_admin.get_readonly_fields(
             get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertEqual(tuple(), result)
+        self.assertEqual(TicketAdmin.operator_read_only_fields, result)
 
-    def test_empty_readonly_fields_if_superuser_in_request(self,
-                                                           mock_get_req_hpu):
+    def test_readonly_fields_if_superuser_in_request(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(superuser=True)
         result = self.ticket_admin.get_readonly_fields(
             get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertEqual(tuple(), result)
+        self.assertEqual(TicketAdmin.operator_read_only_fields, result)
 
-    def test_empty_readonly_fields_if_requester_in_request(self,
-                                                           mock_get_req_hpu):
+    def test_readonly_fields_if_requester_in_request(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
         result = self.ticket_admin.get_readonly_fields(
             get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
