@@ -36,6 +36,7 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
     fields = ('content', 'action_on_ticket', 'visible_from_requester')
 
     def get_queryset(self, request):
+        """If request.user is operator return queryset filterd by sender."""
         user = get_request_helpdeskuser(request)
         qs = super(ReportTicketInline, self).get_queryset(request)
         if user.is_superuser or user.is_admin():
