@@ -4,7 +4,8 @@ from __future__ import unicode_literals, absolute_import
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
 
-from helpdesk.models import Report, Message
+from helpdesk.models import Message
+
 
 register = template.Library()
 
