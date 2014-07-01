@@ -46,9 +46,9 @@ class LiveBrowser(object):
         from django.core.urlresolvers import reverse
         if url.startswith('/'):
             return self.driver.get('{}{}/'.format(
-                self.live_server, url.rstrip('/')), *args, **kwargs)
+                self.live_server.url, url.rstrip('/')), *args, **kwargs)
         return self.driver.get('{}{}'.format(
-            self.live_server, reverse(url, args=args, kwargs=kwargs)))
+            self.live_server.url, reverse(url, args=args, kwargs=kwargs)))
 
     def create_pre_authenticated_session(self, user):
         from django.contrib.sessions.backends.db import SessionStore
@@ -61,7 +61,7 @@ class LiveBrowser(object):
         session.save()
         # to set a cookie we need fo first visit the domain.
         # 404 pages load the quicktest!
-        self.driver.get('{}/404_no_such_url/'.format(str(self.live_server)))
+        self.driver.get('{}/404_no_such_url/'.format(self.live_server.url))
         self.driver.add_cookie(dict(
             name=settings.SESSION_COOKIE_NAME,
             value=session.session_key,
@@ -84,7 +84,7 @@ class LiveBrowser(object):
 def browser(request, display, live_server):
     from selenium import webdriver
     driver = webdriver.Firefox()
-    live_browser = LiveBrowser(driver, str(live_server))
+    live_browser = LiveBrowser(driver, live_server)
 
     def fin():
         print('finalizing firefox webdriver...')

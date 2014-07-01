@@ -2,7 +2,6 @@
 from __future__ import unicode_literals, absolute_import
 
 import pytest
-
 from selenium.webdriver.support.ui import Select
 
 from helpdesk.models import Ticket, PRIORITY_NORMAL
@@ -11,10 +10,10 @@ from helpdesk.models import Ticket, PRIORITY_NORMAL
 pytestmark = pytest.mark.django_db
 
 
+@pytest.mark.target
 @pytest.mark.livetest
 def test_add_ticket(browser_r, tipologies, ticket_content):
     browser_r.get('admin:helpdesk_ticket_add')
-    print(id(browser_r))
     tipologies_pks = []
     for t in tipologies:
         tipologies_pks.append(t.pk)
@@ -35,7 +34,6 @@ def test_add_ticket(browser_r, tipologies, ticket_content):
             == set(tipologies_pks))
 
 
-@pytest.mark.target
 @pytest.mark.livetest
 def test_add_message_to_new_ticket(browser_r, new_ticket, operator, settings):
     assert isinstance(new_ticket, Ticket)
