@@ -73,9 +73,10 @@ class HelpdeskUser(User):
 
     def get_messages_by_ticket(self, ticket_id):
         """
-        Returns all Messages object filterd by 'ticket_id' parameter and
-        by sender or recipient is self user. Queryset is ordered by createion
-        date.
+        Returns Messages' queryset filterd by 'ticket_id' parameter and
+        ordered by createion date. If user (self) is a requester queryset
+        is filtered on Report is only visible by requester and where sender
+        or recipient is user (self).
 
         :param ticket_id: ticket id
         :return: recordset of Message objects
@@ -83,8 +84,9 @@ class HelpdeskUser(User):
         messages = Message.objects.select_related(
             'sender', 'recipient').filter(ticket_id=ticket_id)
         if self.is_requester():
-            messages = messages.filter(
-                Q(sender__id=self.id) | Q(recipient__id=self.id))
+            messages = messages.exclude(
+                report__visible_from_requester=False).filter(
+                    Q(sender__id=self.id) | Q(recipient__id=self.id))
         return messages.order_by('created')
 
 
