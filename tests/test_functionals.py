@@ -25,7 +25,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
         self.post_data = self.get_formset_post_data(
             data={'content': 'helpdesk_content', 'tipologies': None,
                   'priority': 1},
-            formset='attachment_set')
+            formset='helpdesk-attachment-content_type-object_id')
         self.default_site = Site.objects.get(pk=1)
 
     def get_category(self, n_tipologies=None, site=None):
