@@ -53,6 +53,10 @@ class HelpdeskUser(User):
     def group_names(self):
         return self.groups.values_list('name', flat=True)
 
+    @classmethod
+    def get_from_request(cls, request):
+        return cls.objects.get(pk=request.user.pk)
+
     def is_requester(self):
         """Test if user belong to settings.HELPDESK_REQUESTERS group."""
         if settings.HELPDESK_REQUESTERS in self.group_names:

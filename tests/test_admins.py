@@ -63,12 +63,6 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         fieldeset = self.ticket_admin.get_fieldsets(get_mock_request())
         self.assertIn('requester', fieldeset[0][1]['fields'])
 
-    def test_field_requester_not_in_form_if_superuser_in_request(
-            self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(superuser=True)
-        fieldeset = self.ticket_admin.get_fieldsets(get_mock_request())
-        self.assertIn('requester', fieldeset[0][1]['fields'])
-
     def test_field_admin_readonly_content_in_fieldset_if_requester(
             self, mock_get_req_hpu):
         """
@@ -78,61 +72,6 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
         fieldeset = self.ticket_admin.get_fieldsets(get_mock_request(), Mock())
         self.assertIn('admin_readonly_content', fieldeset[0][1]['fields'])
-
-    def test_list_filter_if_requester_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
-        list_filter = list(self.ticket_admin.list_filter)
-        result = self.ticket_admin.get_list_filter(get_mock_request())
-        self.assertListEqual(list_filter, result)
-
-    def test_list_filter_if_operator_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(operator=True)
-        list_filter = list(self.ticket_admin.list_filter)
-        result = self.ticket_admin.get_list_filter(get_mock_request())
-        self.assertListEqual(list_filter + ['requester', 'assignee'], result)
-
-    def test_list_filter_if_admin_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(admin=True)
-        list_filter = list(self.ticket_admin.list_filter)
-        result = self.ticket_admin.get_list_filter(get_mock_request())
-        self.assertListEqual(list_filter + ['requester', 'assignee'], result)
-
-    def test_list_filter_if_superuser_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(superuser=True)
-        list_filter = list(self.ticket_admin.list_filter)
-        result = self.ticket_admin.get_list_filter(get_mock_request())
-        self.assertListEqual(list_filter + ['requester', 'assignee'],
-                             result)
-
-    def test_empty_readonly_fields_if_obj_is_none(self, mock_get_req_hpu):
-        result = self.ticket_admin.get_readonly_fields(get_mock_request())
-        self.assertEqual(tuple(), result)
-
-    def test_readonly_fields_if_operator_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(operator=True)
-        result = self.ticket_admin.get_readonly_fields(
-            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertEqual(TicketAdmin.operator_read_only_fields, result)
-
-    def test_readonly_fields_if_admin_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(admin=True)
-        result = self.ticket_admin.get_readonly_fields(
-            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertEqual(TicketAdmin.operator_read_only_fields, result)
-
-    def test_readonly_fields_if_superuser_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(superuser=True)
-        result = self.ticket_admin.get_readonly_fields(
-            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertEqual(TicketAdmin.operator_read_only_fields, result)
-
-    def test_readonly_fields_if_requester_in_request(self, mock_get_req_hpu):
-        mock_get_req_hpu.return_value = get_mock_helpdeskuser(requester=True)
-        result = self.ticket_admin.get_readonly_fields(
-            get_mock_request(), obj=Mock(spec_set=Ticket, pk=self.fake_pk))
-        self.assertEqual(
-            ('tipologies', 'priority', 'admin_readonly_content',
-             'related_tickets'), result)
 
     def test_queryset_is_not_filterd_if_is_operator(self, mock_get_req_hpu):
         mock_get_req_hpu.return_value = get_mock_helpdeskuser(operator=True)
@@ -173,16 +112,15 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
 def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
     monkeypatch.setattr('helpdesk.admin.TicketAdmin.get_request_helpdeskuser',
                         lambda self, request: request.user)
-    return rf_with_helpdeskuser, 1, TicketAdmin(Ticket, AdminSite)
+    return rf_with_helpdeskuser, TicketAdmin(Ticket, AdminSite), 1
 
 
 class TestTicketAdminByRequester(object):
-    is_requester = True
 
     @patch('django.contrib.admin.ModelAdmin.change_view')
     def test_view_calls_has_messages_in_extra_content(
             self, mock_cv, ticket_admin_change_view):
-        request, object_id, ticket_admin = ticket_admin_change_view
+        request, ticket_admin, object_id = ticket_admin_change_view
         messages = [1, 2, 3]
         setattr(request.user, 'get_messages_by_ticket',
                 lambda ticket_id: messages)
@@ -190,3 +128,48 @@ class TestTicketAdminByRequester(object):
         mock_cv.assert_called_once_with(
             request, object_id, form_url='',
             extra_context={'ticket_messages': messages})
+
+    @pytest.mark.parametrize(
+        'helpdeskuser,expected',
+        [('requester', TicketAdmin.list_display),
+         ('operator', (TicketAdmin.list_display +
+                       TicketAdmin.operator_list_display)),
+         ('admin', (TicketAdmin.list_display +
+                    TicketAdmin.operator_list_display))])
+    def test_custom_list_display(self, helpdeskuser, expected,
+                                 ticket_admin_change_view, monkeypatch):
+        request, ticket_admin, object_id = ticket_admin_change_view
+        setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
+        assert ticket_admin.get_list_display(request) == expected
+
+    @pytest.mark.parametrize(
+        'helpdeskuser,expected',
+        [('requester', TicketAdmin.list_filter),
+         ('operator', (TicketAdmin.list_filter +
+                       TicketAdmin.operator_list_filter)),
+         ('admin', (TicketAdmin.list_filter +
+                    TicketAdmin.operator_list_filter))])
+    def test_custom_list_filter(self, helpdeskuser, expected,
+                                ticket_admin_change_view, monkeypatch):
+        request, ticket_admin, object_id = ticket_admin_change_view
+        setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
+        assert ticket_admin.get_list_filter(request) == expected
+
+    def test_custom_readonly_fields_if_obj_is_none(self,
+                                                   ticket_admin_change_view):
+        request, ticket_admin, object_id = ticket_admin_change_view
+        assert ticket_admin.get_readonly_fields(request) == list()
+
+    @pytest.mark.parametrize(
+        'helpdeskuser,expected',
+        [('requester', {'f1', 'f2'}),
+         ('operator', TicketAdmin.operator_read_only_fields),
+         ('admin', TicketAdmin.operator_read_only_fields)])
+    def test_custom_list_display(self, helpdeskuser, expected,
+                                 ticket_admin_change_view, monkeypatch):
+        request, ticket_admin, object_id = ticket_admin_change_view
+        setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
+        setattr(ticket_admin, 'get_fieldsets',
+                lambda r, obj=1: ((None, {'fields': ['f1', 'f2']}),))
+        assert set(ticket_admin.get_readonly_fields(
+            request, Mock(spec_set=Ticket, pk=1))) == set(expected)

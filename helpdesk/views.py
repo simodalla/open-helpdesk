@@ -26,7 +26,7 @@ class OpenTicketView(GroupRequiredMixin, RedirectView):
         error_msg_prefix = _('An error occurs.')
         try:
             ticket = Ticket.objects.get(pk=ticket_pk)
-            ticket.open(self.request.user)
+            ticket.opening(self.request.user)
             msg = _('Ticket n.%(pk)s is opened and assigned.') % {
                 'pk': ticket_pk}
         except Ticket.DoesNotExist:

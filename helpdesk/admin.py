@@ -5,7 +5,10 @@ from copy import deepcopy
 
 from django.conf.urls import patterns, url
 from django.contrib import admin
+from django.contrib import messages
 from django.contrib.contenttypes.generic import GenericTabularInline
+from django.utils.translation import ugettext_lazy as _
+
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm
@@ -13,10 +16,6 @@ from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
     Report)
 from .views import OpenTicketView
-
-
-def get_request_helpdeskuser(request):
-    return HelpdeskUser.objects.get(pk=request.user.pk)
 
 
 class TipologyInline(TabularDynamicInlineAdmin):
@@ -37,7 +36,7 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
 
     def get_queryset(self, request):
         """If request.user is operator return queryset filterd by sender."""
-        user = get_request_helpdeskuser(request)
+        user = HelpdeskUser.get_from_request(request)
         qs = super(ReportTicketInline, self).get_queryset(request)
         if user.is_superuser or user.is_admin():
             return qs
@@ -62,6 +61,7 @@ class TipologyAdmin(admin.ModelAdmin):
 
 
 class TicketAdmin(admin.ModelAdmin):
+    actions = ['open_tickets']
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
     inlines = [ReportTicketInline, AttachmentInline, MessageInline]
@@ -76,13 +76,41 @@ class TicketAdmin(admin.ModelAdmin):
                      'tipologies__title']
     fieldsets = (
         (None, {
-            "fields": ["tipologies", "priority", "content", "related_tickets"],
+            'fields': ['tipologies', 'priority', 'content', 'related_tickets'],
         }),
     )
-    operator_read_only_fields = ('content', 'related_tickets',)
+    operator_read_only_fields = ['content', 'tipologies', 'priority']
+    operator_list_display = ['requester', 'created']
+    operator_list_filter = ['requester', 'assignee']
+    operator_actions = ['requester', 'assignee']
 
     def get_request_helpdeskuser(self, request):
-        return HelpdeskUser.objects.get(pk=request.user.pk)
+        return HelpdeskUser.get_from_request(request)
+
+    #### ModelsAdmin methods customized #######################################
+    def get_list_display(self, request):
+        """
+        Return default list_display if request.user is a requester. Otherwise
+        if request.user is a operator or an admin return default list_display
+        with operator_list_display.
+        """
+        user = self.get_request_helpdeskuser(request)
+        list_display = list(super(TicketAdmin, self).get_list_display(request))
+        if user.is_operator() or user.is_admin():
+            list_display += self.operator_list_display
+        return list_display
+
+    def get_list_filter(self, request):
+        """
+        Return default list_filter if request.user is a requester. Otherwise
+        if request.user is a operator, an admin or return default
+        list_filter with append more fields.
+        """
+        user = self.get_request_helpdeskuser(request)
+        list_filter = list(super(TicketAdmin, self).get_list_filter(request))
+        if user.is_operator() or user.is_admin():
+            list_filter += self.operator_list_filter
+        return list_filter
 
     def get_fieldsets(self, request, obj=None):
         """
@@ -93,7 +121,7 @@ class TicketAdmin(admin.ModelAdmin):
         user = self.get_request_helpdeskuser(request)
         fieldset = deepcopy(super(TicketAdmin, self).get_fieldsets(
             request, obj=obj))
-        if user.is_superuser or user.is_operator() or user.is_admin():
+        if user.is_operator() or user.is_admin():
             fieldset[0][1]['fields'].append('requester')
         if user.is_requester() and obj:
             # add custom fields so that they are in form. Otherwise are
@@ -119,34 +147,6 @@ class TicketAdmin(admin.ModelAdmin):
                     continue  # pragma: no cover
             yield inline.get_formset(request, obj)
 
-    def get_readonly_fields(self, request, obj=None):
-        """
-        Return a tuple with all fields if request.user is a requester.
-        Otherwise return default empty readonly_fields.
-        """
-        if obj:
-            user = self.get_request_helpdeskuser(request)
-            if user.is_requester():
-                fields = []
-                for e in self.get_fieldsets(request, obj=obj):
-                    fields += e[1]['fields']
-                return tuple(fields)
-            elif user.is_operator() or user.is_admin() or user.is_superuser:
-                return tuple(TicketAdmin.operator_read_only_fields)
-        return super(TicketAdmin, self).get_readonly_fields(request, obj=obj)
-
-    def get_list_filter(self, request):
-        """
-        Return default list_filter if request.user is a requester. Otherwise
-        if request.user is a operator, an admin or superuser, return default
-        list_filter with append more fields.
-        """
-        user = self.get_request_helpdeskuser(request)
-        list_filter = super(TicketAdmin, self).get_list_filter(request)
-        if user.is_superuser or user.is_operator() or user.is_admin():
-            list_filter = list(list_filter) + ['requester', 'assignee']
-        return list_filter
-
     def get_queryset(self, request):
         """
         Return a filtered queryset by user that match with request.user if
@@ -164,6 +164,23 @@ class TicketAdmin(admin.ModelAdmin):
         if user.is_superuser or user.is_operator() or user.is_admin():
             return qs
         return qs.filter(requester=user)
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Return a tuple with all fields if request.user is a requester.
+        Otherwise return default empty readonly_fields.
+        """
+        if obj:
+            user = self.get_request_helpdeskuser(request)
+            if user.is_requester():
+                fields = set()
+                for e in self.get_fieldsets(request, obj=obj):
+                    fields = fields.union(list(e[1]['fields']))
+                return list(fields)
+            elif user.is_operator() or user.is_admin():
+                return list(TicketAdmin.operator_read_only_fields)
+        return list(
+            super(TicketAdmin, self).get_readonly_fields(request, obj=obj))
 
     def get_urls(self):
         # getattr is for re-compatibility django 1.5
@@ -184,11 +201,6 @@ class TicketAdmin(admin.ModelAdmin):
         """
         return self.get_queryset(request)  # pragma: no cover
 
-    def save_model(self, request, obj, form, change):
-        if obj.requester_id is None:
-            obj.requester = request.user
-        return super(TicketAdmin, self).save_model(request, obj, form, change)
-
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
         for instance in instances:
@@ -197,6 +209,12 @@ class TicketAdmin(admin.ModelAdmin):
             instance.save()
         formset.save_m2m()
 
+    def save_model(self, request, obj, form, change):
+        if obj.requester_id is None:
+            obj.requester = request.user
+        return super(TicketAdmin, self).save_model(request, obj, form, change)
+
+    #### ModelsAdmin views methods customized #################################
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         # get the ticket's messages only if is change form
@@ -206,6 +224,40 @@ class TicketAdmin(admin.ModelAdmin):
             extra_context.update({'ticket_messages': messages})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
+
+    ### ModelsAdmin actions ###################################################
+    def open_tickets(self, request, queryset):
+        success_msg = _('Tickets %(ticket_ids)s successfully opened'
+                        ' and assigned.')
+        error_msg = _('Errors occours: \n{errors}.')
+        success_ids = []
+        error_data = []
+        for ticket in queryset.filter(status=Ticket.STATUS.new):
+            try:
+                ticket.opening(request.user)
+                success_ids.append(str(ticket.pk))
+            except Exception as e:
+                error_data.append((ticket.pk, str(e)))
+        if success_ids:
+            self.message_user(
+                request,
+                success_msg % {'ticket_ids': ','.join(success_ids)},
+                level=messages.SUCCESS)
+        if error_data:
+            self.message_user(
+                request,
+                error_msg % {'errors': '\n'.join(
+                    ['ticket {} [{}]' for id, exc in error_data])},
+                level=messages.ERROR)
+    open_tickets.short_description = _('Open e assign selected Tickets')
+
+    def get_actions(self, request):
+        user = self.get_request_helpdeskuser(request)
+        actions = super(TicketAdmin, self).get_actions(request)
+        if user.is_requester() and 'open_tickets' in actions:
+            del actions['open_tickets']
+        return actions
+
 
 
 admin.site.register(Category, CategoryAdmin)

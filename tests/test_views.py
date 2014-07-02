@@ -55,12 +55,12 @@ class OpenTicketViewTest(TestViewHelper, TestCase):
         fake_open_error = 'Open Error'
         request = self.build_request(user=self.mock_user)
         mock_ticket = Mock(spec_set=Ticket)
-        mock_ticket.open.side_effect = ValueError(fake_open_error)
+        mock_ticket.opening.side_effect = ValueError(fake_open_error)
         mock_get.return_value = mock_ticket
         view = self.build_view(request)
         url = view.get_redirect_url(pk=fake_ticket_pk)
         self.assertEqual(url, '/admin/helpdesk/ticket/')
-        mock_ticket.open.assert_called_once_with(self.mock_user)
+        mock_ticket.opening.assert_called_once_with(self.mock_user)
         mock_messages.error.assert_called_once_with(
             request, 'An error occurs. {}'.format(fake_open_error))
 
@@ -80,7 +80,7 @@ class OpenTicketViewTest(TestViewHelper, TestCase):
         url = view.get_redirect_url(pk=fake_ticket_pk)
         self.assertEqual(url,
                          '/admin/helpdesk/ticket/{}/'.format(fake_ticket_pk))
-        mock_ticket.open.assert_called_once_with(self.mock_user)
+        mock_ticket.opening.assert_called_once_with(self.mock_user)
         mock_messages.success.assert_called_once_with(
             request,
             'Ticket n.{} is opened and assigned.'.format(fake_ticket_pk))
