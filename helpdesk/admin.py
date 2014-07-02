@@ -38,7 +38,7 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
         """If request.user is operator return queryset filterd by sender."""
         user = HelpdeskUser.get_from_request(request)
         qs = super(ReportTicketInline, self).get_queryset(request)
-        if user.is_superuser or user.is_admin():
+        if user.is_admin():
             return qs
         return qs.filter(sender=user)
 
@@ -224,31 +224,36 @@ class TicketAdmin(admin.ModelAdmin):
             extra_context.update({'ticket_messages': messages})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
+    
+    def changelist_view(self, request, extra_context=None):
+        print(request.POST)
+        return super(TicketAdmin, self).changelist_view(request, extra_context)
 
     ### ModelsAdmin actions ###################################################
     def open_tickets(self, request, queryset):
-        success_msg = _('Tickets %(ticket_ids)s successfully opened'
-                        ' and assigned.')
-        error_msg = _('Errors occours: \n{errors}.')
-        success_ids = []
-        error_data = []
-        for ticket in queryset.filter(status=Ticket.STATUS.new):
-            try:
-                ticket.opening(request.user)
-                success_ids.append(str(ticket.pk))
-            except Exception as e:
-                error_data.append((ticket.pk, str(e)))
-        if success_ids:
-            self.message_user(
-                request,
-                success_msg % {'ticket_ids': ','.join(success_ids)},
-                level=messages.SUCCESS)
-        if error_data:
-            self.message_user(
-                request,
-                error_msg % {'errors': '\n'.join(
-                    ['ticket {} [{}]' for id, exc in error_data])},
-                level=messages.ERROR)
+        pass
+        # success_msg = _('Tickets %(ticket_ids)s successfully opened'
+        #                 ' and assigned.')
+        # error_msg = _('Errors occours: \n{errors}.')
+        # success_ids = []
+        # error_data = []
+        # for ticket in queryset.filter(status=Ticket.STATUS.new):
+        #     try:
+        #         ticket.opening(request.user)
+        #         success_ids.append(str(ticket.pk))
+        #     except Exception as e:
+        #         error_data.append((ticket.pk, str(e)))
+        # if success_ids:
+        #     self.message_user(
+        #         request,
+        #         success_msg % {'ticket_ids': ','.join(success_ids)},
+        #         level=messages.SUCCESS)
+        # if error_data:
+        #     self.message_user(
+        #         request,
+        #         error_msg % {'errors': '\n'.join(
+        #             ['ticket {} [{}]' for id, exc in error_data])},
+        #         level=messages.ERROR)
     open_tickets.short_description = _('Open e assign selected Tickets')
 
     def get_actions(self, request):
