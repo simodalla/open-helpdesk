@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -45,3 +46,14 @@ class TicketIsNotPendingError(TicketStatusError):
 class TicketIsClosedError(TicketStatusError):
     default_message = (_('Ticket is already in "%(status)s" status') %
                        {'status': TICKET_STATUSES[3][1]})
+
+
+def get_perm(perm_name):
+    """
+    Returns permission instance with given name.
+
+    Permission name is a string like 'auth.add_user'.
+    """
+    app_label, codename = perm_name.split('.')
+    return Permission.objects.get(
+        content_type__app_label=app_label, codename=codename)

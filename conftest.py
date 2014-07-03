@@ -44,6 +44,7 @@ def helpdesker(helpdesker_conf):
     if not helpdesker_conf:
         return None
     user = UserFactory(
+        username=helpdesker_conf[0].rstrip('s'),
         groups=[GroupFactory(name=helpdesker_conf[0],
                              permissions=list(helpdesker_conf[1]))])
     sp = user.sitepermissions.create(user=user)

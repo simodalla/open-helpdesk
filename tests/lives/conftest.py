@@ -2,7 +2,7 @@
 import pytest
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def display(request):
     try:
         from pyvirtualdisplay import Display
@@ -69,6 +69,8 @@ class LiveBrowser(object):
         ))
         return session.session_key
 
+
+class MezzanineLiveBrowser(LiveBrowser):
     def set_content_to_tinymce(self, content=''):
         """
         Set content of tinyMCE.
@@ -79,12 +81,19 @@ class LiveBrowser(object):
         script = "tinyMCE.activeEditor.setContent('{}');".format(content)
         return self.driver.execute_script(script)
 
+    def get_messages(self, level=None):
+        selector = '.messagelist li'
+        if level:
+            selector += '.{}'.format(level)
+        return self.driver.find_elements_by_css_selector(selector)
+
 
 @pytest.fixture(scope='module')
 def browser(request, display, live_server):
+    print('starting firefox webdriver...')
     from selenium import webdriver
     driver = webdriver.Firefox()
-    live_browser = LiveBrowser(driver, live_server)
+    live_browser = MezzanineLiveBrowser(driver, live_server)
 
     def fin():
         print('finalizing firefox webdriver...')

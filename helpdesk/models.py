@@ -194,7 +194,7 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     related_tickets = models.ManyToManyField(
         'self', verbose_name=_('Related tickets'), blank=True)
 
-    objects = HeldeskableManager()
+    # objects = HeldeskableManager()
 
     class Meta:
         get_latest_by = 'created'

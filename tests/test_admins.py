@@ -173,3 +173,22 @@ class TestTicketAdminByRequester(object):
                 lambda r, obj=1: ((None, {'fields': ['f1', 'f2']}),))
         assert set(ticket_admin.get_readonly_fields(
             request, Mock(spec_set=Ticket, pk=1))) == set(expected)
+
+
+# @pytest.fixture
+# def new_tickets(requester, tipologies):
+#     tickets = []
+#     for i in range(0, 3):
+#         t = Ticket()
+#         t.requester = requester
+#         t.status = Ticket.STATUS.new
+#         t.content = 'foo '*20
+#         t.save()
+#         t.tipologies.add(*tipologies)
+#         tickets.append(t)
+#     return tickets
+
+#
+# class TestActionOpenTickets(object):
+#
+#     def test_open

@@ -6,18 +6,8 @@ from django.contrib.sites.models import Site
 
 from mezzanine.core.models import SitePermission
 
+from helpdesk.core import get_perm
 from helpdesk.models import Category, Tipology, HelpdeskUser as User, Ticket
-
-
-def _get_perm(perm_name):
-    """
-    Returns permission instance with given name.
-
-    Permission name is a string like 'auth.add_user'.
-    """
-    app_label, codename = perm_name.split('.')
-    return Permission.objects.get(
-        content_type__app_label=app_label, codename=codename)
 
 
 class GroupFactory(factory.DjangoModelFactory):
@@ -30,7 +20,7 @@ class GroupFactory(factory.DjangoModelFactory):
     def permissions(self, create, extracted, **kwargs):
         if create and extracted:
             # We have a saved object and a list of permission names
-            self.permissions.add(*[_get_perm(pn) for pn in extracted])
+            self.permissions.add(*[get_perm(pn) for pn in extracted])
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -55,7 +45,7 @@ class UserFactory(factory.DjangoModelFactory):
     def permissions(self, create, extracted, **kwargs):
         if create and extracted:
             # We have a saved object and a list of permission names
-            self.user_permissions.add(*[_get_perm(pn) for pn in extracted])
+            self.user_permissions.add(*[get_perm(pn) for pn in extracted])
 
 
 class SiteFactory(factory.DjangoModelFactory):
