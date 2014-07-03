@@ -25,7 +25,6 @@ from model_utils import Choices
 
 from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
                    TicketStatusError, TicketIsClosedError)
-from .managers import HeldeskableManager
 
 
 User = get_user_model()
@@ -193,8 +192,6 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                  blank=True, null=True)
     related_tickets = models.ManyToManyField(
         'self', verbose_name=_('Related tickets'), blank=True)
-
-    # objects = HeldeskableManager()
 
     class Meta:
         get_latest_by = 'created'
