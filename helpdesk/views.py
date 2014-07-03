@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+from importlib import import_module
+
 import json
 
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
-from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse, resolve
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, View
+
 from braces.views import GroupRequiredMixin
+
 from mezzanine.conf import settings
 
 from .models import Ticket
@@ -52,14 +57,31 @@ class ObjectToolsView(GroupRequiredMixin, View):
     http_method_names = ['get']
 
     def get(self, request, *args, **kwargs):
-        # import ipdb
-        # ipdb.set_trace()
-        print(request.GET)
-        print(args)
-        print(kwargs)
+        view = request.GET.get('view', None)
+        object_tools = []
+        if view:
+            resolved_view = resolve(view)
+            app_label, model_name, view_name = (
+                resolved_view.url_name.split('_'))
+            object_id = resolved_view.args[0] if resolved_view.args else None
+            obj = None
+            try:
+                app_admin_module = import_module(
+                    '{}.{}'.format(app_label, resolved_view.app_name))
+                if object_id:
+                    models_module = import_module(
+                        '{}.models'.format(app_label))
+                    model = getattr(models_module, model_name.capitalize())
+                    obj = model.objects.get(pk=object_id)
+                object_tools = getattr(
+                    app_admin_module,
+                    '{}Admin'.format(
+                        model_name.capitalize())).get_object_tools(
+                    request, view_name, obj=obj)
+            except KeyError:
+                pass
+            except Exception as ex:
+                object_tools.append({'error': str(ex)})
 
-        return HttpResponse(json.dumps([{'url': '/admin/helpdesk/',
-                                         'text': 'pippo'},
-                                        {'url': '/admin/helpdesk/',
-                                         'text': 'pluto'},]),
+        return HttpResponse(json.dumps(object_tools),
                             content_type='application/json')

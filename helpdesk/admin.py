@@ -87,6 +87,18 @@ class TicketAdmin(admin.ModelAdmin):
     def get_request_helpdeskuser(self, request):
         return HelpdeskUser.get_from_request(request)
 
+    @staticmethod
+    def get_object_tools(request, view_name, obj=None):
+        tools = {'change': [{'url': '/admin/helpdesk/3/', 'text': 'Apri'},
+                            {'url': '/admin/helpdesk/3/', 'text': 'Cambia'}],
+                 'add': [{'url': '/admin/helpdesk/3/', 'text': 'Add1'},
+                         {'url': '/admin/helpdesk/3/', 'text': 'Add2'}]
+        }
+        try:
+            return tools[view_name]
+        except KeyError as ke:
+            raise ke
+
     #### ModelsAdmin methods customized #######################################
     def get_list_display(self, request):
         """

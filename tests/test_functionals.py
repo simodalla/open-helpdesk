@@ -199,3 +199,12 @@ class CategoryAndTipologyTest(AdminTestMixin, TestCase):
 #     def test_for_call_view(self):
 #         response = self.client.get(
 #             self.get_url(Ticket, 'open', kwargs={'pk': self.ticket.pk}))
+
+import pytest
+@pytest.mark.django_db
+def test_object_tools_view(client, operator):
+    print(operator)
+    print(operator.groups.all())
+    print(client.login(username=operator.username, password='default'))
+    response = client.get('/admin/helpdesk/ticket/object_tools/?view=/admin/helpdesk/ticket/4/')
+    # print(response)
