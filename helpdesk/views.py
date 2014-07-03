@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import json
+
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, View
 from braces.views import GroupRequiredMixin
 from mezzanine.conf import settings
 
@@ -40,3 +43,23 @@ class OpenTicketView(GroupRequiredMixin, RedirectView):
         messages.success(self.request, msg)
         return reverse(admin_urlname(Ticket._meta, 'change'),
                        args=(ticket_pk,))
+
+
+class ObjectToolsView(GroupRequiredMixin, View):
+    group_required = [settings.HELPDESK_REQUESTERS,
+                      settings.HELPDESK_OPERATORS,
+                      settings.HELPDESK_ADMINS]
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        # import ipdb
+        # ipdb.set_trace()
+        print(request.GET)
+        print(args)
+        print(kwargs)
+
+        return HttpResponse(json.dumps([{'url': '/admin/helpdesk/',
+                                         'text': 'pippo'},
+                                        {'url': '/admin/helpdesk/',
+                                         'text': 'pluto'},]),
+                            content_type='application/json')

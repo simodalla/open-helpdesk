@@ -15,7 +15,7 @@ from .forms import TicketAdminAutocompleteForm
 from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
     Report)
-from .views import OpenTicketView
+from .views import OpenTicketView, ObjectToolsView
 
 
 class TipologyInline(TabularDynamicInlineAdmin):
@@ -24,13 +24,11 @@ class TipologyInline(TabularDynamicInlineAdmin):
 
 
 class MessageInline(TabularDynamicInlineAdmin):
-    extra = 1
     model = Message
     fields = ('content', 'recipient',)
 
 
 class ReportTicketInline(TabularDynamicInlineAdmin):
-    extra = 1
     model = Report
     fields = ('content', 'action_on_ticket', 'visible_from_requester')
 
@@ -44,7 +42,6 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
 
 
 class AttachmentInline(TabularDynamicInlineAdmin, GenericTabularInline):
-    extra = 1
     model = Attachment
 
 
@@ -64,7 +61,7 @@ class TicketAdmin(admin.ModelAdmin):
     actions = ['open_tickets']
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
-    inlines = [ReportTicketInline, AttachmentInline, MessageInline]
+    inlines = [AttachmentInline, MessageInline]
     list_display = ['pk', 'admin_content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
     list_per_page = 25
@@ -83,6 +80,9 @@ class TicketAdmin(admin.ModelAdmin):
     operator_list_display = ['requester', 'created']
     operator_list_filter = ['requester', 'assignee']
     operator_actions = ['requester', 'assignee']
+
+    class Media:
+        js = ('helpdesk/js/ticket.js',)
 
     def get_request_helpdeskuser(self, request):
         return HelpdeskUser.get_from_request(request)
@@ -189,9 +189,14 @@ class TicketAdmin(admin.ModelAdmin):
                                               self.opts.module_name))
         urls = super(TicketAdmin, self).get_urls()
         my_urls = patterns(
-            '', url(r'^open/(?P<pk>\d+)$',
-                    self.admin_site.admin_view(OpenTicketView.as_view()),
-                    name='{}_open'.format(admin_prefix_url)))
+            '',
+            url(r'^open/(?P<pk>\d+)$',
+                self.admin_site.admin_view(OpenTicketView.as_view()),
+                name='{}_open'.format(admin_prefix_url)),
+            url(r'^object_tools/$',
+                    self.admin_site.admin_view(ObjectToolsView.as_view()),
+                    name='{}_object_tools'.format(admin_prefix_url)),
+            )
         return my_urls + urls
 
     def queryset(self, request):
