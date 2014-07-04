@@ -7,7 +7,6 @@ import json
 
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, resolve
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
