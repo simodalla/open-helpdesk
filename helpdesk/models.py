@@ -222,6 +222,21 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     admin_readonly_content.short_description = 'Content'
     admin_readonly_content.allow_tags = True
 
+    def _is_in_status(self, status):
+        return True if self.status == status else False
+
+    def is_new(self):
+        return self._is_in_status(self.STATUS.new)
+
+    def is_open(self):
+        return self._is_in_status(self.STATUS.open)
+
+    def is_pending(self):
+        return self._is_in_status(self.STATUS.pending)
+
+    def is_closed(self):
+        return self._is_in_status(self.STATUS.close)
+
     @atomic
     def change_state(self, before, after, user):
         """Change status of ticket an record changelog for this.
