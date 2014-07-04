@@ -9,13 +9,10 @@
         $.get(url, function (data) {
             var object_tools_ul = $('ul.object-tools');
             for(var key in data) {
-                console.log(data[key].foo);
                 object_tools_ul.append(
                         '<li><a href="'+ data[key].url +'">' +
                             data[key].text+ '</a></li>');
             }
-
-
         }, "json");
     });
 })(django.jQuery);
