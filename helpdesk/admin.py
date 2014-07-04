@@ -7,7 +7,8 @@ from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.contenttypes.generic import GenericTabularInline
-from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
@@ -59,6 +60,11 @@ class TipologyAdmin(admin.ModelAdmin):
 
 class TicketAdmin(admin.ModelAdmin):
     actions = ['open_tickets']
+    fieldsets = (
+        (None, {
+            'fields': ['tipologies', 'priority', 'content', 'related_tickets'],
+        }),
+    )
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
     inlines = [AttachmentInline, MessageInline]
@@ -67,16 +73,13 @@ class TicketAdmin(admin.ModelAdmin):
     list_per_page = 25
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
+    readonly_fields = ['status']
     search_fields = ['content', 'user__username', 'user__first_name',
                      'user__last_name', 'requester__username',
                      'requester__first_name', 'requester__last_name',
                      'tipologies__title']
-    fieldsets = (
-        (None, {
-            'fields': ['tipologies', 'priority', 'content', 'related_tickets'],
-        }),
-    )
-    operator_read_only_fields = ['content', 'tipologies', 'priority']
+
+    operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
     operator_list_display = ['requester', 'created']
     operator_list_filter = ['requester', 'assignee']
     operator_actions = ['requester', 'assignee']
@@ -89,15 +92,24 @@ class TicketAdmin(admin.ModelAdmin):
 
     @staticmethod
     def get_object_tools(request, view_name, obj=None):
-        tools = {'change': [{'url': '/admin/helpdesk/3/', 'text': 'Apri'},
-                            {'url': '/admin/helpdesk/3/', 'text': 'Cambia'}],
-                 'add': [{'url': '/admin/helpdesk/3/', 'text': 'Add1'},
-                         {'url': '/admin/helpdesk/3/', 'text': 'Add2'}]
-        }
+        user = HelpdeskUser.get_from_request(request)
+        object_tools = {'change': []}
+        admin_prefix_url = 'admin:'
+        if obj:
+            admin_prefix_url += '%s_%s' % (obj._meta.app_label,
+                                           getattr(obj._meta, 'model_name',
+                                                   obj._meta.module_name))
+        if user.is_operator() or user.is_admin():
+            if view_name == 'change' and obj:
+                if obj.is_new():
+                    object_tools[view_name].append(
+                        {'url': reverse('{}_open'.format(admin_prefix_url),
+                                        kwargs={'pk': obj.pk}),
+                         'text': ugettext('Open and assign to me')})
         try:
-            return tools[view_name]
+            return object_tools[view_name]
         except KeyError as ke:
-            raise ke
+            return list()
 
     #### ModelsAdmin methods customized #######################################
     def get_list_display(self, request):
@@ -147,6 +159,8 @@ class TicketAdmin(admin.ModelAdmin):
                         'admin_readonly_{}'.format(field))
                 except ValueError:  # pragma: no cover
                     pass
+        if obj:
+            fieldset[0][1]['fields'].append('status')
         return fieldset
 
     def get_formsets(self, request, obj=None):
