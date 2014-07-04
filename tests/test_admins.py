@@ -158,7 +158,8 @@ class TestTicketAdminByRequester(object):
     def test_custom_readonly_fields_if_obj_is_none(self,
                                                    ticket_admin_change_view):
         request, ticket_admin, object_id = ticket_admin_change_view
-        assert ticket_admin.get_readonly_fields(request) == list()
+        assert (ticket_admin.get_readonly_fields(request) ==
+                TicketAdmin.readonly_fields)
 
     @pytest.mark.parametrize(
         'helpdeskuser,expected',
