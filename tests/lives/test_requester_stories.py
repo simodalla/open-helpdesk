@@ -55,9 +55,9 @@ def test_add_message_to_new_ticket(browser_r, new_ticket, operator, settings):
     assert message.content == message_content
     assert message.sender.pk == browser_r.user.pk
     assert message.recipient.pk == operator.pk
-    fieldset_messages = browser_r.driver.find_element_by_id('ticket_messages')
-    assert len(fieldset_messages.find_elements_by_css_selector(
+    tab_messages = browser_r.driver.find_element_by_id('tab_messages')
+    assert len(tab_messages.find_elements_by_css_selector(
         'div.form-row')) == 1
-    ticket_message = fieldset_messages.find_element_by_id(
+    ticket_message = tab_messages.find_element_by_id(
         'ticket_message_{}'.format(message.id))
     assert message.content in ticket_message.text

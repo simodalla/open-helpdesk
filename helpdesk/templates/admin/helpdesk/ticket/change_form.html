@@ -2,13 +2,40 @@
 
 {% load helpdesk_tags i18n %}
 
+{% block extrahead %}
+    {{ block.super }}
+    <script src="/static/helpdesk/js/ticket.js" type="text/javascript"></script>
+{% endblock %}
 
 {% block after_field_sets %}
-    {% if ticket_messages %}
-    <fieldset id="ticket_messages" class="module aligned">
-        {% for ticket_message in ticket_messages %}
-            {% format_ticket_message ticket_message %}
-        {% endfor %}
-    </fieldset>
+    {% if object_id %}
+
+        <div id="ticket_infos">
+            <ul>
+                <li><a href="#tab_messages">Messaging</a></li>
+                <li><a href="#tab_changestatuslog">Change Status Log</a></li>
+            </ul>
+            <div id="tab_messages">
+                {% if ticket_messages %}
+                <fieldset class="module aligned">
+                    {% for ticket_message in ticket_messages %}
+                        {% format_ticket_message ticket_message %}
+                    {% endfor %}
+                </fieldset>
+                {% endif %}
+            </div>
+            <div id="tab_changestatuslog">
+                {% if ticket_changelogs %}
+                    <fieldset class="module aligned">
+                        {% for changelog in ticket_changelogs %}
+                            <div id="ticket_message_111" class="form-row">
+                                <i class="fa fa-envelope"></i>&nbsp;&nbsp;{{ changelog.created }} {{ changelog.before }} - {{ changelog.after }}
+                            </div>
+                        {% endfor %}
+                </fieldset>
+                {% endif %}
+            </div>
+        </div>
+
     {% endif %}
 {% endblock %}

@@ -115,19 +115,24 @@ def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
     return rf_with_helpdeskuser, TicketAdmin(Ticket, AdminSite), 1
 
 
+from helpdesk.models import StatusChangesLog
 class TestTicketAdminByRequester(object):
 
+    @patch('helpdesk.admin.StatusChangesLog', spec_set=StatusChangesLog)
     @patch('django.contrib.admin.ModelAdmin.change_view')
-    def test_view_calls_has_messages_in_extra_content(
-            self, mock_cv, ticket_admin_change_view):
+    def test_view_calls_has_messages_and_changelogs_in_extra_content(
+            self, mock_cv, mock_sclog, ticket_admin_change_view,):
         request, ticket_admin, object_id = ticket_admin_change_view
         messages = [1, 2, 3]
-        setattr(request.user, 'get_messages_by_ticket',
-                lambda ticket_id: messages)
+        statuschangelogs = [1, 2, 3]
+        request.user.get_messages_by_ticket = Mock(return_value=messages)
+        mock_sclog.objects.filter.return_value.order_by.return_value = (
+            statuschangelogs)
         ticket_admin.change_view(request, object_id)
         mock_cv.assert_called_once_with(
             request, object_id, form_url='',
-            extra_context={'ticket_messages': messages})
+            extra_context={'ticket_messages': messages,
+                           'ticket_changelogs': statuschangelogs})
 
     @pytest.mark.parametrize(
         'helpdeskuser,expected',

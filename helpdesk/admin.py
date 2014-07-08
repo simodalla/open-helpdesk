@@ -15,7 +15,7 @@ from mezzanine.core.admin import TabularDynamicInlineAdmin
 from .forms import TicketAdminAutocompleteForm
 from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
-    Report)
+    Report, StatusChangesLog)
 from .views import OpenTicketView, ObjectToolsView
 
 
@@ -84,8 +84,8 @@ class TicketAdmin(admin.ModelAdmin):
     operator_list_filter = ['requester', 'assignee']
     operator_actions = ['requester', 'assignee']
 
-    class Media:
-        js = ('helpdesk/js/ticket.js',)
+    # class Media:
+    #     js = ('helpdesk/js/ticket.js',)
 
     def get_request_helpdeskuser(self, request):
         return HelpdeskUser.get_from_request(request)
@@ -241,9 +241,11 @@ class TicketAdmin(admin.ModelAdmin):
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
+        # print("******", obj, obj.pk)
         if obj.requester_id is None:
             obj.requester = request.user
-        return super(TicketAdmin, self).save_model(request, obj, form, change)
+        super(TicketAdmin, self).save_model(request, obj, form, change)
+        obj.change_state('', obj.status, obj.requester)
 
     #### ModelsAdmin views methods customized #################################
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -252,7 +254,10 @@ class TicketAdmin(admin.ModelAdmin):
         user = self.get_request_helpdeskuser(request)
         if object_id:
             messages = user.get_messages_by_ticket(object_id)
-            extra_context.update({'ticket_messages': messages})
+            changelogs = StatusChangesLog.objects.filter(
+                ticket_id=object_id).order_by('created')
+            extra_context.update({'ticket_messages': messages,
+                                  'ticket_changelogs': changelogs})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
@@ -292,7 +297,6 @@ class TicketAdmin(admin.ModelAdmin):
         if user.is_requester() and 'open_tickets' in actions:
             del actions['open_tickets']
         return actions
-
 
 
 admin.site.register(Category, CategoryAdmin)

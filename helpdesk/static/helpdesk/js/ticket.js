@@ -1,18 +1,12 @@
-(function ($) {
-    $(document).ready(function () {
-        console.log("ready!");
-        console.log(django.jQuery("ul.object-tools li"));
-        console.log($(location).attr('href'));
-        console.log();
-        var current_url = $(location).attr('pathname');
-        var url = "/admin/helpdesk/ticket/object_tools/?view=" + current_url;
-        $.get(url, function (data) {
-            var object_tools_ul = $('ul.object-tools');
-            for(var key in data) {
-                object_tools_ul.append(
-                        '<li><a href="'+ data[key].url +'">' +
-                            data[key].text+ '</a></li>');
-            }
-        }, "json");
-    });
-})(django.jQuery);
+$(document).ready(function () {
+    var ticket_infos = "#ticket_infos";
+    $(ticket_infos).tabs();
+    var tabs_ids = ['messages', 'changestatuslog'];
+    for(var key in tabs_ids) {
+        $(ticket_infos).css("margin-bottom",
+            $(ticket_infos + " #tab_" + tabs_ids[key] +
+                " fieldset").css("margin-bottom"));
+        $(ticket_infos + " #tab_" + tabs_ids[key] +
+                " fieldset").css("margin-bottom", "0");
+    }
+});
