@@ -108,10 +108,10 @@ class TicketAdmin(admin.ModelAdmin):
                          'text': ugettext('Open and assign to me')})
         try:
             return object_tools[view_name]
-        except KeyError as ke:
+        except KeyError:
             return list()
 
-    #### ModelsAdmin methods customized #######################################
+    # ModelsAdmin methods customized ##########################################
     def get_list_display(self, request):
         """
         Return default list_display if request.user is a requester. Otherwise
@@ -220,9 +220,9 @@ class TicketAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(OpenTicketView.as_view()),
                 name='{}_open'.format(admin_prefix_url)),
             url(r'^object_tools/$',
-                    self.admin_site.admin_view(ObjectToolsView.as_view()),
-                    name='{}_object_tools'.format(admin_prefix_url)),
-            )
+                self.admin_site.admin_view(ObjectToolsView.as_view()),
+                name='{}_object_tools'.format(admin_prefix_url)),
+        )
         return my_urls + urls
 
     def queryset(self, request):
@@ -241,13 +241,12 @@ class TicketAdmin(admin.ModelAdmin):
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
-        # print("******", obj, obj.pk)
         if obj.requester_id is None:
             obj.requester = request.user
         super(TicketAdmin, self).save_model(request, obj, form, change)
         obj.change_state('', obj.status, obj.requester)
 
-    #### ModelsAdmin views methods customized #################################
+    # ModelsAdmin views methods customized ####################################
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         # get the ticket's messages only if is change form
@@ -261,7 +260,7 @@ class TicketAdmin(admin.ModelAdmin):
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
-    ### ModelsAdmin actions ###################################################
+    # ModelsAdmin actions #####################################################
     def open_tickets(self, request, queryset):
         success_msg = _('Tickets %(ticket_ids)s successfully opened'
                         ' and assigned.')

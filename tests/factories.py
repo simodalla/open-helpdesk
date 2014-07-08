@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import factory
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 
 from mezzanine.core.models import SitePermission

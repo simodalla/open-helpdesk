@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import pytest
+
 from django import VERSION as DJANGO_VERSION
 from django.contrib.sites.models import Site
 from django.test import TestCase
@@ -183,28 +185,10 @@ class CategoryAndTipologyTest(AdminTestMixin, TestCase):
                 1)
 
 
-# class OpenTicketViewTest(AdminTestMixin, TestCase):
-#
-#     def setUp(self):
-#         self.operator = UserFactory(
-#             groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
-#                                  permissions=list(HELPDESK_OPERATORS[1]))])
-#         self.client.login(username=self.operator.username,
-#                           password='default')
-#         self.category = CategoryFactory(tipologies=['tip1'])
-#         self.ticket = TicketFactory(
-#             requester=self.operator,
-#             tipologies=self.category.tipologies.all())
-#
-#     def test_for_call_view(self):
-#         response = self.client.get(
-#             self.get_url(Ticket, 'open', kwargs={'pk': self.ticket.pk}))
-
-import pytest
 @pytest.mark.django_db
 def test_object_tools_view(client, operator):
     print(operator)
     print(operator.groups.all())
     print(client.login(username=operator.username, password='default'))
-    response = client.get('/admin/helpdesk/ticket/object_tools/?view=/admin/helpdesk/ticket/4/')
-    # print(response)
+    client.get('/admin/helpdesk/ticket/object_tools/'
+               '?view=/admin/helpdesk/ticket/4/')

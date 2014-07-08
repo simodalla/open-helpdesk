@@ -4,9 +4,9 @@ from __future__ import unicode_literals, absolute_import
 import pytest
 
 try:
-    from unittest.mock import patch, Mock
+    from unittest.mock import patch
 except ImportError:
-    from mock import patch, Mock
+    from mock import patch
 
 from helpdesk.models import Ticket
 
@@ -20,6 +20,7 @@ def browser_o(browser, operator):
     browser.create_pre_authenticated_session(operator)
     return browser
 
+
 @pytest.fixture
 def new_tickets(requester, tipologies):
     tickets = []
@@ -27,7 +28,7 @@ def new_tickets(requester, tipologies):
         t = Ticket()
         t.requester = requester
         t.status = Ticket.STATUS.new
-        t.content = 'foo '*20
+        t.content = 'foo ' * 20
         t.save()
         t.tipologies.add(*tipologies)
         tickets.append(t)

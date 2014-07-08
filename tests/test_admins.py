@@ -15,7 +15,7 @@ from django.contrib.admin import AdminSite
 
 
 from helpdesk.admin import TicketAdmin
-from helpdesk.models import Ticket
+from helpdesk.models import Ticket, StatusChangesLog
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
 
@@ -115,7 +115,6 @@ def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
     return rf_with_helpdeskuser, TicketAdmin(Ticket, AdminSite), 1
 
 
-from helpdesk.models import StatusChangesLog
 class TestTicketAdminByRequester(object):
 
     @patch('helpdesk.admin.StatusChangesLog', spec_set=StatusChangesLog)
@@ -141,8 +140,8 @@ class TestTicketAdminByRequester(object):
                        TicketAdmin.operator_list_display)),
          ('admin', (TicketAdmin.list_display +
                     TicketAdmin.operator_list_display))])
-    def test_custom_list_display(self, helpdeskuser, expected,
-                                 ticket_admin_change_view, monkeypatch):
+    def test_custom_list_display(
+            self, helpdeskuser, expected, ticket_admin_change_view):
         request, ticket_admin, object_id = ticket_admin_change_view
         setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
         assert ticket_admin.get_list_display(request) == expected
@@ -154,14 +153,14 @@ class TestTicketAdminByRequester(object):
                        TicketAdmin.operator_list_filter)),
          ('admin', (TicketAdmin.list_filter +
                     TicketAdmin.operator_list_filter))])
-    def test_custom_list_filter(self, helpdeskuser, expected,
-                                ticket_admin_change_view, monkeypatch):
+    def test_custom_list_filter(
+            self, helpdeskuser, expected, ticket_admin_change_view):
         request, ticket_admin, object_id = ticket_admin_change_view
         setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
         assert ticket_admin.get_list_filter(request) == expected
 
-    def test_custom_readonly_fields_if_obj_is_none(self,
-                                                   ticket_admin_change_view):
+    def test_custom_readonly_fields_if_obj_is_none(
+            self, ticket_admin_change_view):
         request, ticket_admin, object_id = ticket_admin_change_view
         assert (ticket_admin.get_readonly_fields(request) ==
                 TicketAdmin.readonly_fields)
@@ -171,30 +170,11 @@ class TestTicketAdminByRequester(object):
         [('requester', {'f1', 'f2'}),
          ('operator', TicketAdmin.operator_read_only_fields),
          ('admin', TicketAdmin.operator_read_only_fields)])
-    def test_custom_list_display(self, helpdeskuser, expected,
-                                 ticket_admin_change_view, monkeypatch):
+    def test_custom_lget_readonly_fields(
+            self, helpdeskuser, expected, ticket_admin_change_view):
         request, ticket_admin, object_id = ticket_admin_change_view
         setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
         setattr(ticket_admin, 'get_fieldsets',
                 lambda r, obj=1: ((None, {'fields': ['f1', 'f2']}),))
         assert set(ticket_admin.get_readonly_fields(
             request, Mock(spec_set=Ticket, pk=1))) == set(expected)
-
-
-# @pytest.fixture
-# def new_tickets(requester, tipologies):
-#     tickets = []
-#     for i in range(0, 3):
-#         t = Ticket()
-#         t.requester = requester
-#         t.status = Ticket.STATUS.new
-#         t.content = 'foo '*20
-#         t.save()
-#         t.tipologies.add(*tipologies)
-#         tickets.append(t)
-#     return tickets
-
-#
-# class TestActionOpenTickets(object):
-#
-#     def test_open
