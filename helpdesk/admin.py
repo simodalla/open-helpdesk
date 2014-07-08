@@ -244,7 +244,8 @@ class TicketAdmin(admin.ModelAdmin):
         if obj.requester_id is None:
             obj.requester = request.user
         super(TicketAdmin, self).save_model(request, obj, form, change)
-        obj.change_state('', obj.status, obj.requester)
+        if not change:
+            obj.change_state('', obj.status, obj.requester)
 
     # ModelsAdmin views methods customized ####################################
     def change_view(self, request, object_id, form_url='', extra_context=None):
