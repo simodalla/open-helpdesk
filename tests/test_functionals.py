@@ -228,7 +228,7 @@ class TestTicketChangeView(object):
 
     def test_messages_are_empty_on_new_ticket(self, client_r, change_view):
         response = client_r.get(change_view.url)
-        assert 'ticket_messages' in response.context.keys()
+        assert 'ticket_messages' in response.context
         messages = response.context['ticket_messages']
         assert len(messages) == 0
 
