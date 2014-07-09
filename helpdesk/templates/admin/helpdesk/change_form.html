@@ -1,5 +1,7 @@
 {% overextends "admin/change_form.html" %}
 
+{% load staticfiles %}
+
 {% block extrahead %}
     {{ block.super }}
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js" type="text/javascript"></script>
@@ -7,5 +9,5 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
     <script src="//code.jquery.com/ui/1.11.0/jquery-ui.js" type="text/javascript"></script>
-    <script src="/static/helpdesk/js/helpdesk.js" type="text/javascript"></script>
+    <script src="{% static "helpdesk/js/helpdesk.js" %}" type="text/javascript"></script>
 {% endblock %}

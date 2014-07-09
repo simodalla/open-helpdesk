@@ -1,9 +1,10 @@
 {% overextends "admin/helpdesk/change_form.html" %}
 
-{% load helpdesk_tags i18n %}
+{% load helpdesk_tags i18n staticfiles %}
 
 {% block extrahead %}
     {{ block.super }}
+    <script src="{% static "helpdesk/js/report.js" %}" type="text/javascript"></script>
 {% endblock %}
 
 {% block after_field_sets %}Ciao{% endblock %}

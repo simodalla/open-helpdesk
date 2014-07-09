@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.contenttypes.generic import GenericTabularInline
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from mezzanine.core.admin import TabularDynamicInlineAdmin
@@ -312,6 +313,26 @@ class ReportAdmin(admin.ModelAdmin):
     list_display = ['id', 'ticket', 'content', 'visible_from_requester',
                     'action_on_ticket', 'sender', 'recipient']
     search_fields = ['ticket__pk', 'ticket__content', 'content']
+
+    @staticmethod
+    def _check_access(request):
+        url_to_redirect = reverse(admin_urlname(Ticket._meta, 'changelist'))
+        ticket_id = request.GET.get('ticket', None)
+        error = None
+        if not ticket_id:
+            error = "ERROR MANCANZA TICKET ID"
+        elif Ticket.objects.filter(id=ticket_id).count() == 0:
+            error = "ERROR TICKET ID NO TICKET MATCH"
+        if error:
+            messages.error(request, error)
+            return redirect(url_to_redirect)
+
+    def add_view(self, request, form_url='', extra_context=None):
+        return (
+            ReportAdmin._check_access(request) or
+            super(ReportAdmin, self).add_view( request, form_url=form_url,
+                                               extra_context=extra_context)
+        )
 
 
 admin.site.register(Category, CategoryAdmin)
