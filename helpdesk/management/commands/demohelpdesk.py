@@ -73,17 +73,19 @@ class Command(BaseCommand):
             if group_name == HELPDESK_REQUESTERS[0]:
                 requester = user
                 Ticket.objects.all().delete()
+                for table in ['ticket', 'message']:
+                    cursor.execute("SELECT setval('public.helpdesk_{}_id_seq',"
+                                   "  1, true);".format(table))
 
                 for n, p in enumerate(PRIORITIES):
-                    ticket, c = Ticket.objects.get_or_create(
-                        pk=n + 1,
-                        defaults={'priority': p[0],
-                                  'requester': user,
-                                  'content': t.render(Context({})),
-                                  'site': default_site})
+                    ticket = Ticket()
+                    ticket.priority = p[0]
+                    ticket.requester = user
+                    ticket.content = t.render(Context({}))
+                    ticket.site = default_site
+                    ticket.save()
                     ticket.tipologies.add(*tipologies[0:2])
-                    cursor.execute("SELECT setval('public.helpdesk_ticket"
-                                   "_id_seq',  %s, true);", [n + 1])
+                    ticket.initialize()
 
                     [ticket.messages.create(
                         content=Template("{% load webdesign %} {% lorem 5 w"

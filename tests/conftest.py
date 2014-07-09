@@ -56,3 +56,10 @@ def new_ticket(requester, tipologies, ticket_content):
                                    content=ticket_content)
     ticket.tipologies.add(*tipologies)
     return ticket
+
+
+@pytest.fixture
+def initialized_ticket(new_ticket):
+    new_ticket.initialize()
+    return new_ticket
+

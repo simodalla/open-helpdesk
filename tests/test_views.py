@@ -79,7 +79,8 @@ class OpenTicketViewTest(TestViewHelper, TestCase):
         view = self.build_view(request)
         url = view.get_redirect_url(pk=fake_ticket_pk)
         self.assertEqual(url,
-                         '/admin/helpdesk/ticket/{}/'.format(fake_ticket_pk))
+                         '/admin/helpdesk/ticket/{}/'
+                         '#tab_changestatuslog'.format(fake_ticket_pk))
         mock_ticket.opening.assert_called_once_with(self.mock_user)
         mock_messages.success.assert_called_once_with(
             request,

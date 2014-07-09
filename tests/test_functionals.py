@@ -5,12 +5,14 @@ import pytest
 
 from django import VERSION as DJANGO_VERSION
 from django.contrib.sites.models import Site
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from lxml.html import fromstring
 
 from helpdesk.defaults import (HELPDESK_REQUESTERS,
                                HELPDESK_TICKET_MAX_TIPOLOGIES)
-from helpdesk.models import Ticket, Tipology, Category
+from helpdesk.models import Ticket, Tipology, Category, Report
 from helpdesk.admin import MessageInline
 from .helpers import AdminTestMixin
 from .factories import (
@@ -192,3 +194,89 @@ def test_object_tools_view(client, operator):
     print(client.login(username=operator.username, password='default'))
     client.get('/admin/helpdesk/ticket/object_tools/'
                '?view=/admin/helpdesk/ticket/4/')
+
+
+@pytest.fixture
+def change_view(request, initialized_ticket):
+    class ChangeViewUtil(object):
+        def __init__(self):
+            self.ticket = initialized_ticket
+            self.url = reverse(admin_urlname(Ticket._meta, 'change'),
+                               args=(initialized_ticket.pk,))
+    return ChangeViewUtil()
+
+
+@pytest.fixture
+def client_r(client, requester):
+    client.login(username=requester.username, password='default')
+    return client
+
+
+@pytest.fixture
+def client_o(client, operator):
+    client.login(username=operator.username, password='default')
+    return client
+
+
+@pytest.mark.django_db
+class TestTicketChangeView(object):
+
+    def test_custom_template_renderized(self, client_r, change_view):
+        response = client_r.get(change_view.url)
+        assert (response.templates[0].name ==
+                'admin/helpdesk/ticket/change_form.html')
+
+    def test_messages_are_empty_on_new_ticket(self, client_r, change_view):
+        response = client_r.get(change_view.url)
+        assert 'ticket_messages' in response.context.keys()
+        messages = response.context['ticket_messages']
+        assert len(messages) == 0
+
+    def test_messages_in_context_by_requester(self, client_r,
+                                              change_view, requester):
+        n = 3
+        [change_view.ticket.messages.create(
+            content="foo %s" % i, sender=requester) for i in range(0, n)]
+        response = client_r.get(change_view.url)
+        messages = response.context['ticket_messages']
+        assert len(messages) == n
+
+    def test_report_in_context_by_operator(self, client_r, change_view,
+                                           operator, requester):
+        n = 3
+        reports = [Report.objects.create(
+            recipient=requester,
+            ticket=change_view.ticket,
+            visible_from_requester=True,
+            content="foo %s" % i,
+            sender=operator) for i in range(0, n)]
+        response = client_r.get(change_view.url)
+        messages = response.context['ticket_messages']
+        assert len(messages) == n
+        assert set([r.id for r in reports]) == set([m.pk for m in messages])
+
+    def test_messages_render_by_requester(self, client_r,
+                                          change_view, requester):
+        n = 3
+        [change_view.ticket.messages.create(
+            content="foo %s" % i, sender=requester) for i in range(0, n)]
+        response = client_r.get(change_view.url)
+        dom = fromstring(response.content)
+        for html_id in ['ticket_infos', 'tab_messages']:
+            ticket_infos = dom.cssselect('#{}'.format(html_id))
+            assert len(ticket_infos) == 1, "no #{} in content".format(html_id)
+        assert len(dom.cssselect('#tab_messages fieldset div')) == n
+
+    def test_reports_render_by_requester(self, client_r, change_view, operator,
+                                         requester):
+        n = 3
+        [Report.objects.create(
+            recipient=requester, ticket=change_view.ticket,
+            visible_from_requester=True, content="foo %s" % i,
+            sender=operator) for i in range(0, n)]
+        response = client_r.get(change_view.url)
+        dom = fromstring(response.content)
+        for html_id in ['ticket_infos', 'tab_messages']:
+            ticket_infos = dom.cssselect('#{}'.format(html_id))
+            assert len(ticket_infos) == 1, "no #{} in content".format(html_id)
+        assert len(dom.cssselect('#tab_messages fieldset div')) == n

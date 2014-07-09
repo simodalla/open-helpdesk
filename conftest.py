@@ -28,7 +28,6 @@ def pytest_runtest_setup(item):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings_lives'
 
 
-
 @pytest.fixture(scope='module')
 def stringios():
     return cStringIO(), cStringIO()

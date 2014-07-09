@@ -179,6 +179,20 @@ class Attachment(TimeStamped):
 
 
 @python_2_unicode_compatible
+class Source(TimeStamped):
+    title = models.CharField(_('Title'), max_length=500)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = _('Source')
+        verbose_name_plural = _('Sources')
+        ordering = ('-created',)
+
+    def __str__(self):
+        return self.title
+
+
+@python_2_unicode_compatible
 class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     STATUS = Choices(*TICKET_STATUSES)
     tipologies = models.ManyToManyField('Tipology',
@@ -192,6 +206,9 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                  blank=True, null=True)
     related_tickets = models.ManyToManyField(
         'self', verbose_name=_('Related tickets'), blank=True)
+    source = models.ForeignKey('Source', verbose_name=_('Source'),
+                               limit_choices_to={'active': True},
+                               blank=True, null=True)
 
     class Meta:
         get_latest_by = 'created'
@@ -252,6 +269,16 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                       after=after,
                                       changer=user)
         return True
+
+    @atomic
+    def initialize(self):
+        """On inserting set status of ticket an record changelog for this."""
+        before = ''
+        after = self.STATUS.new
+        user = self.requester
+        self.status = after
+        self.save()
+        self.change_state(before, after, user)
 
     @atomic
     def opening(self, assignee):

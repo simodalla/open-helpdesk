@@ -28,8 +28,8 @@
                 {% if ticket_changelogs %}
                     <fieldset class="module aligned">
                         {% for changelog in ticket_changelogs %}
-                            <div id="ticket_message_111" class="form-row">
-                                <i class="fa fa-envelope"></i>&nbsp;&nbsp;{{ changelog.created }} {{ changelog.before }} - {{ changelog.after }}
+                            <div id="ticket_statuschangelog_{{ changelog.pk }}" class="form-row">
+                                {% awesome_status_icon changelog.after %}&nbsp;&nbsp;<b>{% if changelog.before %}{{ changelog.before|capfirst }}&nbsp;&nbsp;{% awesome_icon 'long-arrow-right' %}&nbsp;&nbsp;{% endif %}{{ changelog.after|capfirst }}</b>&nbsp;&nbsp;{{ changelog.created }}
                             </div>
                         {% endfor %}
                 </fieldset>

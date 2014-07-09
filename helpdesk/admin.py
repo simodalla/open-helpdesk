@@ -6,6 +6,7 @@ from copy import deepcopy
 from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.contrib import messages
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.contenttypes.generic import GenericTabularInline
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -106,6 +107,11 @@ class TicketAdmin(admin.ModelAdmin):
                         {'url': reverse('{}_open'.format(admin_prefix_url),
                                         kwargs={'pk': obj.pk}),
                          'text': ugettext('Open and assign to me')})
+                elif obj.is_open():
+                    url = reverse(admin_urlname(Report._meta, 'add'))
+                    object_tools[view_name].append(
+                        {'url': '{}?ticket={}'.format(url, obj.pk),
+                         'text': ugettext('Add report')})
         try:
             return object_tools[view_name]
         except KeyError:
@@ -146,7 +152,8 @@ class TicketAdmin(admin.ModelAdmin):
         fieldset = deepcopy(super(TicketAdmin, self).get_fieldsets(
             request, obj=obj))
         if user.is_operator() or user.is_admin():
-            fieldset[0][1]['fields'].append('requester')
+            for field in ['requester', 'source']:
+                fieldset[0][1]['fields'].append(field)
         if user.is_requester() and obj:
             # add custom fields so that they are in form. Otherwise are
             # ignored into "readonly_fields". Custom fields are methods of
@@ -245,7 +252,7 @@ class TicketAdmin(admin.ModelAdmin):
             obj.requester = request.user
         super(TicketAdmin, self).save_model(request, obj, form, change)
         if not change:
-            obj.change_state('', obj.status, obj.requester)
+            obj.initialize()
 
     # ModelsAdmin views methods customized ####################################
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -299,6 +306,15 @@ class TicketAdmin(admin.ModelAdmin):
         return actions
 
 
+class ReportAdmin(admin.ModelAdmin):
+    fields = ('ticket', 'content', 'visible_from_requester',
+              'action_on_ticket')
+    list_display = ['id', 'ticket', 'content', 'visible_from_requester',
+                    'action_on_ticket', 'sender', 'recipient']
+    search_fields = ['ticket__pk', 'ticket__content', 'content']
+
+
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Tipology, TipologyAdmin)
+admin.site.register(Report, ReportAdmin)
 admin.site.register(Ticket, TicketAdmin)

@@ -5,6 +5,7 @@ from django import template
 from django.core.exceptions import ObjectDoesNotExist
 
 from helpdesk.models import Message
+from helpdesk.core import TICKET_STATUES_AWESOME_ICONS
 
 
 register = template.Library()
@@ -29,3 +30,20 @@ def format_ticket_message(message, **kwargs):
     except ObjectDoesNotExist:
         pass
     return context
+
+
+def _context_awesome_icon(name, list_icon=False, spin=False,
+                          larger=None):
+    return {'name': name, 'list': list_icon, 'spin': spin, 'larger': larger}
+
+
+@register.inclusion_tag('helpdesk/awesome_icon.html')
+def awesome_status_icon(status, spin=True, larger=None):
+    return _context_awesome_icon(
+        TICKET_STATUES_AWESOME_ICONS.get(status, 'circle-o-notch'),
+        spin=spin, larger=larger)
+
+
+@register.inclusion_tag('helpdesk/awesome_icon.html')
+def awesome_icon(name, spin=False, larger=None):
+    return _context_awesome_icon(name, spin=spin, larger=larger)

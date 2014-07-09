@@ -13,7 +13,6 @@ except ImportError:
 from django import VERSION as DJANGO_VERSION
 from django.contrib.admin import AdminSite
 
-
 from helpdesk.admin import TicketAdmin
 from helpdesk.models import Ticket, StatusChangesLog
 

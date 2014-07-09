@@ -45,8 +45,8 @@ class OpenTicketView(GroupRequiredMixin, RedirectView):
                                                         str(ve)))
             return url_on_error
         messages.success(self.request, msg)
-        return reverse(admin_urlname(Ticket._meta, 'change'),
-                       args=(ticket_pk,))
+        return '{}#tab_changestatuslog'.format(
+            reverse(admin_urlname(Ticket._meta, 'change'), args=(ticket_pk,)))
 
 
 class ObjectToolsView(GroupRequiredMixin, View):

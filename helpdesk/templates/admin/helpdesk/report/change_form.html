@@ -1,0 +1,9 @@
+{% overextends "admin/helpdesk/change_form.html" %}
+
+{% load helpdesk_tags i18n %}
+
+{% block extrahead %}
+    {{ block.super }}
+{% endblock %}
+
+{% block after_field_sets %}Ciao{% endblock %}
