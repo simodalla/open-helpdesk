@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
-from .forms import TicketAdminAutocompleteForm
+from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
 from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
     Report, StatusChangesLog)
@@ -310,6 +310,7 @@ class TicketAdmin(admin.ModelAdmin):
 class ReportAdmin(admin.ModelAdmin):
     fields = ('ticket', 'content', 'visible_from_requester',
               'action_on_ticket')
+    form = ReportAdminAutocompleteForm
     list_display = ['id', 'ticket', 'content', 'visible_from_requester',
                     'action_on_ticket', 'sender', 'recipient']
     search_fields = ['ticket__pk', 'ticket__content', 'content']
@@ -328,6 +329,7 @@ class ReportAdmin(admin.ModelAdmin):
             return redirect(url_to_redirect)
 
     def add_view(self, request, form_url='', extra_context=None):
+        print("---------->", request.session.get('site_id'))
         return (
             ReportAdmin._check_access(request) or
             super(ReportAdmin, self).add_view( request, form_url=form_url,

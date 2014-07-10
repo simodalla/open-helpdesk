@@ -1,4 +1,9 @@
 $(document).ready(function () {
-    $("#id_ticket").attr("disabled", "disabled");
-    $("#add_id_ticket").remove();
+
+    ['a.add-another', '.autocomplete-light-widget .remove'].forEach(
+        function (elem) { $(elem).remove(); }
+    );
+    ['_addanother', '_continue'].forEach(
+        function (elem) { $("input[name='" + elem + "']").remove(); }
+    );
 });

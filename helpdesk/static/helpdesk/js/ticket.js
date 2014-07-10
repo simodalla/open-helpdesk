@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    $('a.add-another').remove();
     var ticket_infos = "#ticket_infos";
     $(ticket_infos).tabs();
     var tabs_ids = ['messages', 'changestatuslog'];
