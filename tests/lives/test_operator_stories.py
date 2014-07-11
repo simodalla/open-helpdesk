@@ -90,7 +90,6 @@ def test_open_more_tickets_from_action_with_errors(browser_o, new_tickets):
         assert 'Error' in error_message[0].text
 
 
-@pytest.mark.target
 @pytest.mark.livetest
 def test_open_ticket_from_change_view(browser_o, initialized_ticket):
     change_url = reverse(admin_urlname(Ticket._meta, 'change'),
@@ -117,12 +116,11 @@ def test_open_ticket_from_change_view(browser_o, initialized_ticket):
         'ticket_statuschangelog_{}'.format(initialized_ticket.pk))
 
 
-# @pytest.mark.target
-# @pytest.mark.livetest
-# def test_add_report_to_open_ticket_without_action(browser_o,
-#                                                   opened_ticket):
-#     # new_ticket_ids = [str(t.id) for t in new_tickets]
-#     browser_o.get('admin:helpdesk_ticket_changelist')
+@pytest.mark.target
+@pytest.mark.livetest
+def test_add_report_to_open_ticket_without_action(browser_o, opened_ticket):
+    # new_ticket_ids = [str(t.id) for t in new_tickets]
+    browser_o.get('admin:helpdesk_ticket_changelist')
     # for checkbox in [e for e in browser_o.driver.find_elements_by_name(
     #         "_selected_action")]:
     #     if checkbox.get_attribute('value') in new_ticket_ids:
