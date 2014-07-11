@@ -270,15 +270,15 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                       changer=user)
         return True
 
-    @atomic
     def initialize(self):
         """On inserting set status of ticket an record changelog for this."""
-        before = ''
-        after = self.STATUS.new
-        user = self.requester
-        self.status = after
-        self.save()
-        self.change_state(before, after, user)
+        if self.id:
+            before = ''
+            after = self.STATUS.new
+            user = self.requester
+            self.status_changelogs.create(before=before,
+                                          after=after,
+                                          changer=user)
 
     @atomic
     def opening(self, assignee):

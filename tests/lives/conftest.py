@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 
 @pytest.fixture(scope='module')
 def display(request):

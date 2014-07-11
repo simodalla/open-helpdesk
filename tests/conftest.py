@@ -63,3 +63,8 @@ def initialized_ticket(new_ticket):
     new_ticket.initialize()
     return new_ticket
 
+
+@pytest.fixture
+def opened_ticket(initialized_ticket, operator):
+    initialized_ticket.opening(operator)
+    return initialized_ticket

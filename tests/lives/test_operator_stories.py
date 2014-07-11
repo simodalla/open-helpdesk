@@ -8,7 +8,14 @@ try:
 except ImportError:
     from mock import patch
 
-from helpdesk.models import Ticket
+from django.core.urlresolvers import reverse
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+
+from helpdesk.models import Ticket, StatusChangesLog
 
 
 pytestmark = pytest.mark.django_db
@@ -31,6 +38,7 @@ def new_tickets(requester, tipologies):
         t.content = 'foo ' * 20
         t.save()
         t.tipologies.add(*tipologies)
+        t.initialize()
         tickets.append(t)
     return tickets
 
@@ -84,26 +92,54 @@ def test_open_more_tickets_from_action_with_errors(browser_o, new_tickets):
 
 @pytest.mark.target
 @pytest.mark.livetest
-def test_add_report_to(browser_o, new_tickets):
-    new_ticket_ids = [str(t.id) for t in new_tickets]
-    browser_o.get('admin:helpdesk_ticket_changelist')
-    for checkbox in [e for e in browser_o.driver.find_elements_by_name(
-            "_selected_action")]:
-        if checkbox.get_attribute('value') in new_ticket_ids:
-            checkbox.click()
-    browser_o.driver.find_element_by_css_selector(
-        '.changelist-actions .chzn-single').click()
-    exc = Exception('Error')
-    for action in browser_o.driver.find_elements_by_css_selector(
-            '.chzn-results li'):
-        if action.text.strip().lower() == 'open e assign selected tickets':
-            with patch('helpdesk.models.Ticket.opening', side_effect=exc):
-                action.click()
-    error_message = browser_o.get_messages(level='error')
-    assert len(error_message) == 1
-    for ticket in Ticket.objects.filter(id__in=new_ticket_ids):
-        assert ticket.status == Ticket.STATUS.new
-        assert ticket.assignee is None
-        assert str(ticket.id) in error_message[0].text
-        assert 'Error' in error_message[0].text
+def test_open_ticket_from_change_view(browser_o, initialized_ticket):
+    change_url = reverse(admin_urlname(Ticket._meta, 'change'),
+                         args=(initialized_ticket.id,))
+    browser_o.get(change_url)
+    open_link = WebDriverWait(browser_o.driver, 10).until(
+        ec.presence_of_element_located((By.LINK_TEXT, 'Open and assign to me'))
+    )
+    open_link.click()
+    messages = browser_o.get_messages('success')
+    assert len(messages) == 1
+    WebDriverWait(browser_o.driver, 10).until(
+        ec.visibility_of_element_located((By.ID, 'tab_changestatuslog'))
+    )
+    WebDriverWait(browser_o.driver, 10).until(
+        ec.invisibility_of_element_located((By.ID, 'tab_messages'))
+    )
+    status_changelogs = StatusChangesLog.objects.filter(
+        ticket=initialized_ticket)
+    initialized_ticket = Ticket.objects.get(id=initialized_ticket.id)
+    assert status_changelogs.count() == 2
+    assert initialized_ticket.status == Ticket.STATUS.open
+    browser_o.driver.find_elements_by_id(
+        'ticket_statuschangelog_{}'.format(initialized_ticket.pk))
+
+
+# @pytest.mark.target
+# @pytest.mark.livetest
+# def test_add_report_to_open_ticket_without_action(browser_o,
+#                                                   opened_ticket):
+#     # new_ticket_ids = [str(t.id) for t in new_tickets]
+#     browser_o.get('admin:helpdesk_ticket_changelist')
+    # for checkbox in [e for e in browser_o.driver.find_elements_by_name(
+    #         "_selected_action")]:
+    #     if checkbox.get_attribute('value') in new_ticket_ids:
+    #         checkbox.click()
+    # browser_o.driver.find_element_by_css_selector(
+    #     '.changelist-actions .chzn-single').click()
+    # exc = Exception('Error')
+    # for action in browser_o.driver.find_elements_by_css_selector(
+    #         '.chzn-results li'):
+    #     if action.text.strip().lower() == 'open e assign selected tickets':
+    #         with patch('helpdesk.models.Ticket.opening', side_effect=exc):
+    #             action.click()
+    # error_message = browser_o.get_messages(level='error')
+    # assert len(error_message) == 1
+    # for ticket in Ticket.objects.filter(id__in=new_ticket_ids):
+    #     assert ticket.status == Ticket.STATUS.new
+    #     assert ticket.assignee is None
+    #     assert str(ticket.id) in error_message[0].text
+    #     assert 'Error' in error_message[0].text
 
