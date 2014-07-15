@@ -23,6 +23,13 @@ TICKET_STATUES_AWESOME_ICONS = {
 }
 MGS_TICKET_NOT_IN_STATUS = _('Ticket not in status "%(status)s"')
 
+DEFAULT_SOURCES = [
+    ('portal', _('Portal')),
+    ('email', _('Email')),
+    ('phone', _('Phone')),
+    ('chat', _('Chat'))
+]
+
 
 class TicketStatusError(Exception):
     default_message = _('Ticket Status Error')
