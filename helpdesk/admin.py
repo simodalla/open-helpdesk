@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.contenttypes.generic import GenericTabularInline
 from django.core.urlresolvers import reverse
+from django.http.response import HttpResponseRedirectBase
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -17,7 +18,7 @@ from mezzanine.core.admin import TabularDynamicInlineAdmin
 from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
 from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
-    Report, StatusChangesLog)
+    Report, StatusChangesLog, Source)
 from .views import OpenTicketView, ObjectToolsView
 
 
@@ -83,7 +84,7 @@ class TicketAdmin(admin.ModelAdmin):
 
     operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
     operator_list_display = ['requester', 'created']
-    operator_list_filter = ['requester', 'assignee']
+    operator_list_filter = ['requester', 'assignee', 'source']
     operator_actions = ['requester', 'assignee']
 
     # class Media:
@@ -107,12 +108,14 @@ class TicketAdmin(admin.ModelAdmin):
                     object_tools[view_name].append(
                         {'url': reverse('{}_open'.format(admin_prefix_url),
                                         kwargs={'pk': obj.pk}),
-                         'text': ugettext('Open and assign to me')})
+                         'text': ugettext('Open and assign to me'),
+                         'id': 'open_and_assign_ticket'})
                 elif obj.is_open():
                     url = reverse(admin_urlname(Report._meta, 'add'))
                     object_tools[view_name].append(
                         {'url': '{}?ticket={}'.format(url, obj.pk),
-                         'text': ugettext('Add report')})
+                         'text': ugettext('Add report'),
+                         'id': 'add_report_to_ticket'})
         try:
             return object_tools[view_name]
         except KeyError:
@@ -249,6 +252,11 @@ class TicketAdmin(admin.ModelAdmin):
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
+        if obj.source_id is None:
+            try:
+                obj.source = Source.get_default_obj()
+            except Source.DoesNotExist:
+                pass
         if obj.requester_id is None:
             obj.requester = request.user
         super(TicketAdmin, self).save_model(request, obj, form, change)
@@ -313,11 +321,11 @@ class ReportAdmin(admin.ModelAdmin):
     form = ReportAdminAutocompleteForm
     list_display = ['id', 'ticket', 'content', 'visible_from_requester',
                     'action_on_ticket', 'sender', 'recipient']
+    radio_fields = {'action_on_ticket': admin.VERTICAL}
     search_fields = ['ticket__pk', 'ticket__content', 'content']
 
     @staticmethod
     def _check_access(request):
-        url_to_redirect = reverse(admin_urlname(Ticket._meta, 'changelist'))
         ticket_id = request.GET.get('ticket', None)
         error = None
         if not ticket_id:
@@ -326,18 +334,45 @@ class ReportAdmin(admin.ModelAdmin):
             error = "ERROR TICKET ID NO TICKET MATCH"
         if error:
             messages.error(request, error)
-            return redirect(url_to_redirect)
+            return redirect(admin_urlname(Ticket._meta, 'changelist'))
 
     def add_view(self, request, form_url='', extra_context=None):
-        print("---------->", request.session.get('site_id'))
-        return (
-            ReportAdmin._check_access(request) or
-            super(ReportAdmin, self).add_view( request, form_url=form_url,
-                                               extra_context=extra_context)
-        )
+        result = ReportAdmin._check_access(request)
+        if not result:
+            result = super(ReportAdmin, self).add_view(
+                request, form_url=form_url, extra_context=extra_context)
+            if issubclass(result.__class__, HttpResponseRedirectBase):
+                result = redirect(admin_urlname(Ticket._meta, 'change'),
+                                  request.GET.get('ticket'))
+        return result
+
+    def save_model(self, request, obj, form, change):
+        if obj.sender_id is None:
+            obj.sender = request.user
+        if obj.recipient_id is None:
+            obj.recipient = obj.ticket.requester
+        super(ReportAdmin, self).save_model(request, obj, form, change)
+
+
+class SourceAdmin(admin.ModelAdmin):
+    actions = None
+    filter_horizontal = ('sites',)
+    list_display = ['code', 'title']
+
+    def has_delete_permission(self, request, obj=None):
+        from helpdesk.core import DEFAULT_SOURCES
+        if obj and obj.code in [code for code, title in DEFAULT_SOURCES]:
+            error_msg = _(
+                " %(title)s is a system %(model)s and is not"
+                " eliminated.") % {'title': obj.title,
+                                   'model': obj._meta.verbose_name.lower()}
+            self.message_user(request, error_msg)
+            return False
+        return super(SourceAdmin, self).has_delete_permission(request, obj=obj)
 
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Tipology, TipologyAdmin)
 admin.site.register(Report, ReportAdmin)
 admin.site.register(Ticket, TicketAdmin)
+admin.site.register(Source, SourceAdmin)

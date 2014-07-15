@@ -11,7 +11,7 @@ from mezzanine.utils.models import get_user_model
 from six.moves import cStringIO
 from helpdesk.management.commands import inithelpdesk
 from helpdesk.models import (HelpdeskUser, Category, Ticket, Message, Report,
-                             PRIORITIES, Tipology)
+                             PRIORITIES, Tipology, Source)
 from helpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
 
@@ -39,6 +39,9 @@ class Command(BaseCommand):
         inithelpdesk.Command().execute(stdout=cStringIO(), stderr=cStringIO())
 
         default_site = Site.objects.get(pk=1)
+
+        [source.sites.add(default_site) for source in Source.objects.all()]
+
         for c in range(0, 5):
             category, c_created = Category.objects.get_or_create(
                 title='category {}'.format(c))
@@ -77,12 +80,14 @@ class Command(BaseCommand):
                     cursor.execute("SELECT setval('public.helpdesk_{}_id_seq',"
                                    "  1, true);".format(table))
 
-                for n, p in enumerate(PRIORITIES):
+                for n, priority in enumerate(PRIORITIES):
                     ticket = Ticket()
-                    ticket.priority = p[0]
+                    ticket.priority = priority[0]
                     ticket.requester = user
                     ticket.content = t.render(Context({}))
                     ticket.site = default_site
+                    ticket.source = Source.objects.get(
+                        code='portal' if n % 2 == 1 else 'email')
                     ticket.save()
                     ticket.tipologies.add(*tipologies[0:2])
                     ticket.initialize()

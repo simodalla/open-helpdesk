@@ -130,7 +130,7 @@ class Tipology(TimeStamped):
                                  related_name='tipologies')
     sites = models.ManyToManyField('sites.Site', blank=True,
                                    verbose_name=_('Enable on Sites'),
-                                   related_name='tipologies')
+                                   related_name='helpdesk_tipologies')
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
 
@@ -180,16 +180,26 @@ class Attachment(TimeStamped):
 
 @python_2_unicode_compatible
 class Source(TimeStamped):
-    title = models.CharField(_('Title'), max_length=500)
-    active = models.BooleanField(default=True)
+    code = models.CharField(_('code'), max_length=30, unique=True)
+    title = models.CharField(_('Title'), max_length=30, unique=True)
+    sites = models.ManyToManyField('sites.Site', blank=True,
+                                   verbose_name=_('Enable on Sites'),
+                                   related_name='helpdesk_sources')
 
     class Meta:
         verbose_name = _('Source')
         verbose_name_plural = _('Sources')
-        ordering = ('-created',)
+        ordering = ('title',)
 
     def __str__(self):
         return self.title
+
+    @classmethod
+    def get_default_obj(cls):
+        try:
+            return cls.objects.get(code='portal')
+        except cls.DoesNotExist as dne:
+            raise dne
 
 
 @python_2_unicode_compatible
@@ -207,7 +217,6 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     related_tickets = models.ManyToManyField(
         'self', verbose_name=_('Related tickets'), blank=True)
     source = models.ForeignKey('Source', verbose_name=_('Source'),
-                               limit_choices_to={'active': True},
                                blank=True, null=True)
 
     class Meta:
@@ -347,10 +356,18 @@ class Message(TimeStamped):
         return self.content
 
 
+ACTIONS_ON_TICKET = (
+    ('no_action', _('No action (maintain the current status)')),
+    ('put_on_pending', _('Put on pending')),
+    ('close', _('Close Ticket')),
+)
+
+
 @python_2_unicode_compatible
 class Report(Message):
-    action_on_ticket = models.IntegerField(blank=True, null=True)
-    visible_from_requester = models.BooleanField(default=True)
+    action_on_ticket = models.CharField(max_length=50, default='no_action',
+                                        choices=ACTIONS_ON_TICKET)
+    visible_from_requester = models.BooleanField(default=False)
 
     class Meta:
         get_latest_by = 'created'

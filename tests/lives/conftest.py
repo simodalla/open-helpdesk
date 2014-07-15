@@ -42,6 +42,10 @@ class LiveBrowser(object):
     def quit(self):
         self.driver.quit()
 
+    @property
+    def current_url(self):
+        return self.driver.current_url.replace(self.live_server.url, '')
+
     def get(self, url, *args, **kwargs):
         from django.core.urlresolvers import reverse
         if url.startswith('/'):

@@ -11,7 +11,7 @@ from mezzanine.utils.sites import current_site_id
 
 from autocomplete_light import ModelForm as AutocompleteModelForm
 
-from .models import Ticket, Report
+from .models import Ticket, Report, Source
 
 
 class TicketAdminForm(forms.ModelForm):
@@ -20,9 +20,20 @@ class TicketAdminForm(forms.ModelForm):
         super(TicketAdminForm, self).__init__(*args, **kwargs)
         # tipologies is filtered by current site if 'tipologies' in
         # self.fields. If field is read_only isn't in self.fields
-        if 'tipologies' in self.fields:
-            site = Site.objects.get(pk=current_site_id())
-            self.fields['tipologies'].queryset = site.tipologies.all()
+        # for field, related_name in ('t')
+        site = Site.objects.get(pk=current_site_id())
+        for field, related_name in [('tipologies', 'helpdesk_tipologies'),
+                                    ('source', 'helpdesk_sources')]:
+            if field in self.fields:
+                relate_manager = getattr(site, related_name, None)
+                print(relate_manager)
+                if relate_manager:
+                    self.fields[field].queryset = relate_manager.all()
+        if 'source' in self.fields:
+            try:
+                self.fields['source'].initial = Source.get_default_obj()
+            except Source.DoesNotExist:
+                pass
 
     def clean_tipologies(self):
         """

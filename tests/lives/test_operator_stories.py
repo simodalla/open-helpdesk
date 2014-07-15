@@ -15,7 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
-from helpdesk.models import Ticket, StatusChangesLog
+from helpdesk.models import Ticket, StatusChangesLog, Report
 
 
 pytestmark = pytest.mark.django_db
@@ -116,28 +116,29 @@ def test_open_ticket_from_change_view(browser_o, initialized_ticket):
         'ticket_statuschangelog_{}'.format(initialized_ticket.pk))
 
 
-@pytest.mark.target
 @pytest.mark.livetest
 def test_add_report_to_open_ticket_without_action(browser_o, opened_ticket):
-    # new_ticket_ids = [str(t.id) for t in new_tickets]
-    browser_o.get('admin:helpdesk_ticket_changelist')
-    # for checkbox in [e for e in browser_o.driver.find_elements_by_name(
-    #         "_selected_action")]:
-    #     if checkbox.get_attribute('value') in new_ticket_ids:
-    #         checkbox.click()
-    # browser_o.driver.find_element_by_css_selector(
-    #     '.changelist-actions .chzn-single').click()
-    # exc = Exception('Error')
-    # for action in browser_o.driver.find_elements_by_css_selector(
-    #         '.chzn-results li'):
-    #     if action.text.strip().lower() == 'open e assign selected tickets':
-    #         with patch('helpdesk.models.Ticket.opening', side_effect=exc):
-    #             action.click()
-    # error_message = browser_o.get_messages(level='error')
-    # assert len(error_message) == 1
-    # for ticket in Ticket.objects.filter(id__in=new_ticket_ids):
-    #     assert ticket.status == Ticket.STATUS.new
-    #     assert ticket.assignee is None
-    #     assert str(ticket.id) in error_message[0].text
-    #     assert 'Error' in error_message[0].text
-
+    content = 'foo ' * 10
+    action = 'no_action'
+    browser_o.get('admin:helpdesk_ticket_change', *(opened_ticket.id,))
+    browser_o.driver.find_element_by_id('add_report_to_ticket').click()
+    browser_o.driver.find_element_by_id('id_content').send_keys(content)
+    visible_from_req = browser_o.driver.find_element_by_id(
+        'id_visible_from_requester')
+    if visible_from_req.is_selected():
+        visible_from_req.click()
+    browser_o.driver.find_element_by_css_selector(
+        'input[value="{}"]'.format(action)).click()
+    browser_o.driver.find_element_by_name('_save').click()
+    report = Report.objects.filter(ticket__id=opened_ticket.id).latest()
+    assert report.ticket.id == opened_ticket.id
+    assert report.content == content
+    assert report.sender.pk == browser_o.user.pk
+    assert report.recipient.pk == opened_ticket.requester.pk
+    assert report.action_on_ticket == action
+    assert report.visible_from_requester is False
+    WebDriverWait(browser_o.driver, 10).until(
+        ec.visibility_of_element_located((By.ID, 'ticket_form')),
+        message='It seems that not redirect to ticket change form. Current'
+                ' url is: {}'.format(browser_o.current_url)
+    )

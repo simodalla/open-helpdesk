@@ -2,10 +2,15 @@
 from __future__ import unicode_literals, absolute_import
 
 from django.contrib.auth.models import Group, Permission
+from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 
+from helpdesk.core import DEFAULT_SOURCES
 from helpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
+from helpdesk.models import Source
+
+from mezzanine.utils.sites import current_site_id
 
 
 class Command(BaseCommand):
@@ -37,3 +42,14 @@ class Command(BaseCommand):
                 codename__in=permission_codenames))
             self.stdout.write('Add permissions to {}: {}.\n\n'.format(
                 group.name, permission_codenames))
+
+        site = Site.objects.get(pk=current_site_id())
+        Source.objects.all().delete()
+        for code, title in DEFAULT_SOURCES:
+            source, created = Source.objects.get_or_create(
+                code=code, defaults={'title': title})
+            if created:
+                source.sites.add(site)
+
+
+

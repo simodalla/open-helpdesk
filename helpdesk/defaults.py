@@ -24,7 +24,6 @@ HELPDESK_ADMINS = ('helpdesk_admins', [
     'helpdesk.delete_category',
     'helpdesk.add_tipology', 'helpdesk.change_tipology',
     'helpdesk.delete_tipology',
-
 ])
 HELPDESK_TICKET_MAX_TIPOLOGIES = 3
 
