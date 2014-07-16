@@ -9,6 +9,10 @@ from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.contenttypes.generic import GenericTabularInline
 from django.core.urlresolvers import reverse
+try:
+    from django.db.transaction import atomic
+except ImportError:  # pragma: no cover
+    from django.db.transaction import commit_on_success as atomic
 from django.http.response import HttpResponseRedirectBase
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -122,6 +126,14 @@ class TicketAdmin(admin.ModelAdmin):
             return list()
 
     # ModelsAdmin methods customized ##########################################
+    def get_inline_instances(self, request, obj=None):
+        if obj:
+            if obj.is_closed():
+                return list()
+        # return [inline(self.model, self.admin_site)
+        #         for inline in self.inlines]
+        return super(TicketAdmin, self).get_inline_instances(request, obj=obj)
+
     def get_list_display(self, request):
         """
         Return default list_display if request.user is a requester. Otherwise
@@ -208,6 +220,11 @@ class TicketAdmin(admin.ModelAdmin):
         Otherwise return default empty readonly_fields.
         """
         if obj:
+            if obj.is_closed():
+                fields = set()
+                for e in self.get_fieldsets(request, obj=obj):
+                    fields = fields.union(list(e[1]['fields']))
+                return list(fields)
             user = self.get_request_helpdeskuser(request)
             if user.is_requester():
                 fields = set()
@@ -319,25 +336,33 @@ class ReportAdmin(admin.ModelAdmin):
     fields = ('ticket', 'content', 'visible_from_requester',
               'action_on_ticket')
     form = ReportAdminAutocompleteForm
-    list_display = ['id', 'ticket', 'content', 'visible_from_requester',
+    list_display = ['id', 'ticket', 'created', 'content', 'visible_from_requester',
                     'action_on_ticket', 'sender', 'recipient']
+    list_filter = ['sender', 'recipient', 'action_on_ticket',
+                   'visible_from_requester']
     radio_fields = {'action_on_ticket': admin.VERTICAL}
     search_fields = ['ticket__pk', 'ticket__content', 'content']
+    helpdesk_ticket = None
 
     @staticmethod
-    def _check_access(request):
+    def _check_access(request, modeladmin):
         ticket_id = request.GET.get('ticket', None)
         error = None
+        setattr(modeladmin, 'helpdesk_ticket', None)
         if not ticket_id:
             error = "ERROR MANCANZA TICKET ID"
-        elif Ticket.objects.filter(id=ticket_id).count() == 0:
-            error = "ERROR TICKET ID NO TICKET MATCH"
+        else:
+            try:
+                setattr(modeladmin, 'helpdesk_ticket', Ticket.objects.get(
+                    id=ticket_id))
+            except Ticket.DoesNotExist:
+                error = "ERROR TICKET ID NO TICKET MATCH"
         if error:
             messages.error(request, error)
             return redirect(admin_urlname(Ticket._meta, 'changelist'))
 
     def add_view(self, request, form_url='', extra_context=None):
-        result = ReportAdmin._check_access(request)
+        result = ReportAdmin._check_access(request, self)
         if not result:
             result = super(ReportAdmin, self).add_view(
                 request, form_url=form_url, extra_context=extra_context)
@@ -346,12 +371,23 @@ class ReportAdmin(admin.ModelAdmin):
                                   request.GET.get('ticket'))
         return result
 
+    def formfield_for_choice_field(self, db_field, request=None, **kwargs):
+        if db_field.name == 'action_on_ticket':
+            kwargs['choices'] = Ticket.get_action_for_report(
+                ticket=self.helpdesk_ticket)
+        return super(ReportAdmin, self).formfield_for_choice_field(
+            db_field, request=request, **kwargs)
+
+    @atomic
     def save_model(self, request, obj, form, change):
+        print(obj.ticket)
         if obj.sender_id is None:
             obj.sender = request.user
         if obj.recipient_id is None:
             obj.recipient = obj.ticket.requester
         super(ReportAdmin, self).save_model(request, obj, form, change)
+        if obj.action_on_ticket == 'close':
+            obj.ticket.closing(request.user)
 
 
 class SourceAdmin(admin.ModelAdmin):

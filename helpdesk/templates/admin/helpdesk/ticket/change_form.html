@@ -39,3 +39,18 @@
 
     {% endif %}
 {% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <script type="text/javascript">
+        {% if original.is_closed %}
+            $(document).ready(function () {
+                var submit_row = $('div.submit-row');
+                if (submit_row.length == 0) {
+                    alert("ERRORE CONTATTARE L'AMMINISTRATORE DI SISTEMA")
+                }
+                submit_row.remove();
+            });
+        {% endif %}
+    </script>
+{% endblock %}

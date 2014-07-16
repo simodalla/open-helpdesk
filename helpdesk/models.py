@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
+from django.contrib.contenttypes import generic
+from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Q
 try:
     from django.db.transaction import atomic
 except ImportError:  # pragma: no cover
     from django.db.transaction import commit_on_success as atomic
-
-from django.contrib.admin.templatetags.admin_urls import admin_urlname
-from django.contrib.contenttypes import generic
-from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.template.defaultfilters import truncatewords
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
@@ -24,7 +23,8 @@ from model_utils.models import StatusModel
 from model_utils import Choices
 
 from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
-                   TicketStatusError, TicketIsClosedError)
+                   TicketStatusError, TicketIsClosedError,
+                   ACTIONS_ON_TICKET, DEFAULT_ACTIONS)
 
 
 User = get_user_model()
@@ -261,7 +261,7 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         return self._is_in_status(self.STATUS.pending)
 
     def is_closed(self):
-        return self._is_in_status(self.STATUS.close)
+        return self._is_in_status(self.STATUS.closed)
 
     @atomic
     def change_state(self, before, after, user):
@@ -334,6 +334,18 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
             raise TicketStatusError("The ticket is still open")
         self.change_state(self.status, Ticket.STATUS.closed, user)
 
+    @classmethod
+    def get_action_for_report(cls, ticket=None):
+        result = tuple((k, ACTIONS_ON_TICKET[k]) for k in DEFAULT_ACTIONS)
+        if ticket and isinstance(ticket, cls):
+            if ticket.is_open():
+                return result + tuple((k, ACTIONS_ON_TICKET[k])
+                                      for k in ['put_on_pending', 'close'])
+            elif ticket.is_pending():
+                return result + tuple((k, ACTIONS_ON_TICKET[k])
+                                      for k in ['remove_from_pending'])
+        return result
+
 
 @python_2_unicode_compatible
 class Message(TimeStamped):
@@ -356,17 +368,15 @@ class Message(TimeStamped):
         return self.content
 
 
-ACTIONS_ON_TICKET = (
-    ('no_action', _('No action (maintain the current status)')),
-    ('put_on_pending', _('Put on pending')),
-    ('close', _('Close Ticket')),
-)
+ACTIONS_ON_TICKET_CHOICES = tuple((k, ACTIONS_ON_TICKET[k])
+                                  for k in ACTIONS_ON_TICKET)
 
 
 @python_2_unicode_compatible
 class Report(Message):
-    action_on_ticket = models.CharField(max_length=50, default='no_action',
-                                        choices=ACTIONS_ON_TICKET)
+    action_on_ticket = models.CharField(max_length=50,
+                                        choices=ACTIONS_ON_TICKET_CHOICES,
+                                        default=DEFAULT_ACTIONS[0])
     visible_from_requester = models.BooleanField(default=False)
 
     class Meta:

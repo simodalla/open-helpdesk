@@ -5,10 +5,8 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-
 from mezzanine.conf import settings
 from mezzanine.utils.sites import current_site_id
-
 from autocomplete_light import ModelForm as AutocompleteModelForm
 
 from .models import Ticket, Report, Source
@@ -55,6 +53,14 @@ class TicketAdminAutocompleteForm(AutocompleteModelForm, TicketAdminForm):
     class Meta:
         model = Ticket
         autocomplete_fields = ('related_tickets', 'requester',)
+
+
+# class ReportAdminForm(forms.ModelForm):
+#
+#     def __init__(self, *args, **kwargs):
+#         super(ReportAdminForm, self).__init__(*args, **kwargs)
+#         if 'action_on_ticket' in self.fields:
+#             print(self.fields['action_on_ticket'].choices)
 
 
 class ReportAdminAutocompleteForm(AutocompleteModelForm):

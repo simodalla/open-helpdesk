@@ -38,10 +38,10 @@ def _context_awesome_icon(name, list_icon=False, spin=False,
 
 
 @register.inclusion_tag('helpdesk/awesome_icon.html')
-def awesome_status_icon(status, spin=True, larger=None):
-    return _context_awesome_icon(
-        TICKET_STATUES_AWESOME_ICONS.get(status, 'circle-o-notch'),
-        spin=spin, larger=larger)
+def awesome_status_icon(status):
+    name, spin = TICKET_STATUES_AWESOME_ICONS.get(status,
+                                                  ('circle-o-notch', True))
+    return _context_awesome_icon(name, spin=spin)
 
 
 @register.inclusion_tag('helpdesk/awesome_icon.html')

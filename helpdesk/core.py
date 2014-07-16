@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import collections
+
 from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,10 +18,10 @@ TICKET_STATUSES = (
     (TICKET_STATUS_SOLVED, _('Closed')),
 )
 TICKET_STATUES_AWESOME_ICONS = {
-    TICKET_STATUS_NEW: 'spinner',
-    TICKET_STATUS_OPEN: 'cog',
-    TICKET_STATUS_PENDING: 'lock',
-    TICKET_STATUS_SOLVED: 'check-square'
+    TICKET_STATUS_NEW: ('spinner', True,),
+    TICKET_STATUS_OPEN: ('cog', True,),
+    TICKET_STATUS_PENDING: ('lock', True,),
+    TICKET_STATUS_SOLVED: ('check-square', False,)
 }
 MGS_TICKET_NOT_IN_STATUS = _('Ticket not in status "%(status)s"')
 
@@ -29,6 +31,13 @@ DEFAULT_SOURCES = [
     ('phone', _('Phone')),
     ('chat', _('Chat'))
 ]
+
+ACTIONS_ON_TICKET = collections.OrderedDict()
+ACTIONS_ON_TICKET['no_action'] = _('No action (maintain the current status)')
+ACTIONS_ON_TICKET['put_on_pending'] = _('Put on pending')
+ACTIONS_ON_TICKET['remove_from_pending'] = _('Remove on pending')
+ACTIONS_ON_TICKET['close'] = _('Close')
+DEFAULT_ACTIONS = ['no_action']
 
 
 class TicketStatusError(Exception):

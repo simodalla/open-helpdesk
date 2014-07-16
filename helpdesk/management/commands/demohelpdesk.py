@@ -15,6 +15,7 @@ from helpdesk.models import (HelpdeskUser, Category, Ticket, Message, Report,
 from helpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
 
+
 User = get_user_model()
 
 
@@ -102,10 +103,14 @@ class Command(BaseCommand):
                 print("Reports", Report.objects.all(), sep=": ")
 
             if group_name == HELPDESK_OPERATORS[0]:
-                for t in Ticket.objects.filter(
-                        pk__in=list(range(1, len(PRIORITIES) + 1))):
+                # for n, ticket in enumerate(Ticket.objects.filter(
+                #         pk__in=list(range(1, len(PRIORITIES) + 1)))):
+                for n, ticket in enumerate(Ticket.objects.all()):
                     [Report.objects.create(
-                        ticket=t, sender=user, recipient=requester,
+                        ticket=ticket, sender=user, recipient=requester,
                         content=Template("{% load webdesign %} {% lorem 5 w"
                                          " random %}.").render(Context({})))
                      for ri in range(0, 3)]
+                    if n % 2 == 1:
+                        print("*******************:", n)
+                        ticket.opening(user)
