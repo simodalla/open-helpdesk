@@ -54,14 +54,6 @@ class TicketAdminAutocompleteForm(AutocompleteModelForm, TicketAdminForm):
         autocomplete_fields = ('related_tickets', 'requester',)
 
 
-# class ReportAdminForm(forms.ModelForm):
-#
-#     def __init__(self, *args, **kwargs):
-#         super(ReportAdminForm, self).__init__(*args, **kwargs)
-#         if 'action_on_ticket' in self.fields:
-#             print(self.fields['action_on_ticket'].choices)
-
-
 class ReportAdminAutocompleteForm(AutocompleteModelForm):
     class Meta:
         model = Report
