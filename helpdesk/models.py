@@ -16,7 +16,7 @@ from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
-from mezzanine.core.models import RichText, SiteRelated, TimeStamped,
+from mezzanine.core.models import RichText, SiteRelated, TimeStamped
 from mezzanine.utils.models import (get_user_model_name, get_user_model)
 
 from model_utils.models import StatusModel
