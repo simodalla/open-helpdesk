@@ -24,7 +24,6 @@ class TicketAdminForm(forms.ModelForm):
                                     ('source', 'helpdesk_sources')]:
             if field in self.fields:
                 relate_manager = getattr(site, related_name, None)
-                print(relate_manager)
                 if relate_manager:
                     self.fields[field].queryset = relate_manager.all()
         if 'source' in self.fields:
