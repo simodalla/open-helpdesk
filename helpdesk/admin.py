@@ -302,7 +302,6 @@ class TicketAdmin(admin.ModelAdmin):
         success_ids = []
         error_data = []
         user = self.get_request_helpdeskuser(request)
-        print(type(queryset))
         if user.is_operator() or user.is_admin():
             for ticket in queryset.filter(status=Ticket.STATUS.new):
                 try:
@@ -380,7 +379,6 @@ class ReportAdmin(admin.ModelAdmin):
 
     @atomic
     def save_model(self, request, obj, form, change):
-        print(obj.ticket)
         if obj.sender_id is None:
             obj.sender = request.user
         if obj.recipient_id is None:
