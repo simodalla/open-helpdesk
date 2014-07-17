@@ -143,7 +143,7 @@ def test_add_report_to_open_ticket_without_action(browser_o, opened_ticket):
                 ' url is: {}'.format(browser_o.current_url)
     )
 
-@pytest.mark.target
+
 @pytest.mark.livetest
 def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket):
     content = 'foo ' * 10
@@ -177,3 +177,51 @@ def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket):
         message='It seems that not redirect to ticket change form. Current'
                 ' url is: {}'.format(browser_o.current_url)
     )
+
+
+@pytest.mark.target
+@pytest.mark.livetest
+def test_add_report_to_open_ticket_with_put_on_pending_action(
+        browser_o, opened_ticket):
+    content = 'foo ' * 10
+    action = 'put_on_pending'
+    days_after_today = 2
+    from django.utils import timezone
+    now = timezone.now()
+    browser_o.get(reverse(admin_urlname(Report._meta, 'add')) +
+                  '?ticket={}'.format(opened_ticket.id,))
+    browser_o.driver.find_element_by_id('id_content').send_keys(content)
+    visible_from_req = browser_o.driver.find_element_by_id(
+        'id_visible_from_requester')
+    if visible_from_req.is_selected():
+        visible_from_req.click()
+    browser_o.driver.find_element_by_css_selector(
+        'input[value="{}"]'.format(action)).click()
+    estimated_end_pending_date = WebDriverWait(browser_o.driver, 10).until(
+        ec.visibility_of_element_located(
+            (By.ID, 'id_estimated_end_pending_date')))
+    estimated_end_pending_date.click()
+    browser_o.driver.find_element_by_css_selector(
+        'td.ui-datepicker-today{}'.format('+ td' * days_after_today)).click()
+    browser_o.driver.find_element_by_name('_save').click()
+    report = Report.objects.filter(ticket__id=opened_ticket.id).latest()
+    assert report.ticket.id == opened_ticket.id
+    assert report.content == content
+    assert report.sender.pk == browser_o.user.pk
+    assert report.recipient.pk == opened_ticket.requester.pk
+    assert report.action_on_ticket == action
+    assert report.visible_from_requester is False
+    ticket = Ticket.objects.get(id=opened_ticket.id)
+    assert ticket.status == Ticket.STATUS.pending
+    statuschangelog = ticket.status_changelogs.latest()
+    assert statuschangelog.before == Ticket.STATUS.open
+    assert statuschangelog.after == Ticket.STATUS.pending
+    assert statuschangelog.changer.pk == browser_o.user.pk
+    pending_range = ticket.pending_ranges.all().latest()
+    expected_estimated_end_date = now + timezone.timedelta(
+        days=days_after_today)
+    assert pending_range.estimated_end.year == expected_estimated_end_date.year
+    assert (pending_range.estimated_end.month ==
+            expected_estimated_end_date.month)
+    assert pending_range.estimated_end.day == expected_estimated_end_date.day
+    assert pending_range.start == statuschangelog.created
