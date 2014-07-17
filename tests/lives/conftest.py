@@ -52,7 +52,7 @@ class LiveBrowser(object):
             return self.driver.get('{}{}{}'.format(
                 self.live_server.url,
                 url.rstrip('/'),
-                '/' if not '?' in url else ''), *args, **kwargs)
+                '/' if '?' not in url else ''), *args, **kwargs)
         return self.driver.get('{}{}'.format(
             self.live_server.url, reverse(url, args=args, kwargs=kwargs)))
 

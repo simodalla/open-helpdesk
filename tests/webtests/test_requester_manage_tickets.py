@@ -2,7 +2,6 @@
 from __future__ import unicode_literals, absolute_import
 
 import pytest
-
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 
@@ -59,4 +58,3 @@ class TestAddingTicketByRequester(object):
         assert statuschangelog.before == ''
         assert statuschangelog.after == Ticket.STATUS.new
         assert statuschangelog.changer.pk == requester.pk
-
