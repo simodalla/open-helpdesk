@@ -2,6 +2,7 @@ $(document).ready(function () {
     var pending_action = "put_on_pending";
     var input_action_on_ticket = "input[name='action_on_ticket']";
     var content_field = "#id_content";
+    var estimated_end_pending_date = "#id_estimated_end_pending_date";
 
     ['a.add-another', '.autocomplete-light-widget .remove'].forEach(
         function (elem) { $(elem).remove(); }
@@ -15,7 +16,7 @@ $(document).ready(function () {
         $("#fieldset_pending_range_data").show();
     }
 
-    $("#id_end_pending_date").datepicker({
+    $(estimated_end_pending_date).datepicker({
         showOtherMonths: true,
         selectOtherMonths: true,
         changeMonth: true,
@@ -59,7 +60,7 @@ $(document).ready(function () {
             $("#fieldset_pending_range_data").show("slow");
             if ($(content_field).val().trim().length == 0) {
                 $("#alert_for_empty_content").dialog("open");
-                [content_field, '#id_end_pending_date'].forEach(
+                [content_field, estimated_end_pending_date].forEach(
                     function (elem) {
                         $(elem).addClass("ui-state-highlight");
                     }
