@@ -21,10 +21,10 @@ $(document).ready(function () {
         selectOtherMonths: true,
         changeMonth: true,
         changeYear: true,
-        minDate: -0,
+        minDate: "+2D",
         maxDate: "+2Y",
-        dateFormat: "dd/mm/yy",
-        appendText: " (dd/mm/yy)",
+        dateFormat: "yy-mm-dd",
+        appendText: " (yyyy-mm-dd)",
         onClose: function (dateText, inst) {
             if (dateText.trim().length > 0) {
                 $(this).removeClass("ui-state-highlight");
