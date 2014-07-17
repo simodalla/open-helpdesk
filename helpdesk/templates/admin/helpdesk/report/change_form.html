@@ -6,3 +6,27 @@
     {{ block.super }}
     <script src="{% static "helpdesk/js/report.js" %}" type="text/javascript"></script>
 {% endblock %}
+
+{% block after_related_objects %}
+
+    <fieldset id="fieldset_pending_range_data" class="module aligned ui-helper-hidden">
+        <h2><i>{% trans "Pending Range Data" %}</i></h2>
+        <div class="form-row content">
+            <div>
+                <label for="id_end_pending_date">{% trans "Estimated date of end pending"%}:</label>
+                <input name="end_pending_date" type="text" id="id_end_pending_date" value="{{ end_pending_date }}"><span class="nbsp">&nbsp;</span>
+            </div>
+        </div>
+    </fieldset>
+
+    {# Translators: Alert title of jquery-ui dialog #}
+    <div id="alert_for_empty_content" title="{% trans "Alert" %}!">
+        <div class="ui-state-highlight ui-corner-all" style="padding: .7em;">
+            <p>
+                <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>
+                {% blocktrans with model_name=opts.verbose_name %}You must insert the field "Content" of {{ model_name }}.{% endblocktrans %}
+            </p>
+        </div>
+    </div>
+
+{% endblock %}
