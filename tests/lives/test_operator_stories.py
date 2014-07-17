@@ -202,7 +202,7 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
             (By.ID, 'id_estimated_end_pending_date')))
     estimated_end_pending_date.click()
     browser_o.driver.find_element_by_css_selector(
-        'td.ui-datepicker-today{}'.format('+ td' * days_after_today)).click()
+        'td.ui-datepicker-today{}'.format(' + td' * days_after_today)).click()
     browser_o.driver.find_element_by_name('_save').click()
     report = Report.objects.filter(ticket__id=opened_ticket.id).latest()
     assert report.ticket.id == opened_ticket.id
