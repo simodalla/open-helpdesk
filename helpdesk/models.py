@@ -321,6 +321,9 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
             raise TicketIsNotOpenError()
         statuschangelog = self.change_state(
             Ticket.STATUS.open, Ticket.STATUS.pending, user)
+        # TODO: controllare per bene la differenza tra le ore inserite,
+        #       in postgres da una differenza di due ore in meno su
+        #       estimated_end_date
         if estimated_end_date:
             estimated_end_date += ' {}:{}'.format(
                 statuschangelog.created.hour, statuschangelog.created.minute)
