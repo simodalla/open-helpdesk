@@ -145,9 +145,7 @@ def test_add_report_to_open_ticket_without_action(browser_o, opened_ticket):
 
 @pytest.mark.target
 @pytest.mark.livetest
-def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket,
-                                                     settings):
-    settings.DEBUG = True
+def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket):
     content = 'foo ' * 10
     action = 'close'
     browser_o.get(reverse(admin_urlname(Report._meta, 'add')) +
@@ -179,4 +177,3 @@ def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket,
         message='It seems that not redirect to ticket change form. Current'
                 ' url is: {}'.format(browser_o.current_url)
     )
-    pytest.set_trace()
