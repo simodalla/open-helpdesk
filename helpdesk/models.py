@@ -16,7 +16,7 @@ from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
-from mezzanine.core.models import RichText, SiteRelated, TimeStamped
+from mezzanine.core.models import RichText, SiteRelated, TimeStamped,
 from mezzanine.utils.models import (get_user_model_name, get_user_model)
 
 from model_utils.models import StatusModel
@@ -218,6 +218,7 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         'self', verbose_name=_('Related tickets'), blank=True)
     source = models.ForeignKey('Source', verbose_name=_('Source'),
                                blank=True, null=True)
+    pending_ranges = generic.GenericRelation('PendingRange')
 
     class Meta:
         get_latest_by = 'created'
@@ -270,14 +271,14 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         :param before: Ticket.STATUS, status that will be
         :param after: Ticket.STATUS, status before changing
         :param user: django.contrib.auth.get_user_model
-        :return: boolean
+        :return: StatusChangesLog created
         """
         self.status = after
         self.save()
-        self.status_changelogs.create(before=before,
-                                      after=after,
-                                      changer=user)
-        return True
+        return self.status_changelogs.create(before=before,
+                                             after=after,
+                                             changer=user)
+        # return True
 
     def initialize(self):
         """On inserting set status of ticket an record changelog for this."""
@@ -306,17 +307,26 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         self.save()
 
     @atomic
-    def put_on_pending(self, user):
+    def put_on_pending(self, user, estimated_end_date=None):
         """Logic 'put_on_pending' ticket operation.
 
         Set status to pending and create an StatusChangesLog object.
 
         :param user: user to set into status_changelogs related object
         :type user: django.contrib.auth.get_user_model
+        :param estimated_end_date: "date" for an estimated date of end pending
+        :type user: string into format (yyyy-mm-dd)
         """
         if self.status != Ticket.STATUS.open:
             raise TicketIsNotOpenError()
-        self.change_state(Ticket.STATUS.open, Ticket.STATUS.pending, user)
+        statuschangelog = self.change_state(
+            Ticket.STATUS.open, Ticket.STATUS.pending, user)
+        if estimated_end_date:
+            estimated_end_date += ' {}:{}'.format(
+                statuschangelog.created.hour, statuschangelog.created.minute)
+        PendingRange.objects.create(start=statuschangelog.created,
+                                    estimated_end=estimated_end_date,
+                                    content_object=self)
 
     @atomic
     def closing(self, user):
@@ -387,6 +397,22 @@ class Report(Message):
 
     def __str__(self):
         return self.content
+
+
+@python_2_unicode_compatible
+class PendingRange(models.Model):
+    start = models.DateTimeField(null=True, editable=False)
+    end = models.DateTimeField(null=True, editable=False)
+    estimated_end = models.DateTimeField(null=True)
+    content_type = models.ForeignKey('contenttypes.ContentType')
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        get_latest_by = 'id'
+        ordering = ('start', 'end')
+        verbose_name = _('Pending Range')
+        verbose_name_plural = _('Pending Ranges')
 
 
 @python_2_unicode_compatible
