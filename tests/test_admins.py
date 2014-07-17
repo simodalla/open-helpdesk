@@ -169,11 +169,14 @@ class TestTicketAdminByRequester(object):
         [('requester', {'f1', 'f2'}),
          ('operator', TicketAdmin.operator_read_only_fields),
          ('admin', TicketAdmin.operator_read_only_fields)])
-    def test_custom_lget_readonly_fields(
+    def test_custom_get_readonly_fields_on_ticket_not_closed(
             self, helpdeskuser, expected, ticket_admin_change_view):
         request, ticket_admin, object_id = ticket_admin_change_view
         setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
         setattr(ticket_admin, 'get_fieldsets',
                 lambda r, obj=1: ((None, {'fields': ['f1', 'f2']}),))
+        mock_ticket = Mock(spec_set=Ticket, pk=1)
+        mock_ticket.is_closed.return_value = False
+        # print(True if mock_ticket.is_closed() else False)
         assert set(ticket_admin.get_readonly_fields(
-            request, Mock(spec_set=Ticket, pk=1))) == set(expected)
+            request, mock_ticket)) == set(expected)
