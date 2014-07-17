@@ -335,8 +335,9 @@ class ReportAdmin(admin.ModelAdmin):
     fields = ('ticket', 'content', 'visible_from_requester',
               'action_on_ticket')
     form = ReportAdminAutocompleteForm
-    list_display = ['id', 'ticket', 'created', 'content', 'visible_from_requester',
-                    'action_on_ticket', 'sender', 'recipient']
+    list_display = ['id', 'ticket', 'created', 'content',
+                    'visible_from_requester', 'action_on_ticket', 'sender',
+                    'recipient']
     list_filter = ['sender', 'recipient', 'action_on_ticket',
                    'visible_from_requester']
     radio_fields = {'action_on_ticket': admin.VERTICAL}
@@ -362,6 +363,12 @@ class ReportAdmin(admin.ModelAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         result = ReportAdmin._check_access(request, self)
+        extra_context = extra_context or {}
+        estimated_end_pending_date = request.POST.get(
+            'estimated_end_pending_date', None)
+        if estimated_end_pending_date:
+            extra_context.update(
+                {'estimated_end_pending_date': estimated_end_pending_date})
         if not result:
             result = super(ReportAdmin, self).add_view(
                 request, form_url=form_url, extra_context=extra_context)
@@ -386,6 +393,10 @@ class ReportAdmin(admin.ModelAdmin):
         super(ReportAdmin, self).save_model(request, obj, form, change)
         if obj.action_on_ticket == 'close':
             obj.ticket.closing(request.user)
+        elif obj.action_on_ticket == 'put_on_pending':
+            obj.ticket.put_on_pending(request.user,
+                                      estimated_end_date=request.POST.get(
+                                          'estimated_end_pending_date', None))
 
 
 class SourceAdmin(admin.ModelAdmin):
