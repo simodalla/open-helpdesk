@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from django.template import Template, Context
 from mezzanine.utils.models import get_user_model
+from mezzanine.utils.sites import current_site_id
 
 from six.moves import cStringIO
 from helpdesk.management.commands import inithelpdesk
@@ -39,7 +40,7 @@ class Command(BaseCommand):
 
         inithelpdesk.Command().execute(stdout=cStringIO(), stderr=cStringIO())
 
-        default_site = Site.objects.get(pk=1)
+        default_site = Site.objects.get(pk=current_site_id())
 
         [source.sites.add(default_site) for source in Source.objects.all()]
 
@@ -103,8 +104,6 @@ class Command(BaseCommand):
                 print("Reports", Report.objects.all(), sep=": ")
 
             if group_name == HELPDESK_OPERATORS[0]:
-                # for n, ticket in enumerate(Ticket.objects.filter(
-                #         pk__in=list(range(1, len(PRIORITIES) + 1)))):
                 for n, ticket in enumerate(Ticket.objects.all()):
                     [Report.objects.create(
                         ticket=ticket, sender=user, recipient=requester,
@@ -112,5 +111,4 @@ class Command(BaseCommand):
                                          " random %}.").render(Context({})))
                      for ri in range(0, 3)]
                     if n % 2 == 1:
-                        print("*******************:", n)
                         ticket.opening(user)
