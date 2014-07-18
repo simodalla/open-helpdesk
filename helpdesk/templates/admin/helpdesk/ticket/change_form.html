@@ -4,35 +4,70 @@
 
 {% block extrahead %}
     {{ block.super }}
-    <script src="{% static "helpdesk/js/ticket.js" %}" type="text/javascript"></script>
+    <script src="{% static "helpdesk/js/ticket.js" %}"
+            type="text/javascript"></script>
 {% endblock %}
 
 {% block after_field_sets %}
     {% if object_id %}
-
         <div id="ticket_infos">
             <ul>
-                <li><a href="#tab_messages">Messaging</a></li>
-                <li><a href="#tab_changestatuslog">Change Status Log</a></li>
+                <li><a href="#tab_ticket_data">{% trans "Ticket Data" %}</a></li>
+                <li><a href="#tab_messages">{% trans "Messaging" %}</a></li>
+                <li><a href="#tab_changestatuslog">{% trans "Change Status Logs" %}</a></li>
             </ul>
+            <div id="tab_ticket_data">
+                <fieldset class="module aligned">
+                    <div class="form-row">
+                    <table class="table_ticket_data">
+                        <tbody>
+                        <tr>
+                            <th>{% trans "Tipologies" %}:</th>
+                            <td>
+                            {% regroup ticket_tipologies by category as category_list %}
+                            <ul>
+                            {% for category in category_list %}
+                                <li>{{ category.grouper }}
+                                    <ul>{% for item in category.list %}<li>{{ item.tipology }}</li>{% endfor %}</ul>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                            </td>
+                        </tr>
+                        <tr><th>{% trans "Priority" %}:</th><td>{{ original.get_priority_display }}</td></tr>
+                        <tr><th>{% trans "Requester" %}:</th><td>{{ original.requester }}</td></tr>
+                        {% if not helpdesk_user.is_requester %}
+                            <tr><th>{% trans "Insert By" %}:</th><td>{{ original.insert_by }}</td></tr>
+                        {% endif %}
+                        <tr><th>{% trans "Assignee" %}:</th><td>{{ original.assignee| }}</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </fieldset>
+            </div>
             <div id="tab_messages">
                 {% if ticket_messages %}
-                <fieldset class="module aligned">
-                    {% for ticket_message in ticket_messages %}
-                        {% format_ticket_message ticket_message %}
-                    {% endfor %}
-                </fieldset>
+                    <fieldset class="module aligned">
+                        {% for ticket_message in ticket_messages %}
+                            {% format_ticket_message ticket_message %}
+                        {% endfor %}
+                    </fieldset>
                 {% endif %}
             </div>
             <div id="tab_changestatuslog">
                 {% if ticket_changelogs %}
                     <fieldset class="module aligned">
                         {% for changelog in ticket_changelogs %}
-                            <div id="ticket_statuschangelog_{{ changelog.pk }}" class="form-row">
-                                {% awesome_status_icon changelog.after %}&nbsp;&nbsp;<b>{% if changelog.before %}{{ changelog.before|capfirst }}&nbsp;&nbsp;{% awesome_icon 'long-arrow-right' %}&nbsp;&nbsp;{% endif %}{{ changelog.after|capfirst }}</b>&nbsp;&nbsp;{{ changelog.created }}
+                            <div id="ticket_statuschangelog_{{ changelog.pk }}"
+                                 class="form-row">
+                                {% awesome_status_icon changelog.after %}&nbsp;&nbsp;<b>
+                                {% if changelog.before %}
+                                    {{ changelog.before|capfirst }}&nbsp;&nbsp;
+                                    {% awesome_icon 'long-arrow-right' %}&nbsp;
+                                    &nbsp;{% endif %}{{ changelog.after|capfirst }}</b>&nbsp;&nbsp;{{ changelog.created }}
                             </div>
                         {% endfor %}
-                </fieldset>
+                    </fieldset>
                 {% endif %}
             </div>
         </div>

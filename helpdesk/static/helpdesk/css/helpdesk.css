@@ -1,0 +1,12 @@
+.table_ticket_data {
+    width: 80%;
+    margin: auto;
+}
+
+.table_ticket_data th {
+    width: 20%;
+}
+
+.table_ticket_data td {
+    width: 79%;
+}

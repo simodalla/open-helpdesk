@@ -69,18 +69,18 @@ class TicketAdmin(admin.ModelAdmin):
     actions = ['open_tickets']
     fieldsets = (
         (None, {
-            'fields': ['tipologies', 'priority', 'content', 'related_tickets'],
+            'fields': ['tipologies', 'priority', 'related_tickets', 'content'],
         }),
     )
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
     inlines = [AttachmentInline, MessageInline]
-    list_display = ['pk', 'admin_content', 'status', ]
+    list_display = ['pk', 'ld_content', 'status', ]
     list_filter = ['priority', 'status', 'tipologies']
     list_per_page = 25
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
-    readonly_fields = ['status']
+    # readonly_fields = ['status']
     search_fields = ['content', 'user__username', 'user__first_name',
                      'user__last_name', 'requester__username',
                      'requester__first_name', 'requester__last_name',
@@ -90,9 +90,6 @@ class TicketAdmin(admin.ModelAdmin):
     operator_list_display = ['requester', 'created']
     operator_list_filter = ['requester', 'assignee', 'source']
     operator_actions = ['requester', 'assignee']
-
-    # class Media:
-    #     js = ('helpdesk/js/ticket.js',)
 
     def get_request_helpdeskuser(self, request):
         return HelpdeskUser.get_from_request(request)
@@ -124,6 +121,18 @@ class TicketAdmin(admin.ModelAdmin):
             return object_tools[view_name]
         except KeyError:
             return list()
+
+    # list_display methods customized #########################################
+
+    def ld_content(self, obj):
+        return obj.get_clean_content(words=12)
+    ld_content.short_description = _('Content')
+
+    def admin_readonly_content(self, obj):
+        return '<div style="width: 85%; float:right;">{}</div>'.format(
+            obj.content)
+    admin_readonly_content.short_description = 'Content'
+    admin_readonly_content.allow_tags = True
 
     # ModelsAdmin methods customized ##########################################
     def get_inline_instances(self, request, obj=None):
@@ -165,25 +174,11 @@ class TicketAdmin(admin.ModelAdmin):
         'requester' field to fieldsets.
         """
         user = self.get_request_helpdeskuser(request)
-        fieldset = deepcopy(super(TicketAdmin, self).get_fieldsets(
-            request, obj=obj))
-        if user.is_operator() or user.is_admin():
-            for field in ['requester', 'source']:
-                fieldset[0][1]['fields'].append(field)
-        if user.is_requester() and obj:
-            # add custom fields so that they are in form. Otherwise are
-            # ignored into "readonly_fields". Custom fields are methods of
-            # Ticket model calleds 'admin_readonly_FIELD' where FIELD match
-            # with a Ticket field.
-            for field in ['content']:
-                try:
-                    index = fieldset[0][1]['fields'].index(field)
-                    fieldset[0][1]['fields'][index] = (
-                        'admin_readonly_{}'.format(field))
-                except ValueError:  # pragma: no cover
-                    pass
-        if obj:
-            fieldset[0][1]['fields'].append('status')
+        fieldset = tuple() if obj else deepcopy(
+            super(TicketAdmin, self).get_fieldsets(request, obj=obj))
+        if not obj and user.is_operator() or user.is_admin():
+            fieldset[0][1]['fields'] = (['requester', 'source'] +
+                                        fieldset[0][1]['fields'])
         return fieldset
 
     def get_formsets(self, request, obj=None):
@@ -214,27 +209,27 @@ class TicketAdmin(admin.ModelAdmin):
             return qs
         return qs.filter(requester=user)
 
-    def get_readonly_fields(self, request, obj=None):
-        """
-        Return a tuple with all fields if request.user is a requester.
-        Otherwise return default empty readonly_fields.
-        """
-        if obj:
-            if obj.is_closed():
-                fields = set()
-                for e in self.get_fieldsets(request, obj=obj):
-                    fields = fields.union(list(e[1]['fields']))
-                return list(fields)
-            user = self.get_request_helpdeskuser(request)
-            if user.is_requester():
-                fields = set()
-                for e in self.get_fieldsets(request, obj=obj):
-                    fields = fields.union(list(e[1]['fields']))
-                return list(fields)
-            elif user.is_operator() or user.is_admin():
-                return list(TicketAdmin.operator_read_only_fields)
-        return list(
-            super(TicketAdmin, self).get_readonly_fields(request, obj=obj))
+    # def get_readonly_fields(self, request, obj=None):
+    #     """
+    #     Return a tuple with all fields if request.user is a requester.
+    #     Otherwise return default empty readonly_fields.
+    #     """
+    #     if obj:
+    #         if obj.is_closed():
+    #             fields = set()
+    #             for e in self.get_fieldsets(request, obj=obj):
+    #                 fields = fields.union(list(e[1]['fields']))
+    #             return list(fields)
+    #         user = self.get_request_helpdeskuser(request)
+    #         if user.is_requester():
+    #             fields = set()
+    #             for e in self.get_fieldsets(request, obj=obj):
+    #                 fields = fields.union(list(e[1]['fields']))
+    #             return list(fields)
+    #         elif user.is_operator() or user.is_admin():
+    #             return list(TicketAdmin.operator_read_only_fields)
+    #     return list(
+    #         super(TicketAdmin, self).get_readonly_fields(request, obj=obj))
 
     def get_urls(self):
         # getattr is for re-compatibility django 1.5
@@ -276,6 +271,8 @@ class TicketAdmin(admin.ModelAdmin):
                 pass
         if obj.requester_id is None:
             obj.requester = request.user
+        if obj:
+            obj.insert_by = request.user
         super(TicketAdmin, self).save_model(request, obj, form, change)
         if not change:
             obj.initialize()
@@ -289,8 +286,13 @@ class TicketAdmin(admin.ModelAdmin):
             messages = user.get_messages_by_ticket(object_id)
             changelogs = StatusChangesLog.objects.filter(
                 ticket_id=object_id).order_by('created')
+            tipologies = [
+                {'tipology': t.title, 'category': t.category.title}
+                for t in Tipology.objects.filter(ticket__id=object_id)]
             extra_context.update({'ticket_messages': messages,
-                                  'ticket_changelogs': changelogs})
+                                  'ticket_changelogs': changelogs,
+                                  'ticket_tipologies': tipologies,
+                                  'helpdesk_user': user})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
