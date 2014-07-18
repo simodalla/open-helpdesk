@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import datetime
+
+import pytest
+
 try:
     from unittest.mock import patch, Mock
 except ImportError:
@@ -142,48 +146,6 @@ class OpenTicketTest(TestCase):
         self.assertEqual(changelog.after, Ticket.STATUS.open)
 
 
-class PendingTicketTest(TestCase):
-
-    def setUp(self):
-        self.category = CategoryFactory(tipologies=['tip1', 'tip2'])
-        self.operator = UserFactory(
-            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
-                                 permissions=list(HELPDESK_OPERATORS[1]))])
-        self.ticket = TicketFactory(requester=self.operator,
-                                    tipologies=self.category.tipologies.all(),
-                                    status=Ticket.STATUS.open)
-
-    def test_put_on_pending_method_raise_exception_if_not_open(self):
-        """
-        Test that calling of "put_on_pending" method on ticket with not "open"
-        status raise an ValueError exception.
-        """
-        self.ticket.status = Ticket.STATUS.closed
-        self.assertRaisesMessage(
-            TicketIsNotOpenError, 'Ticket not in status "Open"',
-            self.ticket.put_on_pending, Mock())
-
-    def test_put_on_pending_method_set_pending_status(self):
-        """
-        Test that calling of "put_on_pending" method on ticket with open status
-        set the field status to Ticket.STATUS.pending
-        """
-        self.ticket.put_on_pending(self.operator)
-        self.assertEqual(self.ticket.status, Ticket.STATUS.pending)
-
-    def test_put_on_pending_method_create_status_changelog_related_object(
-            self):
-        """
-        Test that calling of "put_on_pending" method on ticket with open status
-        create an related StatusChangesLog object with right data on fields
-        """
-        self.ticket.put_on_pending(self.operator)
-        changelog = self.ticket.status_changelogs.latest()
-        self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.before, Ticket.STATUS.open)
-        self.assertEqual(changelog.after, Ticket.STATUS.pending)
-
-
 class ClosedTicketTest(TestCase):
 
     def setUp(self):
@@ -247,19 +209,86 @@ class StatusChagesLogTest(TestCase):
         self.assertEqual(str(changelog), '{} {}: new ==> open'.format(
             self.ticket.pk, fake_date))
 
-# TODO: to delete or complete, implement
-# import pytest
-# from helpdesk.models import Message, Report
-#
-# @pytest.mark.django_db
-# class TestMessages(object):
-#     def test_message(self):
-#         category = CategoryFactory(tipologies=['tip1'])
-#         requester = UserFactory()
-#         ticket = TicketFactory(requester=requester,
-#                                tipologies=category.tipologies.all())
-#         for i in range(0, 3):
-#             Message.objects.create(content="foo", sender=requester)
-#             Report.objects.create(content="foo", sender=requester)
-#         print(Message.objects.all())
-#         print(Report.objects.all())
+
+@pytest.mark.django_db
+class TestTicketStutusManagements(object):
+    def test_put_on_pending_method_raise_exception_if_ticket_not_open(
+            self, new_ticket, operator):
+        """
+        Test that calling of "put_on_pending" method on ticket with not "open"
+        status raise an TicketIsNotOpenError exception.
+        """
+        assert new_ticket.status != Ticket.STATUS.open
+        with pytest.raises(TicketIsNotOpenError):
+            new_ticket.put_on_pending(operator)
+
+    def test_put_on_pending_method_set_pending_status_to_ticket(
+            self, opened_ticket, operator):
+        """
+        Test that calling of "put_on_pending" method on ticket with open status
+        set the field status to Ticket.STATUS.pending
+        """
+        assert opened_ticket.status == Ticket.STATUS.open
+        opened_ticket.put_on_pending(operator)
+        # ticket = Ticket.objects.get()
+        assert opened_ticket.status == Ticket.STATUS.pending
+
+    def test_put_on_pending_method_create_statuschangelog_obj(
+            self, opened_ticket, operator):
+        """
+        Test that calling of "put_on_pending" method on ticket with open status
+        create an StatusChangelog object.
+        """
+        assert opened_ticket.status == Ticket.STATUS.open
+        pre_statuschangelogs = opened_ticket.status_changelogs.count()
+        opened_ticket.put_on_pending(operator)
+        qs_statuschangelogs = opened_ticket.status_changelogs.all()
+        assert qs_statuschangelogs.count() == pre_statuschangelogs + 1
+        statuschangelog = qs_statuschangelogs.latest()
+        assert statuschangelog.before == Ticket.STATUS.open
+        assert statuschangelog.after == Ticket.STATUS.pending
+        assert statuschangelog.changer.pk == operator.pk
+
+    def test_put_on_pending_method_create_pendingrange_obj(
+            self, opened_ticket, operator):
+        """
+        Test that calling of "put_on_pending" method on ticket with open status
+        create an PendingRange object.
+        """
+        assert opened_ticket.status == Ticket.STATUS.open
+        pre_pendingrange = opened_ticket.pending_ranges.count()
+        opened_ticket.put_on_pending(operator)
+        qs_pendingrange = opened_ticket.pending_ranges.all()
+        assert qs_pendingrange.count() == pre_pendingrange + 1
+        statuschangelog = opened_ticket.status_changelogs.latest()
+        pendingrange = qs_pendingrange.latest()
+        assert pendingrange.start == statuschangelog.created
+        assert pendingrange.end is None
+        assert pendingrange.estimated_end is None
+        assert pendingrange.object_id == opened_ticket.id
+
+    def test_put_on_pending_method_create_pendingrange_obj_with_estimated_date(
+            self, opened_ticket, operator):
+        """
+        Test that calling of "put_on_pending" method on ticket with open status
+        create an PendingRange object.
+        """
+        assert opened_ticket.status == Ticket.STATUS.open
+        pre_pendingrange = opened_ticket.pending_ranges.count()
+        estimated_date = (datetime.date.today()
+                          + datetime.timedelta(days=15)).strftime('%Y-%m-%d')
+        opened_ticket.put_on_pending(operator,
+                                     estimated_end_date=estimated_date)
+        qs_pendingrange = opened_ticket.pending_ranges.all()
+        assert qs_pendingrange.count() == pre_pendingrange + 1
+        statuschangelog = opened_ticket.status_changelogs.latest()
+        pendingrange = qs_pendingrange.latest()
+        assert pendingrange.start == statuschangelog.created
+        assert pendingrange.end is None
+        assert (pendingrange.estimated_end.strftime('%Y-%m-%d') ==
+                estimated_date)
+        assert pendingrange.object_id == opened_ticket.id
+
+
+
+

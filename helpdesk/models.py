@@ -11,6 +11,8 @@ try:
 except ImportError:  # pragma: no cover
     from django.db.transaction import commit_on_success as atomic
 from django.template.defaultfilters import truncatewords
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
@@ -321,12 +323,11 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
             raise TicketIsNotOpenError()
         statuschangelog = self.change_state(
             Ticket.STATUS.open, Ticket.STATUS.pending, user)
-        # TODO: controllare per bene la differenza tra le ore inserite,
-        #       in postgres da una differenza di due ore in meno su
-        #       estimated_end_date
         if estimated_end_date:
-            estimated_end_date += ' {}:{}'.format(
-                statuschangelog.created.hour, statuschangelog.created.minute)
+            now = timezone.now()
+            estimated_end_date = parse_datetime('{} {}:{}'.format(
+                estimated_end_date, now.hour, now.minute)).replace(
+                    tzinfo=timezone.utc)
         PendingRange.objects.create(start=statuschangelog.created,
                                     estimated_end=estimated_end_date,
                                     content_object=self)
