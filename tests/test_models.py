@@ -13,9 +13,12 @@ except ImportError:
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from mezzanine.utils.sites import current_site_id
+
 from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
-from helpdesk.models import Category, Tipology, Ticket, StatusChangesLog
+from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
+                             PRIORITY_LOW)
 from helpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
                            TicketIsClosedError, TicketStatusError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
@@ -197,6 +200,7 @@ class StatusChagesLogTest(TestCase):
         self.ticket = TicketFactory(requester=UserFactory(),
                                     tipologies=category.tipologies.all())
 
+
     def test_str_method(self):
         created = Mock()
         fake_date = '10/09/1980'
@@ -210,8 +214,33 @@ class StatusChagesLogTest(TestCase):
             self.ticket.pk, fake_date))
 
 
+@pytest.fixture
+def unsaved_ticket(requester):
+    ticket = Ticket()
+    ticket.priority = PRIORITY_LOW
+    ticket.content = 'foo ' * 10
+    ticket.requester = requester
+    return ticket
+
+
 @pytest.mark.django_db
-class TestTicketStutusManagements(object):
+class TestTicketModel(object):
+
+    def test_custom_save_set_insert_by_to_requester_by_default(
+            self, requester, unsaved_ticket):
+        unsaved_ticket.save()
+        assert unsaved_ticket.requester_id == requester.id
+        assert unsaved_ticket.insert_by_id == requester.id
+
+    def test_custom_save_set_insert_by_field(self, unsaved_ticket, operator):
+        unsaved_ticket.insert_by = operator
+        unsaved_ticket.save()
+        assert unsaved_ticket.insert_by_id == operator.pk
+
+    def test_save_set_site_to_current_site(self, unsaved_ticket):
+        unsaved_ticket.save()
+        assert unsaved_ticket.site_id == current_site_id()
+
     def test_put_on_pending_method_raise_exception_if_ticket_not_open(
             self, new_ticket, operator):
         """

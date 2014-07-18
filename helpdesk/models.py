@@ -211,6 +211,9 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                         verbose_name=_('Tipologies'))
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
+    insert_by = models.ForeignKey(user_model_name, verbose_name=_('Insert By'),
+                                  related_name='inserted_tickets',
+                                  editable=False)
     requester = models.ForeignKey(user_model_name, verbose_name=_('Requester'),
                                   related_name='requested_tickets')
     assignee = models.ForeignKey(user_model_name, verbose_name=_('Assignee'),
@@ -230,6 +233,11 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
 
     def __str__(self):
         return str(self.pk)
+
+    def save(self, update_site=False, *args, **kwargs):
+        if not self.id and not self.insert_by_id:
+            self.insert_by_id = self.requester_id
+        super(Ticket, self).save(update_site, *args, **kwargs)
 
     def get_clean_content(self, words=10):
         """
