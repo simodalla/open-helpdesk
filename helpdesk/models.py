@@ -249,12 +249,6 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         """
         return truncatewords(strip_tags(self.content), words)
 
-    # def admin_readonly_content(self):
-    #     return '<div style="width: 85%; float:right;">{}</div>'.format(
-    #         self.content)
-    # admin_readonly_content.short_description = 'Content'
-    # admin_readonly_content.allow_tags = True
-
     def _is_in_status(self, status):
         return True if self.status == status else False
 

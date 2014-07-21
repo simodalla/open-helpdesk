@@ -27,7 +27,7 @@
                             {% regroup ticket_tipologies by category as category_list %}
                             <ul>
                             {% for category in category_list %}
-                                <li>{{ category.grouper }}
+                                <li><i>{{ category.grouper }}</i>
                                     <ul>{% for item in category.list %}<li>{{ item.tipology }}</li>{% endfor %}</ul>
                                 </li>
                             {% endfor %}
@@ -35,11 +35,20 @@
                             </td>
                         </tr>
                         <tr><th>{% trans "Priority" %}:</th><td>{{ original.get_priority_display }}</td></tr>
+                        <tr><th>{% trans "Source" %}:</th><td>{{ original.source }}</td></tr>
                         <tr><th>{% trans "Requester" %}:</th><td>{{ original.requester }}</td></tr>
                         {% if not helpdesk_user.is_requester %}
                             <tr><th>{% trans "Insert By" %}:</th><td>{{ original.insert_by }}</td></tr>
                         {% endif %}
-                        <tr><th>{% trans "Assignee" %}:</th><td>{{ original.assignee| }}</td></tr>
+                        <tr><th>{% trans "Assignee" %}:</th><td>{{ original.assignee|default_if_none:_("not assigned")|capfirst }}</td></tr>
+                        <tr>
+                            <th>{% trans "Related tickets" %}:</th>
+                            <td>
+                                {% for related_ticket in original.related_tickets.all %}
+                                <a class="related_ticket" href="{% url 'admin:helpdesk_ticket_change' related_ticket.pk %}">{% trans opts.verbose_name %}{{ related_ticket.id }}</a><br />
+                                {% endfor %}
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                     </div>

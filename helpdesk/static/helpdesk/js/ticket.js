@@ -10,4 +10,5 @@ $(document).ready(function () {
         $(ticket_infos + " #tab_" + tabs_ids[key] +
                 " fieldset").css("margin-bottom", "0");
     }
+    $('a.related_ticket').button();
 });
