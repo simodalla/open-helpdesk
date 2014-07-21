@@ -20,7 +20,7 @@ TICKET_STATUSES = (
 TICKET_STATUES_AWESOME_ICONS = {
     TICKET_STATUS_NEW: ('spinner', True,),
     TICKET_STATUS_OPEN: ('cog', True,),
-    TICKET_STATUS_PENDING: ('lock', True,),
+    TICKET_STATUS_PENDING: ('lock', False,),
     TICKET_STATUS_SOLVED: ('check-square', False,)
 }
 MGS_TICKET_NOT_IN_STATUS = _('Ticket not in status "%(status)s"')
