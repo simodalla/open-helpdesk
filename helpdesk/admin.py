@@ -286,12 +286,8 @@ class TicketAdmin(admin.ModelAdmin):
             messages = user.get_messages_by_ticket(object_id)
             changelogs = StatusChangesLog.objects.filter(
                 ticket_id=object_id).order_by('created')
-            tipologies = [
-                {'tipology': t.title, 'category': t.category.title}
-                for t in Tipology.objects.filter(ticket__id=object_id)]
             extra_context.update({'ticket_messages': messages,
                                   'ticket_changelogs': changelogs,
-                                  'ticket_tipologies': tipologies,
                                   'helpdesk_user': user})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
