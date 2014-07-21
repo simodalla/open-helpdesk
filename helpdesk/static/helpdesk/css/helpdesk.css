@@ -1,12 +1,9 @@
-.table_ticket_data {
-    width: 80%;
-    margin: auto;
-}
+.table_ticket_data { width: 100%; }
+.table_ticket_data th { width: 20%; text-align: right; }
+.table_ticket_data td { width: 79%; }
+.table_ticket_data>tbody>tr:first-of-type>th, .table_ticket_data>tbody>tr:first-of-type>td{ border-top: none; }
 
-.table_ticket_data th {
-    width: 20%;
-}
-
-.table_ticket_data td {
-    width: 79%;
-}
+div#ticket_content ul, ol { padding-left: 2em;}
+div#ticket_content ul li { list-style-type: inherit; }
+div#ticket_content a:link, a:visited { color: #309bbf; }
+div#ticket_content a:hover, a:active { color: #444; }
