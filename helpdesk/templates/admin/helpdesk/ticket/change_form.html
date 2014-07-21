@@ -23,29 +23,26 @@
                         <tbody>
                         <tr>
                             <th>{% trans "Tipologies" %}:</th>
-                            <td>
-                            {% regroup ticket_tipologies by category as category_list %}
-                            <ul>
-                            {% for category in category_list %}
-                                <li><i>{{ category.grouper }}</i>
-                                    <ul>{% for item in category.list %}<li>{{ item.tipology }}</li>{% endfor %}</ul>
-                                </li>
-                            {% endfor %}
-                            </ul>
-                            </td>
+                            <td>{{ original.tipologies.all|join:", " }}</td>
                         </tr>
                         <tr><th>{% trans "Priority" %}:</th><td>{{ original.get_priority_display }}</td></tr>
                         <tr><th>{% trans "Source" %}:</th><td>{{ original.source }}</td></tr>
-                        <tr><th>{% trans "Requester" %}:</th><td>{{ original.requester }}</td></tr>
+                        <tr><th>{% trans "Status" %}:</th><td>{{ original.status|capfirst }}&nbsp;&nbsp;{% awesome_status_icon original.status %}</td></tr>
+                        <tr><th>{% trans "Content" %}:</th><td><div id="ticket_content">{{ original.content|safe }}</div></td></tr>
+                        {% if helpdesk_user.pk != original.requester.pk %}
+                            <tr><th>{% trans "Requester" %}:</th><td>{{ original.requester }}</td></tr>
+                        {% endif %}
                         {% if not helpdesk_user.is_requester %}
                             <tr><th>{% trans "Insert By" %}:</th><td>{{ original.insert_by }}</td></tr>
                         {% endif %}
-                        <tr><th>{% trans "Assignee" %}:</th><td>{{ original.assignee|default_if_none:_("not assigned")|capfirst }}</td></tr>
+                        <tr><th>{% trans "Assignee" %}:</th><td>{{ original.assignee|default_if_none:_("Not assigned") }}</td></tr>
                         <tr>
                             <th>{% trans "Related tickets" %}:</th>
                             <td>
                                 {% for related_ticket in original.related_tickets.all %}
-                                <a class="related_ticket" href="{% url 'admin:helpdesk_ticket_change' related_ticket.pk %}">{% trans opts.verbose_name %}{{ related_ticket.id }}</a><br />
+                                <a class="related_ticket" href="{% url 'admin:helpdesk_ticket_change' related_ticket.pk %}">{% trans opts.verbose_name %}{{ related_ticket.id }}</a>&nbsp;
+                                {% empty %}
+                                    {% trans "No related tickets" %}
                                 {% endfor %}
                             </td>
                         </tr>
@@ -55,13 +52,15 @@
                 </fieldset>
             </div>
             <div id="tab_messages">
-                {% if ticket_messages %}
+{#                {% if ticket_messages %}#}
                     <fieldset class="module aligned">
                         {% for ticket_message in ticket_messages %}
                             {% format_ticket_message ticket_message %}
+                        {% empty %}
+                            <div class="form-row" style="text-align: center"><h2>{% blocktrans %}There are no messages until now.{% endblocktrans %}</h2></div>
                         {% endfor %}
                     </fieldset>
-                {% endif %}
+{#                {% endif %}#}
             </div>
             <div id="tab_changestatuslog">
                 {% if ticket_changelogs %}
