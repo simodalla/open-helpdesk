@@ -187,6 +187,7 @@ class Source(TimeStamped):
     sites = models.ManyToManyField('sites.Site', blank=True,
                                    verbose_name=_('Enable on Sites'),
                                    related_name='helpdesk_sources')
+    awesome_icon = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         verbose_name = _('Source')
@@ -202,6 +203,10 @@ class Source(TimeStamped):
             return cls.objects.get(code='portal')
         except cls.DoesNotExist as dne:
             raise dne
+
+    @property
+    def icon(self):
+        return self.awesome_icon
 
 
 @python_2_unicode_compatible
