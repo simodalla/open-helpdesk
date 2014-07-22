@@ -1,0 +1,9 @@
+{% overextends "admin/change_list.html" %}
+
+{% load staticfiles %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "helpdesk/css/helpdesk.css" %}">
+{% endblock %}
