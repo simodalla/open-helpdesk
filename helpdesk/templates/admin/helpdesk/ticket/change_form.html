@@ -27,7 +27,7 @@
                             <td>{{ original.tipologies.all|join:", " }}</td>
                         </tr>
                         <tr><th>{% trans "Priority" %}:</th><td>{{ original.get_priority_display }}</td></tr>
-                        <tr><th>{% trans "Source" %}:</th><td>{% awesome_icon original.source.icon %}&nbsp;&nbsp;{{ original.source }}</td></tr>
+                        <tr><th>{% trans "Source" %}:</th><td>{% if original.source %}{% awesome_icon original.source.icon %}&nbsp;&nbsp;{{ original.source }}{% endif %}</td></tr>
                         <tr><th>{% trans "Status" %}:</th><td>{{ original.status|helpdesk_status }}</td></tr>
                         <tr><th>{% trans "Content" %}:</th><td><div id="ticket_content">{{ original.content|safe }}</div></td></tr>
                         {% if helpdesk_user.pk != original.requester.pk %}
@@ -57,7 +57,7 @@
                     {% for ticket_message in ticket_messages %}
                         {% format_ticket_message ticket_message %}
                     {% empty %}
-                        <div class="form-row" style="SHORT_DATETIME_FORMATtext-align: center"><h2>{% blocktrans %}There are no messages until now.{% endblocktrans %}</h2></div>
+                        <div class="form-row" style="text-align: center"><h2>{% blocktrans %}There are no messages until now.{% endblocktrans %}</h2></div>
                     {% endfor %}
                 </fieldset>
             </div>

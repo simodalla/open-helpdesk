@@ -16,6 +16,7 @@ clean: clean-build clean-pyc
 
 clean-build:
 	rm -fr build/
+
 	rm -fr dist/
 	rm -fr *.egg-info
 
@@ -40,8 +41,7 @@ test-all:
 	tox
 
 coverage:
-	# coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(shell which py.test) tests --livetest
-	coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(shell which py.test) tests
+	coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(shell which py.test) tests --livetest
 	coverage report -m
 
 coverage-html: coverage
