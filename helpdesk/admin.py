@@ -15,11 +15,13 @@ except ImportError:  # pragma: no cover
     from django.db.transaction import commit_on_success as atomic
 from django.http.response import HttpResponseRedirectBase
 from django.shortcuts import redirect
+from django.template import Template, Context
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
+from .templatetags.helpdesk_tags import helpdesk_status
 from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
     Report, StatusChangesLog, Source)
@@ -75,19 +77,19 @@ class TicketAdmin(admin.ModelAdmin):
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
     inlines = [AttachmentInline, MessageInline]
-    list_display = ['pk', 'ld_content', 'status', ]
+    list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
+                    'ld_source']
     list_filter = ['priority', 'status', 'tipologies']
     list_per_page = 25
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
-    # readonly_fields = ['status']
     search_fields = ['content', 'user__username', 'user__first_name',
                      'user__last_name', 'requester__username',
                      'requester__first_name', 'requester__last_name',
                      'tipologies__title']
 
     operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
-    operator_list_display = ['requester', 'created']
+    operator_list_display = ['requester']
     operator_list_filter = ['requester', 'assignee', 'source']
     operator_actions = ['requester', 'assignee']
 
@@ -124,15 +126,38 @@ class TicketAdmin(admin.ModelAdmin):
 
     # list_display methods customized #########################################
 
+    def ld_id(self, obj):
+        return obj.id
+    ld_id.short_description = _('Id')
+
     def ld_content(self, obj):
         return obj.get_clean_content(words=12)
     ld_content.short_description = _('Content')
 
-    def admin_readonly_content(self, obj):
-        return '<div style="width: 85%; float:right;">{}</div>'.format(
-            obj.content)
-    admin_readonly_content.short_description = 'Content'
-    admin_readonly_content.allow_tags = True
+    def ld_status(self, obj):
+        return helpdesk_status(obj.status)
+    ld_status.admin_order_field = 'status'
+    ld_status.allow_tags = True
+    ld_status.short_description = _('Status')
+
+    def ld_source(self, obj):
+        if not obj.source:
+            return ''
+        context = Context({'icon_name': obj.source.icon,
+                           'source': obj.source.title})
+        return Template("{% load helpdesk_tags %}"
+                        "{% awesome_icon icon_name %}"
+                        "&nbsp;&nbsp;{{ source }}").render(context)
+    ld_source.admin_order_field = 'source'
+    ld_source.allow_tags = True
+    ld_source.short_description = _('Source')
+
+    def ld_created(self, obj):
+        from django.template import defaultfilters
+        return defaultfilters.date(obj.created, 'SHORT_DATETIME_FORMAT')
+    ld_created.admin_order_field = 'created'
+    ld_created.allow_tags = True
+    ld_created.short_description = _('Created')
 
     # ModelsAdmin methods customized ##########################################
     def get_inline_instances(self, request, obj=None):
@@ -209,28 +234,6 @@ class TicketAdmin(admin.ModelAdmin):
             return qs
         return qs.filter(requester=user)
 
-    # def get_readonly_fields(self, request, obj=None):
-    #     """
-    #     Return a tuple with all fields if request.user is a requester.
-    #     Otherwise return default empty readonly_fields.
-    #     """
-    #     if obj:
-    #         if obj.is_closed():
-    #             fields = set()
-    #             for e in self.get_fieldsets(request, obj=obj):
-    #                 fields = fields.union(list(e[1]['fields']))
-    #             return list(fields)
-    #         user = self.get_request_helpdeskuser(request)
-    #         if user.is_requester():
-    #             fields = set()
-    #             for e in self.get_fieldsets(request, obj=obj):
-    #                 fields = fields.union(list(e[1]['fields']))
-    #             return list(fields)
-    #         elif user.is_operator() or user.is_admin():
-    #             return list(TicketAdmin.operator_read_only_fields)
-    #     return list(
-    #         super(TicketAdmin, self).get_readonly_fields(request, obj=obj))
-
     def get_urls(self):
         # getattr is for re-compatibility django 1.5
         admin_prefix_url = '%s_%s' % (self.opts.app_label,
@@ -283,10 +286,10 @@ class TicketAdmin(admin.ModelAdmin):
         # get the ticket's messages only if is change form
         user = self.get_request_helpdeskuser(request)
         if object_id:
-            messages = user.get_messages_by_ticket(object_id)
+            msgs = user.get_messages_by_ticket(object_id)
             changelogs = StatusChangesLog.objects.filter(
                 ticket_id=object_id).order_by('created')
-            extra_context.update({'ticket_messages': messages,
+            extra_context.update({'ticket_messages': msgs,
                                   'ticket_changelogs': changelogs,
                                   'helpdesk_user': user})
         return super(TicketAdmin, self).change_view(
@@ -400,7 +403,7 @@ class ReportAdmin(admin.ModelAdmin):
 class SourceAdmin(admin.ModelAdmin):
     actions = None
     filter_horizontal = ('sites',)
-    list_display = ['code', 'title']
+    list_display = ['code', 'title', 'ld_icon']
 
     def has_delete_permission(self, request, obj=None):
         from helpdesk.core import DEFAULT_SOURCES
@@ -412,6 +415,10 @@ class SourceAdmin(admin.ModelAdmin):
             self.message_user(request, error_msg)
             return False
         return super(SourceAdmin, self).has_delete_permission(request, obj=obj)
+
+    def ld_icon(self, obj):
+        return obj.icon
+    ld_icon.short_description = _('Icon')
 
 
 admin.site.register(Category, CategoryAdmin)
