@@ -12,22 +12,23 @@
     {% if object_id %}
         <div id="ticket_infos">
             <ul>
-                <li><a href="#tab_ticket_data">{% trans "Ticket Data" %}</a></li>
-                <li><a href="#tab_messages">{% trans "Messaging" %}</a></li>
-                <li><a href="#tab_changestatuslog">{% trans "Change Status Logs" %}</a></li>
+                <li><a href="#tab_ticket_data">{% awesome_icon "database" larger="lg" %}&nbsp;&nbsp;{% trans "Ticket Data" %}</a></li>
+                <li><a href="#tab_messages">{% awesome_icon "comments" larger="lg" %}&nbsp;&nbsp;{% trans "Messaging" %}</a></li>
+                <li><a href="#tab_changestatuslog">{% awesome_icon "exchange" larger="lg" %}&nbsp;&nbsp;{% trans "Change Status Logs" %}</a></li>
             </ul>
             <div id="tab_ticket_data">
                 <fieldset class="module aligned">
                     <div class="form-row">
                     <table class="table_ticket_data">
                         <tbody>
+                        <tr><th>{% trans "Created" %}:</th><td>{{ original.created }}</td></tr>
                         <tr>
                             <th>{% trans "Tipologies" %}:</th>
                             <td>{{ original.tipologies.all|join:", " }}</td>
                         </tr>
                         <tr><th>{% trans "Priority" %}:</th><td>{{ original.get_priority_display }}</td></tr>
-                        <tr><th>{% trans "Source" %}:</th><td>{{ original.source }}</td></tr>
-                        <tr><th>{% trans "Status" %}:</th><td>{{ original.status|capfirst }}&nbsp;&nbsp;{% awesome_status_icon original.status %}</td></tr>
+                        <tr><th>{% trans "Source" %}:</th><td>{% awesome_icon original.source.icon %}&nbsp;&nbsp;{{ original.source }}</td></tr>
+                        <tr><th>{% trans "Status" %}:</th><td>{{ original.status|helpdesk_status }}</td></tr>
                         <tr><th>{% trans "Content" %}:</th><td><div id="ticket_content">{{ original.content|safe }}</div></td></tr>
                         {% if helpdesk_user.pk != original.requester.pk %}
                             <tr><th>{% trans "Requester" %}:</th><td>{{ original.requester }}</td></tr>
@@ -52,15 +53,13 @@
                 </fieldset>
             </div>
             <div id="tab_messages">
-{#                {% if ticket_messages %}#}
-                    <fieldset class="module aligned">
-                        {% for ticket_message in ticket_messages %}
-                            {% format_ticket_message ticket_message %}
-                        {% empty %}
-                            <div class="form-row" style="text-align: center"><h2>{% blocktrans %}There are no messages until now.{% endblocktrans %}</h2></div>
-                        {% endfor %}
-                    </fieldset>
-{#                {% endif %}#}
+                <fieldset class="module aligned">
+                    {% for ticket_message in ticket_messages %}
+                        {% format_ticket_message ticket_message %}
+                    {% empty %}
+                        <div class="form-row" style="SHORT_DATETIME_FORMATtext-align: center"><h2>{% blocktrans %}There are no messages until now.{% endblocktrans %}</h2></div>
+                    {% endfor %}
+                </fieldset>
             </div>
             <div id="tab_changestatuslog">
                 {% if ticket_changelogs %}
@@ -70,9 +69,9 @@
                                  class="form-row">
                                 {% awesome_status_icon changelog.after %}&nbsp;&nbsp;<b>
                                 {% if changelog.before %}
-                                    {{ changelog.before|capfirst }}&nbsp;&nbsp;
-                                    {% awesome_icon 'long-arrow-right' %}&nbsp;
-                                    &nbsp;{% endif %}{{ changelog.after|capfirst }}</b>&nbsp;&nbsp;{{ changelog.created }}
+                                    {{ changelog.before|capfirst }}&nbsp;&nbsp;{% awesome_icon 'long-arrow-right' %}&nbsp;
+                                {% endif %}
+                                {{ changelog.after|capfirst }}</b>&nbsp;&nbsp;{{ changelog.created }}
                             </div>
                         {% endfor %}
                     </fieldset>
