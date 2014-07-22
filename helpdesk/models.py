@@ -187,7 +187,7 @@ class Source(TimeStamped):
     sites = models.ManyToManyField('sites.Site', blank=True,
                                    verbose_name=_('Enable on Sites'),
                                    related_name='helpdesk_sources')
-    awesome_icon = models.CharField(max_length=100, blank=True, null=True)
+    awesome_icon = models.CharField(max_length=100, blank=True)
 
     class Meta:
         verbose_name = _('Source')
