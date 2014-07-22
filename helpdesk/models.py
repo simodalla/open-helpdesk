@@ -420,6 +420,9 @@ class PendingRange(models.Model):
         ordering = ('start', 'end')
         verbose_name = _('Pending Range')
         verbose_name_plural = _('Pending Ranges')
+        
+    def __str__(self):
+        return super(PendingRange, self).__str__()
 
 
 @python_2_unicode_compatible
