@@ -12,25 +12,32 @@ from helpdesk.core import TICKET_STATUES_AWESOME_ICONS
 register = template.Library()
 
 
-@register.inclusion_tag('admin/helpdesk/ticket/message.html')
-def format_ticket_message(message, **kwargs):
+@register.inclusion_tag('admin/helpdesk/ticket/message.html',
+                        takes_context=True)
+def format_ticket_message(context, message, **kwargs):
     if not issubclass(message.__class__, Message):
         raise TypeError("{} isn't subclass object of".format(message, Message))
-    context = {'css_style': '', 'message': message,
-               'css_class': 'form-row',
-               'model': getattr(message._meta, 'model_name',
-                                message._meta.module_name)}
+    tag_context = {'css_style': '', 'message': message,
+                   'css_class': 'form-row',
+                   'model': getattr(message._meta, 'model_name',
+                                    message._meta.module_name),
+                   'can_view_report': False}
+    if 'helpdesk_user' in context:
+        user = context['helpdesk_user']
+        if user.is_operator() or user.is_admin():
+            tag_context['can_view_report'] = True
+
     if 'css_class' in kwargs:
-        context.update({'css_class': kwargs['css_class']})
+        tag_context.update({'css_class': kwargs['css_class']})
     try:
         if message.report:
-            context.update({'model': getattr(
+            tag_context.update({'model': getattr(
                 message.report._meta, 'model_name',
                 message.report._meta.module_name),
                 'css_style': 'text-align: right;'})
     except ObjectDoesNotExist:
         pass
-    return context
+    return tag_context
 
 
 def _context_awesome_icon(name, list_icon=False, spin=False,
