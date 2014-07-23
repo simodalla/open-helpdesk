@@ -23,7 +23,6 @@ TICKET_STATUES_AWESOME_ICONS = {
     TICKET_STATUS_PENDING: ('lock', False,),
     TICKET_STATUS_SOLVED: ('check-square', False,)
 }
-MGS_TICKET_NOT_IN_STATUS = _('Ticket not in status "%(status)s"')
 
 DEFAULT_SOURCES = [
     ('portal', _('Portal')),
@@ -38,6 +37,9 @@ ACTIONS_ON_TICKET['put_on_pending'] = _('Put on pending')
 ACTIONS_ON_TICKET['remove_from_pending'] = _('Remove on pending')
 ACTIONS_ON_TICKET['close'] = _('Close')
 DEFAULT_ACTIONS = ['no_action']
+
+
+MGS_TICKET_NOT_IN_STATUS = _('Ticket not in status "%(status)s"')
 
 
 class TicketStatusError(Exception):

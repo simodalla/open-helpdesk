@@ -26,6 +26,7 @@ from model_utils import Choices
 
 from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
                    TicketStatusError, TicketIsClosedError,
+                   TicketIsNotPendingError,
                    ACTIONS_ON_TICKET, DEFAULT_ACTIONS)
 
 
@@ -318,9 +319,10 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         Set status to pending and create an StatusChangesLog object.
 
         :param user: user to set into status_changelogs related object
-        :type user: django.contrib.auth.get_user_model
-        :param estimated_end_date: "date" for an estimated date of end pending
-        :type user: string into format (yyyy-mm-dd)
+        :type user: django.contrib.auth.User
+        :param estimated_end_date: "date" into format (yyyy-mm-dd) for
+                                   an estimated date of end pending
+        :type estimated_end_date: string
         """
         if self.status != Ticket.STATUS.open:
             raise TicketIsNotOpenError()
@@ -334,6 +336,27 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         PendingRange.objects.create(start=statuschangelog.created,
                                     estimated_end=estimated_end_date,
                                     content_object=self)
+
+    @atomic
+    def remove_from_pending(self, user):
+        """Logic 'remove from pending' ticket operation.
+
+        Remove the pending status setting status to open, create an
+        StatusChangesLog object for this, and .
+
+        :param user: user to set 'user' field
+        :type user: User
+        :raises TicketIsNotPendingError: if the ticket not in pending status
+        """
+        if self.status != Ticket.STATUS.pending:
+            raise TicketIsNotPendingError()
+        status_changelog = self.change_state(
+            self.status, Ticket.STATUS.open, user)
+        pending_range = self.pending_ranges.get(end__isnull=True)
+        """:type : PendingRange"""
+        pending_range.end = status_changelog.updated
+        pending_range.save()
+        return status_changelog
 
     @atomic
     def closing(self, user):
@@ -353,6 +376,15 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
 
     @classmethod
     def get_action_for_report(cls, ticket=None):
+        """
+        Return a tuple of strings representatives the possible actions,
+        according to status of ticket parameter.
+
+        :param ticket:
+        :type ticket: Ticket or None
+        :return: tuple of strings
+        :rtype: tuple
+        """
         result = tuple((k, ACTIONS_ON_TICKET[k]) for k in DEFAULT_ACTIONS)
         if ticket and isinstance(ticket, cls):
             if ticket.is_open():

@@ -7,3 +7,8 @@ div#ticket_content ul, ol { padding-left: 2em;}
 div#ticket_content ul li { list-style-type: inherit; }
 div#ticket_content a:link, a:visited { color: #309bbf; }
 div#ticket_content a:hover, a:active { color: #444; }
+
+div#tab_changestatuslog span.before, span.arrow, span.after  {
+    display: block; float: left; width: 90px;}
+div#tab_changestatuslog span.arrow{ width: 30px; }
+
