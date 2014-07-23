@@ -78,4 +78,4 @@ def pending_ticket(opened_ticket, operator):
         timezone.now() + datetime.timedelta(days=15)).strftime('%Y-%m-%d')
     opened_ticket.put_on_pending(operator,
                                  estimated_end_date=estimated_end_date)
-    return initialized_ticket
+    return opened_ticket
