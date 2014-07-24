@@ -68,8 +68,17 @@ class TipologyAdmin(admin.ModelAdmin):
     search_fields = ['title', 'category__title']
 
 
+class StatusListFilter(admin.ChoicesFieldListFilter):
+    title = _('Status')
+
+    def __init__(self, *args, **kwargs):
+        super(StatusListFilter, self).__init__(*args, **kwargs)
+        self.title = StatusListFilter.title
+
+
 class TicketAdmin(admin.ModelAdmin):
     actions = ['open_tickets']
+    date_hierarchy = 'created'
     fieldsets = (
         (None, {
             'fields': ['tipologies', 'priority', 'related_tickets', 'content'],
@@ -80,12 +89,11 @@ class TicketAdmin(admin.ModelAdmin):
     inlines = [AttachmentInline, MessageInline]
     list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
                     'ld_source']
-    list_filter = ['priority', 'status', 'tipologies']
+    list_filter = ['priority', ('status', StatusListFilter), 'tipologies']
     list_per_page = 25
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
-    search_fields = ['content', 'user__username', 'user__first_name',
-                     'user__last_name', 'requester__username',
+    search_fields = ['content', 'requester__username',
                      'requester__first_name', 'requester__last_name',
                      'tipologies__title']
 
@@ -345,10 +353,9 @@ class TicketAdmin(admin.ModelAdmin):
 
     def get_actions(self, request):
         user = self.get_request_helpdeskuser(request)
-        actions = super(TicketAdmin, self).get_actions(request)
-        if user.is_requester() and 'open_tickets' in actions:
-            del actions['open_tickets']
-        return actions
+        if user.is_requester():
+            return []
+        return super(TicketAdmin, self).get_actions(request)
 
 
 class ReportAdmin(admin.ModelAdmin):
@@ -396,7 +403,6 @@ class ReportAdmin(admin.ModelAdmin):
             return redirect(admin_urlname(self.model._meta, 'changelist'))
         return super(ReportAdmin, self).change_view(
             request, object_id, *args, **kwargs)
-        
 
     def add_view(self, request, form_url='', extra_context=None):
         result = ReportAdmin._check_access(request, self)
