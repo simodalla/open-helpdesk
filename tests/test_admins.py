@@ -13,8 +13,8 @@ except ImportError:
 from django import VERSION as DJANGO_VERSION
 from django.contrib.admin import AdminSite
 
-from helpdesk.admin import TicketAdmin
-from helpdesk.models import Ticket, StatusChangesLog
+from helpdesk.admin import TicketAdmin, ReportAdmin
+from helpdesk.models import Ticket, StatusChangesLog, Report
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
 
@@ -149,25 +149,29 @@ class TestTicketAdminByRequester(object):
         setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
         assert ticket_admin.get_list_filter(request) == expected
 
-    # def test_custom_readonly_fields_if_obj_is_none(
-    #         self, ticket_admin_change_view):
-    #     request, ticket_admin, object_id = ticket_admin_change_view
-    #     assert (ticket_admin.get_readonly_fields(request) ==
-    #             TicketAdmin.readonly_fields)
-    #
-    # @pytest.mark.parametrize(
-    #     'helpdeskuser,expected',
-    #     [('requester', {'f1', 'f2'}),
-    #      ('operator', TicketAdmin.operator_read_only_fields),
-    #      ('admin', TicketAdmin.operator_read_only_fields)])
-    # def test_custom_get_readonly_fields_on_ticket_not_closed(
-    #         self, helpdeskuser, expected, ticket_admin_change_view):
-    #     request, ticket_admin, object_id = ticket_admin_change_view
-    #     setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
-    #     setattr(ticket_admin, 'get_fieldsets',
-    #             lambda r, obj=1: ((None, {'fields': ['f1', 'f2']}),))
-    #     mock_ticket = Mock(spec_set=Ticket, pk=1)
-    #     mock_ticket.is_closed.return_value = False
-    #     # print(True if mock_ticket.is_closed() else False)
-    #     assert set(ticket_admin.get_readonly_fields(
-    #         request, mock_ticket)) == set(expected)
+
+@pytest.fixture
+def report_util(rf, monkeypatch):
+    from django.contrib.auth import get_user_model
+    rf.user = get_user_model()
+
+    class ModelAdminUtil(object):
+        def __init__(self):
+            self.rf = rf
+            self.model_admin = ReportAdmin(Report, AdminSite)
+            self.report = Mock(spec_set=Report)
+            self.report.ticket = Mock(spec_set=Ticket)
+            self.form = Mock()
+
+    return ModelAdminUtil()
+
+
+class TestReportAdmin(object):
+    @patch('django.contrib.admin.ModelAdmin.save_model')
+    def test_save_model_set_sender_field(self, mock_save_model, report_util):
+        args = (report_util.rf, report_util.report, report_util.form, False)
+        print(report_util.report.__dict__)
+        report_util.model_admin.save_model(*args)
+        mock_save_model.assert_called_once_with(*args)
+
+
