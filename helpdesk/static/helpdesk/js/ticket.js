@@ -1,9 +1,6 @@
 require([ "jquery", "jquery-ui/jquery-ui.min", ], function ($) {
     var ticketInfos = "#ticket_infos";
     var tabsIds = ['ticket_data', 'messages', 'changestatuslog'];
-    var currentUrl = $(location).attr('pathname');
-
-    helpdeskGetObjectTools(currentUrl);
 
     // remove 'add-another' link/button
     $('a.add-another').remove();
