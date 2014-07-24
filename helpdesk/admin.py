@@ -145,8 +145,6 @@ class TicketAdmin(admin.ModelAdmin):
                             'url': url,
                             'text': ugettext('Remove from pending'),
                             'id': 'add_report_for_remove_from_pending'})
-
-
         try:
             return object_tools[view_name]
         except KeyError:

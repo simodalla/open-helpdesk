@@ -67,4 +67,3 @@ def helpdesk_status(status, surround=None):
               "{% if surround %}</{{ surround }}>{% endif %}")
     t = Template(result)
     return t.render(Context({'status': status, 'surround': surround}))
-

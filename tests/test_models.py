@@ -20,7 +20,8 @@ from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
 from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
                              PRIORITY_LOW, PendingRange)
 from helpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
-                           TicketIsClosedError, TicketIsNotPendingError, TicketIsNewError)
+                           TicketIsClosedError, TicketIsNotPendingError,
+                           TicketIsNewError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
 
@@ -393,5 +394,3 @@ class TestTicketModel(object):
         statuschangelog = pending_ticket.closing(operator)
         assert (PendingRange.objects.get(pk=pending_range.pk).end ==
                 statuschangelog.updated)
-
-

@@ -353,7 +353,6 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         statuschangelog = self.change_state(
             self.status, Ticket.STATUS.open, user)
         pending_range = self.pending_ranges.get(end__isnull=True)
-        """:type : PendingRange"""
         pending_range.end = statuschangelog.updated
         pending_range.save()
         return statuschangelog
@@ -372,13 +371,11 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
             raise TicketIsClosedError()
         if self.is_new():
             raise TicketIsNewError()
-        # pending_range = None
         pre_change_is_pending = self.is_pending()
         statuschangelog = self.change_state(
             self.status, Ticket.STATUS.closed, user)
         if pre_change_is_pending:
             pending_range = self.pending_ranges.get(end__isnull=True)
-            """:type : PendingRange"""
             pending_range.end = statuschangelog.updated
             pending_range.save()
         return statuschangelog
@@ -401,7 +398,8 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                       for k in ['put_on_pending', 'close'])
             elif ticket.is_pending():
                 return result + tuple((k, ACTIONS_ON_TICKET[k])
-                                      for k in ['remove_from_pending'])
+                                      for k in ['remove_from_pending',
+                                                'close'])
         return result
 
 
@@ -461,7 +459,7 @@ class PendingRange(models.Model):
         ordering = ('start', 'end')
         verbose_name = _('Pending Range')
         verbose_name_plural = _('Pending Ranges')
-        
+
     def __str__(self):
         return super(PendingRange, self).__str__()
 
