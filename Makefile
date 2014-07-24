@@ -41,11 +41,17 @@ test-all:
 	tox
 
 coverage:
-	coverage run --source helpdesk --omit="*/migrations/*","*/demo*" $(shell which py.test) tests --livetest
-	coverage report -m
+	py.test --cov-report term-missing --cov helpdesk
 
-coverage-html: coverage
-	coverage html
+coverage-live:
+	py.test --livetest --cov-report term-missing --cov helpdesk
+
+coverage-html:
+	py.test --cov-report html --cov helpdesk
+	open htmlcov/index.html
+
+coverage-live-html:
+	py.test --livetest --cov-report html --cov helpdesk
 	open htmlcov/index.html
 
 docs:

@@ -4,6 +4,7 @@ factory_boy==2.3.1
 mock
 pytest
 pytest-django
+pytest-cov
 flake8
 selenium
 six
