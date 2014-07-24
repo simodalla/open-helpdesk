@@ -1,8 +1,8 @@
-$(document).ready(function () {
-    var pending_action = "put_on_pending";
-    var input_action_on_ticket = "input[name='action_on_ticket']";
-    var content_field = "#id_content";
-    var estimated_end_pending_date = "#id_estimated_end_pending_date";
+require([ "jquery", "jquery-ui/jquery-ui.min", "jquery-ui/i18n/jquery.ui.datepicker-it" ], function ($) {
+    var pendingAction = "put_on_pending";
+    var inputActionOnTicket = "input[name='action_on_ticket']";
+    var contentField = "#id_content";
+    var estimatedEndPendingDate = "#id_estimated_end_pending_date";
 
     ['a.add-another', '.autocomplete-light-widget .remove'].forEach(
         function (elem) { $(elem).remove(); }
@@ -12,11 +12,11 @@ $(document).ready(function () {
     );
 
     //
-    if ($(input_action_on_ticket+':checked').val() == pending_action) {
+    if ($(inputActionOnTicket+':checked').val() == pendingAction) {
         $("#fieldset_pending_range_data").show();
     }
 
-    $(estimated_end_pending_date).datepicker({
+    $(estimatedEndPendingDate).datepicker({
         showOtherMonths: true,
         selectOtherMonths: true,
         changeMonth: true,
@@ -38,15 +38,17 @@ $(document).ready(function () {
         buttons: {
             "Ok": function () {
                 $(this).dialog("close");
-                $(content_field).focus();
+                $(contentField).focus();
             }
         },
         close: function (event, ui) {
-            $(content_field).focus();
+            $(contentField).focus();
         }
     });
 
-    $(content_field).focusout(function () {
+    helpdeskFinalize($);
+
+    $(contentField).focusout(function () {
         var input = $(this);
         if (input.val().trim().length > 0) {
             input.removeClass("ui-state-highlight");
@@ -55,12 +57,12 @@ $(document).ready(function () {
         }
     });
 
-    $(input_action_on_ticket).click(function() {
-        if ($(this).val() == pending_action) {
+    $(inputActionOnTicket).click(function() {
+        if ($(this).val() == pendingAction) {
             $("#fieldset_pending_range_data").show("slow");
-            if ($(content_field).val().trim().length == 0) {
+            if ($(contentField).val().trim().length == 0) {
                 $("#alert_for_empty_content").dialog("open");
-                [content_field, estimated_end_pending_date].forEach(
+                [contentField, estimatedEndPendingDate].forEach(
                     function (elem) {
                         $(elem).addClass("ui-state-highlight");
                     }

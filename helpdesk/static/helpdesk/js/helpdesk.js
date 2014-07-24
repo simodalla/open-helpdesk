@@ -1,6 +1,4 @@
-$(document).ready(function () {
-
-    var currentUrl = $(location).attr('pathname');
+function helpdeskGetObjectTools(currentUrl) {
     var url = "/admin/helpdesk/ticket/object_tools/?view=" + currentUrl;
     $.get(url, function (data) {
         var objectToolsUl = $('ul.object-tools');
@@ -14,13 +12,15 @@ $(document).ready(function () {
             }
         }
     }, "json");
+}
 
-    // setting of tooltip for input search
-    $("#searchbar").attr("title", "Puoi effettuare ricerche per: contenuto" +
-        "del ticket, titolo delle tipologie, nome, cognome, username del" +
-        "richiedente");
-    $("#searchbar").tooltip({
-      track: true
-    });
+function helpdeskInit($) {
+    $("div#content-main").hide();
+    $('<div id="loading"><i class="fa fa-circle-o-notch fa-spin' +
+            ' fa-4x"></i> Loading...</div>').appendTo('#content');
+}
 
-});
+function helpdeskFinalize($) {
+    $("div#content-main").show();
+    $("div#loading").remove();
+}
