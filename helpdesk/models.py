@@ -25,9 +25,9 @@ from model_utils.models import StatusModel
 from model_utils import Choices
 
 from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
-                   TicketStatusError, TicketIsClosedError,
+                   TicketIsClosedError,
                    TicketIsNotPendingError,
-                   ACTIONS_ON_TICKET, DEFAULT_ACTIONS)
+                   ACTIONS_ON_TICKET, DEFAULT_ACTIONS, TicketIsNewError)
 
 
 User = get_user_model()
@@ -306,7 +306,7 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         :param assignee: user to set 'assignee' field
         :type assignee: django.contrib.auth.get_user_model
         """
-        if self.status != Ticket.STATUS.new:
+        if not self.is_new():
             raise TicketIsNotNewError()
         self.change_state(Ticket.STATUS.new, Ticket.STATUS.open, assignee)
         self.assignee = assignee
@@ -350,13 +350,13 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         """
         if self.status != Ticket.STATUS.pending:
             raise TicketIsNotPendingError()
-        status_changelog = self.change_state(
+        statuschangelog = self.change_state(
             self.status, Ticket.STATUS.open, user)
         pending_range = self.pending_ranges.get(end__isnull=True)
         """:type : PendingRange"""
-        pending_range.end = status_changelog.updated
+        pending_range.end = statuschangelog.updated
         pending_range.save()
-        return status_changelog
+        return statuschangelog
 
     @atomic
     def closing(self, user):
@@ -368,11 +368,20 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         :param user: user to set 'user' field
         :type user: django.contrib.auth.get_user_model
         """
-        if self.status == Ticket.STATUS.closed:
+        if self.is_closed():
             raise TicketIsClosedError()
-        if self.status == Ticket.STATUS.new:
-            raise TicketStatusError("The ticket is still open")
-        self.change_state(self.status, Ticket.STATUS.closed, user)
+        if self.is_new():
+            raise TicketIsNewError()
+        # pending_range = None
+        pre_change_is_pending = self.is_pending()
+        statuschangelog = self.change_state(
+            self.status, Ticket.STATUS.closed, user)
+        if pre_change_is_pending:
+            pending_range = self.pending_ranges.get(end__isnull=True)
+            """:type : PendingRange"""
+            pending_range.end = statuschangelog.updated
+            pending_range.save()
+        return statuschangelog
 
     @classmethod
     def get_action_for_report(cls, ticket=None):

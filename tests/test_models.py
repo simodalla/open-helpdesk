@@ -20,8 +20,7 @@ from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
 from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
                              PRIORITY_LOW, PendingRange)
 from helpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
-                           TicketIsClosedError, TicketStatusError,
-                           TicketIsNotPendingError)
+                           TicketIsClosedError, TicketIsNotPendingError, TicketIsNewError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
 
@@ -150,57 +149,12 @@ class OpenTicketTest(TestCase):
         self.assertEqual(changelog.after, Ticket.STATUS.open)
 
 
-class ClosedTicketTest(TestCase):
-
-    def setUp(self):
-        self.category = CategoryFactory(tipologies=['tip1', 'tip2'])
-        self.operator = UserFactory(
-            groups=[GroupFactory(name=HELPDESK_OPERATORS[0],
-                                 permissions=list(HELPDESK_OPERATORS[1]))])
-        self.ticket = TicketFactory(requester=self.operator,
-                                    tipologies=self.category.tipologies.all(),
-                                    status=Ticket.STATUS.open)
-
-    def test_closing_method_raise_exception_if_ticket_is_already_closed(self):
-        self.ticket.status = Ticket.STATUS.closed
-        self.assertRaisesMessage(
-            TicketIsClosedError, 'Ticket is already in "Closed" status',
-            self.ticket.closing, Mock())
-
-    def test_closing_method_raise_exception_if_ticket_is_new(self):
-        self.ticket.status = Ticket.STATUS.new
-        self.assertRaisesMessage(
-            TicketStatusError, 'The ticket is still open',
-            self.ticket.closing, Mock())
-
-    def test_closing_method_set_closed_status(self):
-        """
-        Test that calling of "closing" method on ticket with open status
-        set the field status to Ticket.STATUS.closed
-        """
-        self.ticket.closing(self.operator)
-        self.assertEqual(self.ticket.status, Ticket.STATUS.closed)
-
-    def test_closing_method_create_status_changelog_related_object(self):
-        """
-        Test that calling of "closing" method on ticket with open status
-        create an related StatusChangesLog object with right data on fields
-        """
-        status_before = self.ticket.status
-        self.ticket.closing(self.operator)
-        changelog = self.ticket.status_changelogs.latest()
-        self.assertEqual(changelog.changer.pk, self.operator.pk)
-        self.assertEqual(changelog.before, status_before)
-        self.assertEqual(changelog.after, Ticket.STATUS.closed)
-
-
 class StatusChagesLogTest(TestCase):
 
     def setUp(self):
         category = CategoryFactory(tipologies=['tip1'])
         self.ticket = TicketFactory(requester=UserFactory(),
                                     tipologies=category.tipologies.all())
-
 
     def test_str_method(self):
         created = Mock()
@@ -372,6 +326,71 @@ class TestTicketModel(object):
         assert pending_ticket.status == Ticket.STATUS.pending
         pending_range = pending_ticket.pending_ranges.get(end__isnull=True)
         statuschangelog = pending_ticket.remove_from_pending(operator)
+        assert (PendingRange.objects.get(pk=pending_range.pk).end ==
+                statuschangelog.updated)
+
+    @pytest.mark.parametrize("status,exception", [
+        (Ticket.STATUS.closed, TicketIsClosedError),
+        (Ticket.STATUS.new, TicketIsNewError)])
+    def test_closing_with_status_that_raises_exceptions(
+            self, status, exception, new_ticket, operator):
+        """
+        Test the exceptions raised by "closing" method under wrong status
+
+        :type new_ticket: Ticket
+        :type operator: UserFactory
+        """
+        new_ticket.status = status
+        new_ticket.save()
+        with pytest.raises(exception):
+            new_ticket.closing(operator)
+
+    @pytest.mark.parametrize("status", [
+        Ticket.STATUS.open, Ticket.STATUS.pending])
+    def test_closing_set_status_to_close(
+            self, status, pending_ticket, operator):
+        """
+        Test that calling "closing" on a open or pending ticket set the
+        status to open
+
+        :type pending_ticket: Ticket
+        :type operator: UserFactory
+        """
+        pending_ticket.status = status
+        pending_ticket.save()
+        pending_ticket.closing(operator)
+        assert pending_ticket.status == Ticket.STATUS.closed
+
+    @pytest.mark.parametrize("status", [
+        Ticket.STATUS.open, Ticket.STATUS.pending])
+    def test_closing_create_statuschangelog_object(
+            self, status, pending_ticket, operator):
+        """
+        Test that calling "closing" on a open or pending ticket create
+        the relative StatusChangelog object
+
+        :type pending_ticket: Ticket
+        :type operator: UserFactory
+        """
+        pending_ticket.status = status
+        pending_ticket.save()
+        statuschangelog = pending_ticket.closing(operator)
+        assert statuschangelog.ticket == pending_ticket
+        assert statuschangelog.before == status
+        assert statuschangelog.after == Ticket.STATUS.closed
+
+    @pytest.mark.target
+    def test_closing_update_relative_pendingrange_object(
+            self, pending_ticket, operator):
+        """
+        Test that calling "closing" on a pending ticket update the relative
+        PendingRange object
+
+        :type pending_ticket: Ticket
+        :type operator: UserFactory
+        """
+        pending_range = pending_ticket.pending_ranges.get(end__isnull=True)
+        statuschangelog = pending_ticket.closing(operator)
         assert (PendingRange.objects.get(pk=pending_range.pk).end ==
                 statuschangelog.updated)
 

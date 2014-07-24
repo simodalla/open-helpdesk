@@ -390,8 +390,10 @@ class ReportAdmin(admin.ModelAdmin):
             return redirect(admin_urlname(Ticket._meta, 'changelist'))
 
     def get_readonly_fields(self, request, obj=None):
-        fields = list(self.fields)
-        return [f for f in fields if f != 'visible_from_requester']
+        if obj:
+            fields = list(self.fields)
+            return [f for f in fields if f != 'visible_from_requester']
+        return super(ReportAdmin, self).get_readonly_fields(request, obj=obj)
 
     def change_view(self, request, object_id, *args, **kwargs):
         if not self.model.objects.filter(pk=object_id,

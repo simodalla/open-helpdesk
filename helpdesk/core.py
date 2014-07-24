@@ -40,12 +40,13 @@ DEFAULT_ACTIONS = ['no_action']
 
 
 MGS_TICKET_NOT_IN_STATUS = _('Ticket not in status "%(status)s"')
+MGS_TICKET_ALREADY_IN_STATUS = _('Ticket is already in "%(status)s" status')
 
 
 class TicketStatusError(Exception):
     default_message = _('Ticket Status Error')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, status=None, *args, **kwargs):
         if len(args) == 0:
             args = tuple([self.__class__.default_message])
         super(TicketStatusError, self).__init__(*args, **kwargs)
@@ -67,8 +68,18 @@ class TicketIsNotPendingError(TicketStatusError):
 
 
 class TicketIsClosedError(TicketStatusError):
-    default_message = (_('Ticket is already in "%(status)s" status') %
+    default_message = (MGS_TICKET_ALREADY_IN_STATUS %
                        {'status': TICKET_STATUSES[3][1]})
+
+
+class TicketIsOpenError(TicketStatusError):
+    default_message = (MGS_TICKET_ALREADY_IN_STATUS %
+                       {'status': TICKET_STATUSES[1][1]})
+
+
+class TicketIsNewError(TicketStatusError):
+    default_message = (_('The ticket is still in "%(status)s" status') %
+                       {'status': TICKET_STATUSES[0][1]})
 
 
 def get_perm(perm_name):

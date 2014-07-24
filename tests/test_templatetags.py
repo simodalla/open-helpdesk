@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, absolute_import
 
 import pytest
+from django.template import Context
 
 from helpdesk.templatetags.helpdesk_tags import format_ticket_message
 from helpdesk.models import Message, Report
@@ -30,51 +31,53 @@ class TestFormatTicketTag(object):
         Message or a subclass of object class, raise an ValueError eception
         """
         class Foo(object):
-                pass
+            pass
         with pytest.raises(TypeError):
-            format_ticket_message(Foo())
+            format_ticket_message(Context({}), Foo())
 
     def test_keys_item_in_dict_returned(self, message):
-        assert (set(['css_style', 'message', 'css_class', 'model']) ==
-                set(format_ticket_message(Message()).keys()))
+        assert ({'css_style', 'message', 'css_class', 'model',
+                 'can_view_report'} ==
+                set(format_ticket_message(Context({}), Message()).keys()))
 
     def test_message_item_in_dict_returned(self, message):
-        context = format_ticket_message(Message())
+        context = format_ticket_message(Context({}), Message())
         assert 'message' in context.keys()
         assert context['message'] == message
 
     def test_model_item_in_dict_returned(self, message):
-        context = format_ticket_message(Message())
+        context = format_ticket_message(Context({}), Message())
         assert 'model' in context.keys()
         assert context['model'] == getattr(
             message._meta, 'model_name', message._meta.module_name)
 
     def test_css_style_item_in_dict_returned(self, message):
-        context = format_ticket_message(message)
+        context = format_ticket_message(Context({}), message)
         assert 'css_style' in context.keys()
         assert context['css_style'] == ''
 
     @pytest.mark.django_db
     def test_css_style_item_in_dict_returned_and_setted_if_report_obj(
             self, report):
-        context = format_ticket_message(report)
+        context = format_ticket_message(Context({}), report)
         assert 'css_style' in context.keys()
         assert 'text-align: right' in context['css_style']
 
     @pytest.mark.django_db
     def test_report_model_item_in_dict_returned(self, report):
-        context = format_ticket_message(report)
+        context = format_ticket_message(Context({}), report)
         assert 'model' in context.keys()
         assert context['model'] == getattr(
             Report._meta, 'model_name', Report._meta.module_name)
 
     def test_css_class_item_in_dict_returned_and_default_value(self, message):
-        context = format_ticket_message(message)
+        context = format_ticket_message(Context({}), message)
         assert 'css_class' in context.keys()
         assert context['css_class'] == 'form-row'
 
     def test_css_class_item_in_dict_returned_and_update_if_is_kwargs(
             self, message):
-        context = format_ticket_message(message, css_class='foo')
+        context = format_ticket_message(Context({}), message, css_class='foo')
         assert 'css_class' in context.keys()
         assert context['css_class'] == 'foo'
+
