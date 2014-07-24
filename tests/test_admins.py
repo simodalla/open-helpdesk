@@ -159,7 +159,8 @@ def report_util(rf, monkeypatch):
         def __init__(self):
             self.rf = rf
             self.model_admin = ReportAdmin(Report, AdminSite)
-            self.report = Mock(spec_set=Report)
+            self.report = Mock(spec=Report, sender_id=None, recipient_id=None,
+                               action_on_ticket='close')
             self.report.ticket = Mock(spec_set=Ticket)
             self.form = Mock()
 
@@ -170,8 +171,9 @@ class TestReportAdmin(object):
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_set_sender_field(self, mock_save_model, report_util):
         args = (report_util.rf, report_util.report, report_util.form, False)
-        print(report_util.report.__dict__)
         report_util.model_admin.save_model(*args)
         mock_save_model.assert_called_once_with(*args)
+        print(mock_save_model.call_args[0])
+
 
 

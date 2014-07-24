@@ -429,9 +429,9 @@ class ReportAdmin(admin.ModelAdmin):
 
     @atomic
     def save_model(self, request, obj, form, change):
-        if obj.sender is None:
+        if obj.sender_id is None:
             obj.sender = request.user
-        if obj.recipient is None:
+        if obj.recipient_id is None:
             obj.recipient = obj.ticket.requester
         super(ReportAdmin, self).save_model(request, obj, form, change)
         if obj.action_on_ticket == 'close':
