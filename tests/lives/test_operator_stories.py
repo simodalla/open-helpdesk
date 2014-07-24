@@ -179,7 +179,6 @@ def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket):
     )
 
 
-@pytest.mark.target
 @pytest.mark.livetest
 def test_add_report_to_open_ticket_with_put_on_pending_action(
         browser_o, opened_ticket):
@@ -225,3 +224,45 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
             expected_estimated_end_date.month)
     assert pending_range.estimated_end.day == expected_estimated_end_date.day
     assert pending_range.start == statuschangelog.created
+
+
+@pytest.mark.target
+@pytest.mark.livetest
+def test_add_report_for_remove_from_from_pending_the_ticket(
+        browser_o, pending_ticket):
+    """
+    :param browser_o:
+    :type browser_o: tests.lives.MezzanineLiveBrowser
+    :param pending_ticket:
+    :type pending_ticket: helpdesk.models.Ticket
+    """
+    content = 'foo ' * 10
+    action = 'remove_from_pending'
+    browser_o.get(reverse(admin_urlname(Report._meta, 'add')) +
+                  '?ticket={}'.format(pending_ticket.pk,))
+    # insert the content of report
+    browser_o.driver.find_element_by_id('id_content').send_keys(content)
+    visible_from_req = browser_o.driver.find_element_by_id(
+        'id_visible_from_requester')
+    # select the checkbox for requester's visibility
+    if not visible_from_req.is_selected():
+        visible_from_req.click()
+    # select the action 'remove_from_pending'
+    browser_o.driver.find_element_by_css_selector(
+        'input[value="{}"]'.format(action)).click()
+    # select save button
+    browser_o.driver.find_element_by_name('_save').click()
+    browser_o.get(reverse(admin_urlname(Ticket._meta, 'change'),
+                          args=(pending_ticket.id,)))
+    tab_ticket_data = WebDriverWait(browser_o.driver, 10).until(
+        ec.visibility_of_element_located((By.ID, 'tab_ticket_data')))
+    status = tab_ticket_data.find_element_by_css_selector(
+        ".table_ticket_data td.ticket_status")
+    assert status.text.strip().lower() == 'open'
+    # select tab of Messages
+    browser_o.driver.find_element_by_css_selector(
+        'a[href="#tab_messages"]').click()
+    report = Report.objects.filter(ticket_id=pending_ticket.id).latest()
+    message = browser_o.driver.find_element_by_id(
+        'ticket_message_{}'.format(report.id))
+    assert content in message.text

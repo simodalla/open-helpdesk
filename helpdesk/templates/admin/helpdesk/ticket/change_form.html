@@ -28,7 +28,7 @@
                         </tr>
                         <tr><th>{% trans "Priority" %}:</th><td>{{ original.get_priority_display }}</td></tr>
                         <tr><th>{% trans "Source" %}:</th><td>{% if original.source %}{% awesome_icon original.source.icon %}&nbsp;&nbsp;{{ original.source }}{% endif %}</td></tr>
-                        <tr><th>{% trans "Status" %}:</th><td>{{ original.status|helpdesk_status }}</td></tr>
+                        <tr><th>{% trans "Status" %}:</th><td class="ticket_status">{{ original.status|helpdesk_status }}</td></tr>
                         <tr><th>{% trans "Content" %}:</th><td><div id="ticket_content">{{ original.content|safe }}</div></td></tr>
                         {% if helpdesk_user.pk != original.requester.pk %}
                             <tr><th>{% trans "Requester" %}:</th><td>{{ original.requester }}</td></tr>
@@ -67,11 +67,9 @@
                         {% for changelog in ticket_changelogs %}
                             <div id="ticket_statuschangelog_{{ changelog.pk }}"
                                  class="form-row">
-                                {% awesome_status_icon changelog.after %}&nbsp;&nbsp;<b>
-                                {% if changelog.before %}
-                                    {{ changelog.before|capfirst }}&nbsp;&nbsp;{% awesome_icon 'long-arrow-right' %}&nbsp;
-                                {% endif %}
-                                {{ changelog.after|capfirst }}</b>&nbsp;&nbsp;{{ changelog.created }}
+                                <span class="before">{% if changelog.before %}{{ changelog.before|helpdesk_status }}{% else %}&nbsp;{% endif %}</span>
+                                <span class="arrow">{% awesome_icon 'long-arrow-right' %}</span>
+                                <span class="after">{{ changelog.after|helpdesk_status }}</span>{{ changelog.created }}
                             </div>
                         {% endfor %}
                     </fieldset>

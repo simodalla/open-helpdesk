@@ -68,3 +68,14 @@ def initialized_ticket(new_ticket):
 def opened_ticket(initialized_ticket, operator):
     initialized_ticket.opening(operator)
     return initialized_ticket
+
+
+@pytest.fixture
+def pending_ticket(opened_ticket, operator):
+    import datetime
+    from django.utils import timezone
+    estimated_end_date = (
+        timezone.now() + datetime.timedelta(days=15)).strftime('%Y-%m-%d')
+    opened_ticket.put_on_pending(operator,
+                                 estimated_end_date=estimated_end_date)
+    return opened_ticket

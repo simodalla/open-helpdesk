@@ -18,9 +18,10 @@ from mezzanine.utils.sites import current_site_id
 from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
 from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
-                             PRIORITY_LOW)
+                             PRIORITY_LOW, PendingRange)
 from helpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
-                           TicketIsClosedError, TicketStatusError)
+                           TicketIsClosedError, TicketStatusError,
+                           TicketIsNotPendingError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
 
@@ -318,6 +319,60 @@ class TestTicketModel(object):
                 estimated_date)
         assert pendingrange.object_id == opened_ticket.id
 
+    def test_remove_from_pending_raise_exception_if_ticket_is_not_pending(
+            self, opened_ticket, operator):
+        """
+        Test that calling "remove_from_pending" on a ticket that not in
+        'pending' status raise an TicketIsNotPendingError exception
 
+        :type opened_ticket: Ticket
+        :type operator: UserFactory
+        """
+        assert opened_ticket != Ticket.STATUS.pending
+        with pytest.raises(TicketIsNotPendingError):
+            opened_ticket.remove_from_pending(operator)
+
+    def test_remove_from_pending_set_status_to_open(
+            self, pending_ticket, operator):
+        """
+        Test that calling "remove_from_pending" on a pending ticket set the
+        status to open
+
+        :type pending_ticket: Ticket
+        :type operator: UserFactory
+        """
+        assert pending_ticket.status == Ticket.STATUS.pending
+        pending_ticket.remove_from_pending(operator)
+        assert pending_ticket.status == Ticket.STATUS.open
+
+    def test_remove_from_pending_create_statuschangelog_object(
+            self, pending_ticket, operator):
+        """
+        Test that calling "remove_from_pending" on a pending ticket create
+        the relative StatusChangelog object
+
+        :type pending_ticket: Ticket
+        :type operator: UserFactory
+        """
+        assert pending_ticket.status == Ticket.STATUS.pending
+        statuschangelog = pending_ticket.remove_from_pending(operator)
+        assert statuschangelog.ticket == pending_ticket
+        assert statuschangelog.before == Ticket.STATUS.pending
+        assert statuschangelog.after == Ticket.STATUS.open
+
+    def test_remove_from_pending_update_pending_range_object(
+            self, pending_ticket, operator):
+        """
+        Test that calling "remove_from_pending" on a pending ticket, related
+        PendingRange object is updated.
+
+        :type pending_ticket: Ticket
+        :type operator: UserFactory
+        """
+        assert pending_ticket.status == Ticket.STATUS.pending
+        pending_range = pending_ticket.pending_ranges.get(end__isnull=True)
+        statuschangelog = pending_ticket.remove_from_pending(operator)
+        assert (PendingRange.objects.get(pk=pending_range.pk).end ==
+                statuschangelog.updated)
 
 

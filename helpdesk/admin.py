@@ -13,6 +13,7 @@ try:
     from django.db.transaction import atomic
 except ImportError:  # pragma: no cover
     from django.db.transaction import commit_on_success as atomic
+from django.utils.http import urlquote
 from django.http.response import HttpResponseRedirectBase
 from django.shortcuts import redirect
 from django.template import Template, Context
@@ -98,6 +99,14 @@ class TicketAdmin(admin.ModelAdmin):
 
     @staticmethod
     def get_object_tools(request, view_name, obj=None):
+        """
+
+        :param request: HttpRequest
+        :param view_name:
+        :param obj:
+        :type obj: Ticket
+        :return: :rtype: list
+        """
         user = HelpdeskUser.get_from_request(request)
         object_tools = {'change': []}
         admin_prefix_url = 'admin:'
@@ -113,19 +122,29 @@ class TicketAdmin(admin.ModelAdmin):
                                         kwargs={'pk': obj.pk}),
                          'text': ugettext('Open and assign to me'),
                          'id': 'open_and_assign_ticket'})
-                elif obj.is_open():
-                    url = reverse(admin_urlname(Report._meta, 'add'))
-                    object_tools[view_name].append(
-                        {'url': '{}?ticket={}'.format(url, obj.pk),
-                         'text': ugettext('Add report'),
-                         'id': 'add_report_to_ticket'})
+                elif obj.is_open() or obj.is_pending():
+                    url = '{}?ticket={}'.format(
+                        reverse(admin_urlname(Report._meta, 'add')), obj.pk)
+                    object_tools[view_name].append({
+                        'url': url,
+                        'text': ugettext('Add report'),
+                        'id': 'add_report_to_ticket'})
+                    if obj.is_pending():
+                        default_content = _('The range of pending is over.')
+                        url += ('&action_on_ticket=remove_from_pending&'
+                                'content={}'.format(urlquote(default_content)))
+                        object_tools[view_name].append({
+                            'url': url,
+                            'text': ugettext('Remove from pending'),
+                            'id': 'add_report_for_remove_from_pending'})
+
+
         try:
             return object_tools[view_name]
         except KeyError:
             return list()
 
     # list_display methods customized #########################################
-
     def ld_id(self, obj):
         return obj.id
     ld_id.short_description = _('Id')
@@ -341,6 +360,7 @@ class ReportAdmin(admin.ModelAdmin):
                     'recipient']
     list_filter = ['sender', 'recipient', 'action_on_ticket',
                    'visible_from_requester']
+    list_per_page = 20
     radio_fields = {'action_on_ticket': admin.VERTICAL}
     search_fields = ['ticket__pk', 'ticket__content', 'content']
     helpdesk_ticket = None
@@ -361,6 +381,22 @@ class ReportAdmin(admin.ModelAdmin):
         if error:
             messages.error(request, error)
             return redirect(admin_urlname(Ticket._meta, 'changelist'))
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(self.fields)
+        return [f for f in fields if f != 'visible_from_requester']
+
+    def change_view(self, request, object_id, *args, **kwargs):
+        if not self.model.objects.filter(pk=object_id,
+                                         sender=request.user).count():
+            self.message_user(request,
+                              _("You can not change report with"
+                                " id {}".format(object_id)),
+                              level=messages.ERROR)
+            return redirect(admin_urlname(self.model._meta, 'changelist'))
+        return super(ReportAdmin, self).change_view(
+            request, object_id, *args, **kwargs)
+        
 
     def add_view(self, request, form_url='', extra_context=None):
         result = ReportAdmin._check_access(request, self)
@@ -395,9 +431,14 @@ class ReportAdmin(admin.ModelAdmin):
         if obj.action_on_ticket == 'close':
             obj.ticket.closing(request.user)
         elif obj.action_on_ticket == 'put_on_pending':
+            estimated_end_date = request.POST.get(
+                'estimated_end_pending_date', '').strip()
+            if len(estimated_end_date) == 0:
+                estimated_end_date = None
             obj.ticket.put_on_pending(request.user,
-                                      estimated_end_date=request.POST.get(
-                                          'estimated_end_pending_date', None))
+                                      estimated_end_date=estimated_end_date)
+        elif obj.action_on_ticket == 'remove_from_pending':
+            obj.ticket.remove_from_pending(request.user)
 
 
 class SourceAdmin(admin.ModelAdmin):

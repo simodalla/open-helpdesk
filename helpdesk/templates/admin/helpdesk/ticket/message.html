@@ -1,5 +1,9 @@
 <div id="ticket_message_{{ message.id }}"{% if css_class %} class="{{ css_class }}"{% endif %}{% if css_style %}style="{{ css_style }}"{% endif %}>
     {% if model == 'message' %}<i class="fa fa-envelope"></i>&nbsp;&nbsp;{% endif %}
     <b>{{ message.content }}</b>&nbsp;&nbsp;at&nbsp;{{ message.created }}
-    {% if model == 'report' %}&nbsp;by&nbsp;<i>{{ message.sender }}</i>&nbsp;&nbsp;<i class="fa fa-mail-reply"></i>{% endif %}
+    {% if model == 'report' %}
+        &nbsp;by&nbsp;<i>{{ message.sender }}</i>
+        &nbsp;&nbsp;<i class="fa fa-mail-reply"></i>
+        {% if can_view_report %}&nbsp;&nbsp;<a href="{% url 'admin:helpdesk_report_changelist' %}?id={{ message.pk }}" class="view_report" title=""><i class="fa fa-search"></i></a>{% endif %}
+    {% endif %}
 </div>
