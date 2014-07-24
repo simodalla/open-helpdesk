@@ -422,7 +422,7 @@ class ReportAdmin(admin.ModelAdmin):
 
     def formfield_for_choice_field(self, db_field, request=None, **kwargs):
         if db_field.name == 'action_on_ticket':
-            kwargs['choices'] = Ticket.get_action_for_report(
+            kwargs['choices'] = Ticket.get_actions_for_report(
                 ticket=self.helpdesk_ticket)
         return super(ReportAdmin, self).formfield_for_choice_field(
             db_field, request=request, **kwargs)
@@ -438,9 +438,7 @@ class ReportAdmin(admin.ModelAdmin):
             obj.ticket.closing(request.user)
         elif obj.action_on_ticket == 'put_on_pending':
             estimated_end_date = request.POST.get(
-                'estimated_end_pending_date', '').strip()
-            if len(estimated_end_date) == 0:
-                estimated_end_date = None
+                'estimated_end_pending_date', '').strip() or None
             obj.ticket.put_on_pending(request.user,
                                       estimated_end_date=estimated_end_date)
         elif obj.action_on_ticket == 'remove_from_pending':

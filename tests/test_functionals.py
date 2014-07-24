@@ -280,26 +280,3 @@ class TestTicketChangeView(object):
             ticket_infos = dom.cssselect('#{}'.format(html_id))
             assert len(ticket_infos) == 1, "no #{} in content".format(html_id)
         assert len(dom.cssselect('#tab_messages fieldset div')) == n
-
-
-@pytest.fixture
-def change_report_view(request, opened_ticket):
-    class ChangeViewUtil(object):
-        def __init__(self):
-            self.ticket = opened_ticket
-            self.url = '{}?ticket={}'.format(
-                reverse(admin_urlname(Report._meta, 'add'), opened_ticket.pk,))
-    return ChangeViewUtil()
-
-@pytest.mark.django_db
-class TestReportChangeView(object):
-
-    def test_custom_template_renderized(self, client_r, change_report_view):
-        response = client_r.get(change_view.url)
-        assert (response.templates[0].name ==
-                'admin/helpdesk/report/change_form.html')
-
-    # def test_closing_opened_ticket_by_add_report(self):
-    #     """
-    #     Test
-    #     """

@@ -226,7 +226,6 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
     assert pending_range.start == statuschangelog.created
 
 
-@pytest.mark.target
 @pytest.mark.livetest
 def test_add_report_for_remove_from_from_pending_the_ticket(
         browser_o, pending_ticket):

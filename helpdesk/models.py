@@ -381,7 +381,7 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
         return statuschangelog
 
     @classmethod
-    def get_action_for_report(cls, ticket=None):
+    def get_actions_for_report(cls, ticket=None):
         """
         Return a tuple of strings representatives the possible actions,
         according to status of ticket parameter.

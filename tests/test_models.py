@@ -380,7 +380,6 @@ class TestTicketModel(object):
         assert statuschangelog.before == status
         assert statuschangelog.after == Ticket.STATUS.closed
 
-    @pytest.mark.target
     def test_closing_update_relative_pendingrange_object(
             self, pending_ticket, operator):
         """

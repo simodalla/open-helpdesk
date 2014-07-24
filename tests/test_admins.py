@@ -150,30 +150,100 @@ class TestTicketAdminByRequester(object):
         assert ticket_admin.get_list_filter(request) == expected
 
 
+# noinspection PyPep8Naming
 @pytest.fixture
 def report_util(rf, monkeypatch):
     from django.contrib.auth import get_user_model
-    rf.user = get_user_model()
+    User = get_user_model()
+    rf.user = User()
+    rf.POST = {}
+
+    class FakeDbField(object):
+        name = None
 
     class ModelAdminUtil(object):
         def __init__(self):
             self.rf = rf
             self.model_admin = ReportAdmin(Report, AdminSite)
-            self.report = Mock(spec=Report, sender_id=None, recipient_id=None,
+            self.report = Mock(spec=Report,
+                               sender_id=None,
+                               recipient_id=None,
                                action_on_ticket='close')
-            self.report.ticket = Mock(spec_set=Ticket)
+            self.report.ticket = Mock(spec_set=Ticket,
+                                      requester=User())
             self.form = Mock()
+            self.db_field = FakeDbField()
 
     return ModelAdminUtil()
 
 
+# noinspection PyShadowingNames
+@pytest.mark.target
 class TestReportAdmin(object):
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_set_sender_field(self, mock_save_model, report_util):
-        args = (report_util.rf, report_util.report, report_util.form, False)
-        report_util.model_admin.save_model(*args)
-        mock_save_model.assert_called_once_with(*args)
-        print(mock_save_model.call_args[0])
+        report_util.model_admin.save_model(
+            report_util.rf, report_util.report, report_util.form, False)
+        assert report_util.report.sender == report_util.rf.user
 
+    @patch('django.contrib.admin.ModelAdmin.save_model')
+    def test_save_model_set_recipient_field(self, mock_save_model,
+                                            report_util):
+        report_util.model_admin.save_model(
+            report_util.rf, report_util.report, report_util.form, False)
+        assert (report_util.report.recipient ==
+                report_util.report.ticket.requester)
 
+    @patch('django.contrib.admin.ModelAdmin.save_model')
+    def test_save_model_call_closing_if_action_is_close(
+            self, mock_save_model, report_util):
+        report_util.report.action_on_ticket = 'close'
+        report_util.model_admin.save_model(
+            report_util.rf, report_util.report, report_util.form, False)
+        report_util.report.ticket.closing.assert_called_once_with(
+            report_util.rf.user)
 
+    @patch('django.contrib.admin.ModelAdmin.save_model')
+    def test_save_model_call_put_on_pending_without_estimated_date(
+            self, mock_save_model, report_util):
+        report_util.report.action_on_ticket = 'put_on_pending'
+        report_util.model_admin.save_model(
+            report_util.rf, report_util.report, report_util.form, False)
+        report_util.report.ticket.put_on_pending.assert_called_once_with(
+            report_util.rf.user, estimated_end_date=None)
+
+    @patch('django.contrib.admin.ModelAdmin.save_model')
+    def test_save_model_call_put_on_pending_with_estimated_date(
+            self, mock_save_model, report_util):
+        estimated_date = '2014-09-10'
+        report_util.rf.POST['estimated_end_pending_date'] = estimated_date
+        report_util.report.action_on_ticket = 'put_on_pending'
+        report_util.model_admin.save_model(
+            report_util.rf, report_util.report, report_util.form, False)
+        report_util.report.ticket.put_on_pending.assert_called_once_with(
+            report_util.rf.user, estimated_end_date=estimated_date)
+
+    @patch('django.contrib.admin.ModelAdmin.save_model')
+    def test_save_model_call_remove_from_pending_if_action_is_remove_from(
+            self, mock_save_model, report_util):
+        report_util.report.action_on_ticket = 'remove_from_pending'
+        report_util.model_admin.save_model(
+            report_util.rf, report_util.report, report_util.form, False)
+        ticket = report_util.report.ticket
+        ticket.remove_from_pending.assert_called_once_with(
+            report_util.rf.user)
+
+    @patch('helpdesk.admin.Ticket.get_actions_for_report',
+           return_value=['foo'])
+    @patch('django.contrib.admin.ModelAdmin.formfield_for_choice_field')
+    def test_call_formfield_for_choice_field_for_action_on_ticket_fields(
+            self, mock_formfield_for, mock_get_actions, report_util):
+        ticket = report_util.report.ticket
+        report_util.model_admin.helpdesk_ticket = ticket
+        report_util.db_field.name = 'action_on_ticket'
+        report_util.model_admin.formfield_for_choice_field(
+            report_util.db_field, report_util.rf)
+        mock_get_actions.assert_called_once_with(ticket=ticket)
+        mock_formfield_for.assert_called_once_with(report_util.db_field,
+                                                   request=report_util.rf,
+                                                   **{'choices': ['foo']})
