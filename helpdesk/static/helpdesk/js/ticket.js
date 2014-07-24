@@ -1,14 +1,20 @@
 $(document).ready(function () {
+    var ticketInfos = "#ticket_infos";
+    var tabsIds = ['ticket_data', 'messages', 'changestatuslog'];
+
+    // remove 'add-another' link/button
     $('a.add-another').remove();
-    var ticket_infos = "#ticket_infos";
-    $(ticket_infos).tabs();
-    var tabs_ids = ['messages', 'changestatuslog'];
-    for(var key in tabs_ids) {
-        $(ticket_infos).css("margin-bottom",
-            $(ticket_infos + " #tab_" + tabs_ids[key] +
+
+    // settings and managements of tabs
+    $(ticketInfos).tabs();
+
+    for(var key in tabsIds) {
+        $(ticketInfos).css("margin-bottom",
+            $(ticketInfos + " #tab_" + tabsIds[key] +
                 " fieldset").css("margin-bottom"));
-        $(ticket_infos + " #tab_" + tabs_ids[key] +
+        $(ticketInfos + " #tab_" + tabsIds[key] +
                 " fieldset").css("margin-bottom", "0");
     }
+
     $('a.related_ticket, a.view_report').button();
 });
