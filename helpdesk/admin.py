@@ -398,6 +398,10 @@ class ReportAdmin(admin.ModelAdmin):
         return list()
 
     def change_view(self, request, object_id, *args, **kwargs):
+        """
+        If request.user try to change an Report which sender field is not the
+        same, request.user is redirect to Report changelist view.
+        """
         if not self.model.objects.filter(pk=object_id,
                                          sender=request.user).count():
             self.message_user(request,
