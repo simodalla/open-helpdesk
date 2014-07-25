@@ -370,28 +370,32 @@ class ReportAdmin(admin.ModelAdmin):
     search_fields = ['ticket__pk', 'ticket__content', 'content']
     helpdesk_ticket = None
 
-    @staticmethod
-    def _check_access(request, modeladmin):
+    def _check_access(self, request):
         ticket_id = request.GET.get('ticket', None)
-        error = None
-        setattr(modeladmin, 'helpdesk_ticket', None)
+        error = False
+        setattr(self, 'helpdesk_ticket', None)
         if not ticket_id:
-            error = "ERROR MANCANZA TICKET ID"
+            error = True
         else:
             try:
-                setattr(modeladmin, 'helpdesk_ticket', Ticket.objects.get(
+                setattr(self, 'helpdesk_ticket', Ticket.objects.get(
                     id=ticket_id))
             except Ticket.DoesNotExist:
-                error = "ERROR TICKET ID NO TICKET MATCH"
+                error = True
         if error:
+            error = _("Error: wrong request for adding report.")
             messages.error(request, error)
             return redirect(admin_urlname(Ticket._meta, 'changelist'))
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        If obj not is None (we are in change vien) is possible updatading only
+        'visible_from_requester' field.
+        """
         if obj:
             fields = list(self.fields)
             return [f for f in fields if f != 'visible_from_requester']
-        return super(ReportAdmin, self).get_readonly_fields(request, obj=obj)
+        return list()
 
     def change_view(self, request, object_id, *args, **kwargs):
         if not self.model.objects.filter(pk=object_id,
@@ -405,19 +409,20 @@ class ReportAdmin(admin.ModelAdmin):
             request, object_id, *args, **kwargs)
 
     def add_view(self, request, form_url='', extra_context=None):
-        result = ReportAdmin._check_access(request, self)
+        result = self._check_access(request)
+        if result is not None:
+            return result
         extra_context = extra_context or {}
         estimated_end_pending_date = request.POST.get(
-            'estimated_end_pending_date', None)
+            'estimated_end_pending_date', '').strip()
         if estimated_end_pending_date:
             extra_context.update(
                 {'estimated_end_pending_date': estimated_end_pending_date})
-        if not result:
-            result = super(ReportAdmin, self).add_view(
-                request, form_url=form_url, extra_context=extra_context)
-            if issubclass(result.__class__, HttpResponseRedirectBase):
-                result = redirect(admin_urlname(Ticket._meta, 'change'),
-                                  request.GET.get('ticket'))
+        result = super(ReportAdmin, self).add_view(
+            request, form_url=form_url, extra_context=extra_context)
+        if issubclass(result.__class__, HttpResponseRedirectBase):
+            result = redirect(admin_urlname(Ticket._meta, 'change'),
+                              self.helpdesk_ticket.pk)
         return result
 
     def formfield_for_choice_field(self, db_field, request=None, **kwargs):
