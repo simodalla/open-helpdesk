@@ -10,6 +10,7 @@ except ImportError:
 
 from django.core.urlresolvers import reverse
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
+from django.utils import timezone
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -158,7 +159,6 @@ def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket):
     browser_o.driver.find_element_by_css_selector(
         'input[value="{}"]'.format(action)).click()
     browser_o.driver.find_element_by_name('_save').click()
-    # pytest.set_trace()
     report = Report.objects.filter(ticket__id=opened_ticket.id).latest()
     assert report.ticket.id == opened_ticket.id
     assert report.content == content
@@ -184,7 +184,6 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
     content = 'foo ' * 10
     action = 'put_on_pending'
     days_after_today = 2
-    from django.utils import timezone
     now = timezone.now()
     browser_o.get(reverse(admin_urlname(Report._meta, 'add')) +
                   '?ticket={}'.format(opened_ticket.id,))
