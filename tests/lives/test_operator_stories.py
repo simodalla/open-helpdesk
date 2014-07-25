@@ -178,7 +178,6 @@ def test_add_report_to_open_ticket_with_close_action(browser_o, opened_ticket):
                 ' url is: {}'.format(browser_o.current_url)
     )
 
-
 @pytest.mark.livetest
 def test_add_report_to_open_ticket_with_put_on_pending_action(
         browser_o, opened_ticket):
@@ -200,8 +199,10 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
         ec.visibility_of_element_located(
             (By.ID, 'id_estimated_end_pending_date')))
     estimated_end_pending_date.click()
-    browser_o.driver.find_element_by_css_selector(
-        'td.ui-datepicker-today{}'.format(' + td' * days_after_today)).click()
+    WebDriverWait(browser_o.driver, 10).until(
+        ec.visibility_of_element_located(
+            (By.CSS_SELECTOR, 'td.ui-datepicker-today{}'.format(
+                ' + td' * days_after_today)))).click()
     browser_o.driver.find_element_by_name('_save').click()
     report = Report.objects.filter(ticket__id=opened_ticket.id).latest()
     assert report.ticket.id == opened_ticket.id
