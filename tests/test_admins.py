@@ -13,6 +13,7 @@ except ImportError:
 from django import VERSION as DJANGO_VERSION
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.admin import AdminSite
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
 from helpdesk.admin import TicketAdmin, ReportAdmin
 from helpdesk.models import Ticket, StatusChangesLog, Report
@@ -166,6 +167,7 @@ def report_util(rf, monkeypatch):
             self.user = User()
             self.request = self.get('/admin/fake/')
             self.model_admin = ReportAdmin(Report, AdminSite)
+            self.model_admin.message_user = Mock(name='message_user')
             self.report = Mock(spec=Report,
                                sender_id=None,
                                recipient_id=None,
@@ -408,6 +410,44 @@ class TestReportAdmin(object):
             response = report_util.model_admin.add_view(request, '')
 
         assert response == ticket_redirect
-        from django.contrib.admin.templatetags.admin_urls import admin_urlname
         mock_redirect.assert_called_once_with(
             admin_urlname(Ticket._meta, 'change'), ticket.pk)
+
+    @patch('helpdesk.admin.messages', autospec=True)
+    @patch('django.contrib.admin.ModelAdmin.change_view')
+    def test_change_view_redirect_to_changelist_view(
+            self, mock_change_view, mock_messages, report_util):
+        request = report_util.post('/fake', {})
+        report_id = 5
+        model_mock = Mock(spec_set=Report)
+        model_mock.objects.filter.return_value.count.return_value = 0
+        report_util.model_admin.model = model_mock
+        http_redirect = HttpResponseRedirect('/admin/report/changelist/')
+
+        with patch('helpdesk.admin.redirect',
+                   return_value=http_redirect) as mock_redirect:
+            result = report_util.model_admin.change_view(request, report_id)
+
+        assert result == http_redirect
+        mock_redirect.assert_called_once_with(admin_urlname(model_mock._meta,
+                                                            'changelist'))
+        report_util.model_admin.message_user.assert_called_once_with(
+            request, ANY, level=mock_messages.ERROR)
+
+    @patch('django.contrib.admin.ModelAdmin.change_view')
+    def test_change_view_return_default_response(
+            self, mock_change_view, report_util):
+        request = report_util.post('/fake', {})
+        report_id = 5
+        model_mock = Mock(spec_set=Report)
+        model_mock.objects.filter.return_value.count.return_value = 1
+        report_util.model_admin.model = model_mock
+        form_response = HttpResponse('form')
+        mock_change_view.return_value = form_response
+
+        result = report_util.model_admin.change_view(request, report_id)
+
+        assert result == form_response
+        mock_change_view.assert_called_once_with(request, report_id)
+
+
