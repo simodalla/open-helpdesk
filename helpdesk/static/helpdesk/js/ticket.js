@@ -1,22 +1,25 @@
-require([ "jquery", "jquery-ui/jquery-ui.min", ], function ($) {
-    var ticketInfos = "#ticket_infos";
-    var tabsIds = ['ticket_data', 'messages', 'changestatuslog'];
+require(['./common'], function (common) {
 
-    // remove 'add-another' link/button
-    $('a.add-another').remove();
+    require([ "jquery", "jquery-ui/jquery-ui.min", ], function ($) {
+        var ticketInfos = "#ticket_infos";
+        var tabsIds = ['ticket_data', 'messages', 'changestatuslog'];
 
-    // settings and managements of tabs
-    $(ticketInfos).tabs();
+        // remove 'add-another' link/button
+        $('a.add-another').remove();
 
-    for(var key in tabsIds) {
-        $(ticketInfos).css("margin-bottom",
+        // settings and managements of tabs
+        $(ticketInfos).tabs();
+
+        for(var key in tabsIds) {
+            $(ticketInfos).css("margin-bottom",
+                $(ticketInfos + " #tab_" + tabsIds[key] +
+                    " fieldset").css("margin-bottom"));
             $(ticketInfos + " #tab_" + tabsIds[key] +
-                " fieldset").css("margin-bottom"));
-        $(ticketInfos + " #tab_" + tabsIds[key] +
-                " fieldset").css("margin-bottom", "0");
-    }
+                    " fieldset").css("margin-bottom", "0");
+        }
 
-    $('a.related_ticket, a.view_report').button();
+        $('a.related_ticket, a.view_report').button();
 
-    helpdeskFinalize($);
+        helpdeskFinalize($);
+    });
 });
