@@ -15,7 +15,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.admin import AdminSite
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
-from helpdesk.admin import TicketAdmin, ReportAdmin
+from helpdesk.admin import TicketAdmin, ReportAdmin, ReportTicketInline
 from helpdesk.models import Ticket, StatusChangesLog, Report
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
@@ -152,43 +152,23 @@ class TestTicketAdminByRequester(object):
         assert ticket_admin.get_list_filter(request) == expected
 
 
-# noinspection PyPep8Naming
 @pytest.fixture
-def report_util(rf, monkeypatch):
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
+def report_util(model_admin_util):
+    from helpdesk.models import HelpdeskUser
 
     class FakeDbField(object):
         name = None
 
-    class ModelAdminUtil(object):
-        def __init__(self):
-            self.rf = rf
-            self.user = User()
-            self.request = self.get('/admin/fake/')
-            self.model_admin = ReportAdmin(Report, AdminSite)
-            self.model_admin.message_user = Mock(name='message_user')
-            self.report = Mock(spec=Report,
-                               sender_id=None,
-                               recipient_id=None,
-                               action_on_ticket='close')
-            self.report.ticket = Mock(spec_set=Ticket,
-                                      requester=User())
-            self.form = Mock()
-            self.db_field = FakeDbField()
-
-        def get(self, path):
-            request = self.rf.get(path)
-            request.user = self.user
-            return request
-
-        def post(self, path, data=None):
-            request = self.rf.post(path, data)
-            request.user = self.user
-            return request
-
-    return ModelAdminUtil()
-
+    model_admin_util.model_admin = ReportAdmin(Report, AdminSite)
+    model_admin_util.model_admin.message_user = Mock(name='message_user')
+    model_admin_util.report = Mock(spec=Report,
+                                   sender_id=None,
+                                   recipient_id=None,
+                                   action_on_ticket='close',
+                                   ticket=Mock(spec_set=Ticket,
+                                               requester=HelpdeskUser()))
+    model_admin_util.db_field = FakeDbField()
+    return model_admin_util
 
 # noinspection PyShadowingNames
 @pytest.mark.target
@@ -451,3 +431,45 @@ class TestReportAdmin(object):
         mock_change_view.assert_called_once_with(request, report_id)
 
 
+@pytest.fixture
+def report_ticket_inline(model_admin_util):
+    model_admin_util.inline_model_admin = ReportTicketInline(Ticket, AdminSite)
+    return model_admin_util
+
+
+@patch('helpdesk.models.HelpdeskUser.get_from_request')
+class TestReportTicketInline(object):
+
+    @patch('django.contrib.admin.TabularInline.get_queryset')
+    def test_get_queryset_return_default_queryset_is_admin(
+            self, mock_get_qs, mock_gfr, report_ticket_inline):
+        request = report_ticket_inline.request
+        report_ticket_inline.user.is_admin.return_value = True
+        mock_gfr.return_value = report_ticket_inline.user
+        mock_get_qs.return_value = report_ticket_inline.qs
+
+        qs = report_ticket_inline.inline_model_admin.get_queryset(request)
+
+        mock_gfr.assert_called_once_with(request)
+        mock_get_qs.assert_called_once_with(request)
+        report_ticket_inline.user.is_admin.assert_called_once_with()
+        assert qs == report_ticket_inline.qs
+
+    @patch('django.contrib.admin.TabularInline.get_queryset')
+    def test_get_queryset_return_default_queryset_is_not_admin(
+            self, mock_get_qs, mock_gfr, report_ticket_inline):
+        request = report_ticket_inline.request
+        report_ticket_inline.user.is_admin.return_value = False
+        mock_gfr.return_value = report_ticket_inline.user
+        default_qs = report_ticket_inline.qs
+        default_qs.filter.return_value = [1, 2]
+        mock_get_qs.return_value = default_qs
+
+        qs = report_ticket_inline.inline_model_admin.get_queryset(request)
+
+        mock_gfr.assert_called_once_with(request)
+        mock_get_qs.assert_called_once_with(request)
+        report_ticket_inline.user.is_admin.assert_called_once_with()
+        default_qs.filter.assert_called_once_with(
+            sender=report_ticket_inline.user)
+        assert qs == [1, 2]
