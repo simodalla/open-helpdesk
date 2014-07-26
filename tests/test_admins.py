@@ -106,24 +106,39 @@ def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
     return rf_with_helpdeskuser, TicketAdmin(Ticket, AdminSite), 1
 
 
-class TestTicketAdminByRequester(object):
+@pytest.fixture
+def ticket_admin_util(model_admin_util):
+    from helpdesk.models import HelpdeskUser
+
+    model_admin_util.model_admin = TicketAdmin(Ticket, AdminSite)
+    model_admin_util.model_admin.message_user = Mock(name='message_user')
+    model_admin_util.obj = Mock(spec_set=Ticket, pk=1)
+
+    return model_admin_util
+
+
+@pytest.mark.target
+class TestTicketAdmin(object):
 
     @patch('helpdesk.admin.StatusChangesLog', spec_set=StatusChangesLog)
     @patch('django.contrib.admin.ModelAdmin.change_view')
     def test_view_calls_has_messages_and_changelogs_in_extra_content(
-            self, mock_cv, mock_sclog, ticket_admin_change_view,):
-        request, ticket_admin, object_id = ticket_admin_change_view
+            self, mock_cv, mock_sclog, ticket_admin_util):
+        # request, ticket_admin, object_id = ticket_admin_change_view
         messages = [1, 2, 3]
         statuschangelogs = [1, 2, 3]
-        request.user.get_messages_by_ticket = Mock(return_value=messages)
+        ticket_admin_util.user.get_messages_by_ticket.return_value = messages
         mock_sclog.objects.filter.return_value.order_by.return_value = (
             statuschangelogs)
-        ticket_admin.change_view(request, object_id)
+        with patch('helpdesk.models.HelpdeskUser.get_from_request',
+                   return_value=ticket_admin_util.user):
+            ticket_admin_util.model_admin.change_view(
+                ticket_admin_util.request, ticket_admin_util.obj.pk)
         mock_cv.assert_called_once_with(
-            request, object_id, form_url='',
+            ticket_admin_util.request, ticket_admin_util.obj.pk, form_url='',
             extra_context={'ticket_messages': messages,
                            'ticket_changelogs': statuschangelogs,
-                           'helpdesk_user': request.user})
+                           'helpdesk_user': ticket_admin_util.request.user})
 
     @pytest.mark.parametrize(
         'helpdeskuser,expected',
@@ -133,10 +148,13 @@ class TestTicketAdminByRequester(object):
          ('admin', (TicketAdmin.list_display +
                     TicketAdmin.operator_list_display))])
     def test_custom_list_display(
-            self, helpdeskuser, expected, ticket_admin_change_view):
-        request, ticket_admin, object_id = ticket_admin_change_view
-        setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
-        assert ticket_admin.get_list_display(request) == expected
+            self, helpdeskuser, expected, ticket_admin_util):
+        ticket_admin_util.user = helpdeskuser
+        request = ticket_admin_util.request
+        with patch('helpdesk.models.HelpdeskUser.get_from_request',
+                   return_value=ticket_admin_util.user):
+            result = ticket_admin_util.model_admin.get_list_display(request)
+        assert result == expected
 
     @pytest.mark.parametrize(
         'helpdeskuser,expected',
@@ -146,10 +164,13 @@ class TestTicketAdminByRequester(object):
          ('admin', (TicketAdmin.list_filter +
                     TicketAdmin.operator_list_filter))])
     def test_custom_list_filter(
-            self, helpdeskuser, expected, ticket_admin_change_view):
-        request, ticket_admin, object_id = ticket_admin_change_view
-        setattr(request.user, 'is_{}'.format(helpdeskuser), lambda: True)
-        assert ticket_admin.get_list_filter(request) == expected
+            self, helpdeskuser, expected, ticket_admin_util):
+        ticket_admin_util.user = helpdeskuser
+        request = ticket_admin_util.request
+        with patch('helpdesk.models.HelpdeskUser.get_from_request',
+                   return_value=ticket_admin_util.user):
+            result = ticket_admin_util.model_admin.get_list_filter(request)
+        assert result == expected
 
 
 @pytest.fixture
@@ -171,7 +192,7 @@ def report_util(model_admin_util):
     return model_admin_util
 
 # noinspection PyShadowingNames
-@pytest.mark.target
+# @pytest.mark.target
 class TestReportAdmin(object):
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_set_sender_field(self, mock_save_model, report_util):

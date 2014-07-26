@@ -73,7 +73,7 @@ def requester_cls(request):
 class ModelAdminUtil(object):
     def __init__(self):
         self.rf = None
-        self.user = None
+        self._user = None
         self.request = None
         self.model_admin = None
         self.obj = None
@@ -90,6 +90,18 @@ class ModelAdminUtil(object):
         request.user = self.user
         return request
 
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, helpdeskuser):
+        for type_helpdeskuser in ['requester', 'operator', 'admin']:
+            mock = getattr(self._user, 'is_{}'.format(type_helpdeskuser))
+            mock.return_value = (
+                True if helpdeskuser == type_helpdeskuser else False)
+
+
 
 @pytest.fixture
 def model_admin_util(rf):
@@ -98,7 +110,10 @@ def model_admin_util(rf):
 
     mau = ModelAdminUtil()
     mau.rf = rf
-    mau.user = Mock(spec_set=HelpdeskUser, name='helpdeskuser')
+    mau._user = Mock(spec_set=HelpdeskUser, name='helpdeskuser',
+                     is_operator=Mock(return_value=False),
+                     is_requester=Mock(return_value=False),
+                     is_admin=Mock(return_value=False))
     mau.qs = Mock(spec_set=QuerySet, name='queryset')
     mau.request = mau.get('/admin/fake/')
 

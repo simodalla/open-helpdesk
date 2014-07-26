@@ -199,7 +199,7 @@ class TicketAdmin(admin.ModelAdmin):
         if request.user is a operator or an admin return default list_display
         with operator_list_display.
         """
-        user = self.get_request_helpdeskuser(request)
+        user = HelpdeskUser.get_from_request(request)
         list_display = list(super(TicketAdmin, self).get_list_display(request))
         if user.is_operator() or user.is_admin():
             list_display += self.operator_list_display
