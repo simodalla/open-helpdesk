@@ -261,7 +261,7 @@ class TicketAdmin(admin.ModelAdmin):
         urls = super(TicketAdmin, self).get_urls()
         my_urls = patterns(
             '',
-            url(r'^open/(?P<pk>\d+)$',
+            url(r'^open/(?P<pk>\d+)/$',
                 self.admin_site.admin_view(OpenTicketView.as_view()),
                 name='{}_open'.format(admin_prefix_url)),
             url(r'^object_tools/$',
@@ -281,7 +281,8 @@ class TicketAdmin(admin.ModelAdmin):
         instances = formset.save(commit=False)
         for instance in instances:
             if isinstance(instance, Message):
-                instance.sender = request.user
+                if instance.sender_id is None:
+                    instance.sender = request.user
             instance.save()
         formset.save_m2m()
 

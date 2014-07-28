@@ -251,6 +251,20 @@ class TestTicketAdmin(object):
         assert {inline.__class__ for inline in result} == expected
 
 
+
+#
+# @pytest.mark.target
+# @pytest.mark.django_db
+# class TestFunctionalTicketAdmin(object):
+#     def test_set_sender_field_on_change_ticket_inserting_message_obj(
+#             self, client, requester, opened_ticket):
+#         from django.core.urlresolvers import reverse
+#         client.login(username=requester.username, password='default')
+#         response = client.post(reverse('admin:helpdesk_ticket_change',
+#                                        args=(opened_ticket.pk,)))
+#         print(response.status_code)
+
+
 @pytest.fixture
 def report_util(model_admin_util):
     from helpdesk.models import HelpdeskUser

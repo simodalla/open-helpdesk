@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 
 from helpdesk.models import Ticket, PRIORITY_NORMAL
 
+
 pytestmark = pytest.mark.django_db
 
 
@@ -18,7 +19,6 @@ def add_form_data(tipologies, ticket_content):
             self.priority = PRIORITY_NORMAL
             self.tipologies = [t.pk for t in tipologies[0:2]]
     return FormData()
-
 
 @pytest.fixture(scope='class')
 def add_url(request):
@@ -58,3 +58,23 @@ class TestAddingTicketByRequester(object):
         assert statuschangelog.before == ''
         assert statuschangelog.after == Ticket.STATUS.new
         assert statuschangelog.changer.pk == requester.pk
+
+
+@pytest.mark.target
+class TestChangingTicketByRequester(object):
+    def test_set_sender_field_on_change_ticket_inserting_message_obj(
+            self, app, opened_ticket):
+        """
+        Test for testing custom "save_formset" method of TicketAdmin. From
+        ticket change view is added a new message object and "save_formset"
+        set sender field of message object to request.user
+        """
+        assert len(opened_ticket.messages.all()) == 0
+        response = app.get(
+            reverse('admin:helpdesk_ticket_change', args=(opened_ticket.pk,)),
+            user=opened_ticket.requester)
+        form = response.forms['ticket_form']
+        form['messages-0-content'] = 'foo'
+        form.submit('_save')
+        message = opened_ticket.messages.latest()
+        assert message.sender_id == opened_ticket.requester_id
