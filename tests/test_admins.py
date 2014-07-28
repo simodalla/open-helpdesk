@@ -15,7 +15,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.admin import AdminSite
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
-from helpdesk.admin import TicketAdmin, ReportAdmin, ReportTicketInline
+# from helpdesk.admin import TicketAdmin, ReportAdmin, ReportTicketInline
+from helpdesk import admin
 from helpdesk.models import Ticket, StatusChangesLog, Report, Source
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
@@ -24,7 +25,7 @@ from .helpers import get_mock_request, get_mock_helpdeskuser
 class TicketTest(unittest.TestCase):
 
     def setUp(self):
-        self.ticket_admin = TicketAdmin(Ticket, AdminSite)
+        self.ticket_admin = admin.TicketAdmin(Ticket, AdminSite)
 
     @patch('helpdesk.admin.HelpdeskUser.objects.get',
            return_value=get_mock_helpdeskuser())
@@ -38,7 +39,7 @@ class TicketTest(unittest.TestCase):
 class TicketMethodsByRequesterTypeTest(unittest.TestCase):
 
     def setUp(self):
-        self.ticket_admin = TicketAdmin(Ticket, AdminSite)
+        self.ticket_admin = admin.TicketAdmin(Ticket, AdminSite)
         self.fake_pk = 1
 
     def get_queryset_to_patch(self):
@@ -109,8 +110,11 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
 @pytest.fixture
 def ticket_admin_util(model_admin_util):
 
-    model_admin_util.model_admin = TicketAdmin(Ticket, AdminSite)
+    model_admin_util.model_admin = admin.TicketAdmin(Ticket, AdminSite)
     model_admin_util.model_admin.message_user = Mock(name='message_user')
+    model_admin_util.model_admin.get_request_helpdeskuser = (
+        Mock(name='get_request_helpdeskuser',
+             return_value=model_admin_util.user))
     model_admin_util.obj = Mock(spec=Ticket)
 
     return model_admin_util
@@ -140,11 +144,11 @@ class TestTicketAdmin(object):
 
     @pytest.mark.parametrize(
         'helpdeskuser,expected',
-        [('requester', TicketAdmin.list_display),
-         ('operator', (TicketAdmin.list_display +
-                       TicketAdmin.operator_list_display)),
-         ('admin', (TicketAdmin.list_display +
-                    TicketAdmin.operator_list_display))])
+        [('requester', admin.TicketAdmin.list_display),
+         ('operator', (admin.TicketAdmin.list_display +
+                       admin.TicketAdmin.operator_list_display)),
+         ('admin', (admin.TicketAdmin.list_display +
+                    admin.TicketAdmin.operator_list_display))])
     def test_custom_list_display(
             self, helpdeskuser, expected, ticket_admin_util):
         ticket_admin_util.user = helpdeskuser
@@ -156,11 +160,11 @@ class TestTicketAdmin(object):
 
     @pytest.mark.parametrize(
         'helpdeskuser,expected',
-        [('requester', TicketAdmin.list_filter),
-         ('operator', (TicketAdmin.list_filter +
-                       TicketAdmin.operator_list_filter)),
-         ('admin', (TicketAdmin.list_filter +
-                    TicketAdmin.operator_list_filter))])
+        [('requester', admin.TicketAdmin.list_filter),
+         ('operator', (admin.TicketAdmin.list_filter +
+                       admin.TicketAdmin.operator_list_filter)),
+         ('admin', (admin.TicketAdmin.list_filter +
+                    admin.TicketAdmin.operator_list_filter))])
     def test_custom_list_filter(
             self, helpdeskuser, expected, ticket_admin_util):
         ticket_admin_util.user = helpdeskuser
@@ -203,6 +207,49 @@ class TestTicketAdmin(object):
         assert result == fake_status
         mock_ht.assert_called_once_with(fake_status)
 
+    def test_ld_created_call_django_defaultfilters_filter_date(
+            self, ticket_admin_util):
+        from django.utils import timezone
+        now = timezone.now()
+        ticket_admin_util.obj.created = now
+        expected = now.strftime('%d/%m/%Y')
+        with patch('django.template.defaultfilters.date',
+                   return_value=expected) as mock_filter_date:
+            result = ticket_admin_util.model_admin.ld_created(
+                ticket_admin_util.obj)
+        assert result == expected
+        mock_filter_date.assert_called_once_with(now, 'SHORT_DATETIME_FORMAT')
+
+    def test_get_inline_instances_return_list_empty_if_ticket_is_closed(
+            self, ticket_admin_util):
+        ticket_admin_util.obj.is_closed.return_value = True
+        result = ticket_admin_util.model_admin.get_inline_instances(
+            ticket_admin_util.request, ticket_admin_util.obj)
+        assert result == list()
+
+    @pytest.mark.parametrize(
+        'helpdeskuser', ['requester', 'operator', 'admin'])
+    def test_get_inline_instances_returns_obj_is_none(
+            self, helpdeskuser, ticket_admin_util):
+        ticket_admin_util.user = helpdeskuser
+        result = ticket_admin_util.model_admin.get_inline_instances(
+            ticket_admin_util.request)
+        assert ([inline.__class__ for inline in result] ==
+                [admin.AttachmentInline])
+
+    @pytest.mark.parametrize(
+        'helpdeskuser,expected',
+        [('requester', {admin.AttachmentInline, admin.MessageInline}),
+         ('operator', {admin.AttachmentInline}),
+         ('admin', {admin.AttachmentInline})])
+    def test_get_inline_instances_returns_obj_is_not_none_but_not_close(
+            self, helpdeskuser, expected, ticket_admin_util):
+        ticket_admin_util.obj.is_closed.return_value = False
+        ticket_admin_util.user = helpdeskuser
+        result = ticket_admin_util.model_admin.get_inline_instances(
+            ticket_admin_util.request, obj=ticket_admin_util.obj)
+        assert {inline.__class__ for inline in result} == expected
+
 
 @pytest.fixture
 def report_util(model_admin_util):
@@ -211,7 +258,7 @@ def report_util(model_admin_util):
     class FakeDbField(object):
         name = None
 
-    model_admin_util.model_admin = ReportAdmin(Report, AdminSite)
+    model_admin_util.model_admin = admin.ReportAdmin(Report, AdminSite)
     model_admin_util.model_admin.message_user = Mock(name='message_user')
     model_admin_util.report = Mock(spec=Report,
                                    sender_id=None,
@@ -485,7 +532,8 @@ class TestReportAdmin(object):
 
 @pytest.fixture
 def report_ticket_inline(model_admin_util):
-    model_admin_util.inline_model_admin = ReportTicketInline(Ticket, AdminSite)
+    model_admin_util.inline_model_admin = admin.ReportTicketInline(Ticket,
+                                                                   AdminSite)
     return model_admin_util
 
 

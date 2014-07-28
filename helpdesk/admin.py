@@ -86,7 +86,7 @@ class TicketAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ('tipologies',)
     form = TicketAdminAutocompleteForm
-    inlines = [AttachmentInline, MessageInline]
+    inlines = [AttachmentInline]
     list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
                     'ld_source']
     list_filter = ['priority', ('status', StatusListFilter), 'tipologies']
@@ -185,14 +185,6 @@ class TicketAdmin(admin.ModelAdmin):
     ld_created.short_description = _('Created')
 
     # ModelsAdmin methods customized ##########################################
-    def get_inline_instances(self, request, obj=None):
-        if obj:
-            if obj.is_closed():
-                return list()
-        # return [inline(self.model, self.admin_site)
-        #         for inline in self.inlines]
-        return super(TicketAdmin, self).get_inline_instances(request, obj=obj)
-
     def get_list_display(self, request):
         """
         Return default list_display if request.user is a requester. Otherwise
@@ -231,15 +223,17 @@ class TicketAdmin(admin.ModelAdmin):
                                         fieldset[0][1]['fields'])
         return fieldset
 
-    def get_formsets(self, request, obj=None):
-        user = self.get_request_helpdeskuser(request)
-        for inline in self.get_inline_instances(request, obj):
-            if isinstance(inline, MessageInline):
-                # hide MessageInline in the add view or user not is
-                # a requester
-                if obj is None or not user.is_requester():
-                    continue  # pragma: no cover
-            yield inline.get_formset(request, obj)
+    def get_inline_instances(self, request, obj=None):
+        if obj and obj.is_closed():
+            return list()
+        default_inlines_instances = [inline(self.model, self.admin_site)
+                                     for inline in self.inlines]
+        if obj:
+            user = self.get_request_helpdeskuser(request)
+            if user.is_requester():
+                return ([MessageInline(self.model, self.admin_site)]
+                        + default_inlines_instances)
+        return default_inlines_instances
 
     def get_queryset(self, request):
         """
