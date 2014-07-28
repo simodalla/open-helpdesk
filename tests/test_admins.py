@@ -16,7 +16,7 @@ from django.contrib.admin import AdminSite
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
 from helpdesk.admin import TicketAdmin, ReportAdmin, ReportTicketInline
-from helpdesk.models import Ticket, StatusChangesLog, Report
+from helpdesk.models import Ticket, StatusChangesLog, Report, Source
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
 
@@ -99,20 +99,19 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
         self.assertFalse(result is qs)
 
 
-@pytest.fixture
-def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
-    monkeypatch.setattr('helpdesk.admin.TicketAdmin.get_request_helpdeskuser',
-                        lambda self, request: request.user)
-    return rf_with_helpdeskuser, TicketAdmin(Ticket, AdminSite), 1
+# @pytest.fixture
+# def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
+#     monkeypatch.setattr('helpdesk.admin.TicketAdmin.get_request_helpdeskuser',
+#                         lambda self, request: request.user)
+#     return rf_with_helpdeskuser, TicketAdmin(Ticket, AdminSite), 1
 
 
 @pytest.fixture
 def ticket_admin_util(model_admin_util):
-    from helpdesk.models import HelpdeskUser
 
     model_admin_util.model_admin = TicketAdmin(Ticket, AdminSite)
     model_admin_util.model_admin.message_user = Mock(name='message_user')
-    model_admin_util.obj = Mock(spec_set=Ticket, pk=1)
+    model_admin_util.obj = Mock(spec=Ticket)
 
     return model_admin_util
 
@@ -122,9 +121,8 @@ class TestTicketAdmin(object):
 
     @patch('helpdesk.admin.StatusChangesLog', spec_set=StatusChangesLog)
     @patch('django.contrib.admin.ModelAdmin.change_view')
-    def test_view_calls_has_messages_and_changelogs_in_extra_content(
+    def test_view_calls_has_custom_extra_content(
             self, mock_cv, mock_sclog, ticket_admin_util):
-        # request, ticket_admin, object_id = ticket_admin_change_view
         messages = [1, 2, 3]
         statuschangelogs = [1, 2, 3]
         ticket_admin_util.user.get_messages_by_ticket.return_value = messages
@@ -172,6 +170,39 @@ class TestTicketAdmin(object):
             result = ticket_admin_util.model_admin.get_list_filter(request)
         assert result == expected
 
+    def test_ld_id_return_object_id(self, ticket_admin_util):
+        ticket_admin_util.obj.pk = 1
+        assert 1 == ticket_admin_util.model_admin.ld_id(ticket_admin_util.obj)
+
+    def test_ld_status_return_get_clean_content(self, ticket_admin_util):
+        mock_content = Mock(return_value='content')
+        ticket_admin_util.obj.get_clean_content = mock_content
+        assert 'content' == ticket_admin_util.model_admin.ld_content(
+            ticket_admin_util.obj)
+        mock_content.assert_called_once_with(words=12)
+
+    def test_ld_source_without_source(self, ticket_admin_util):
+        ticket_admin_util.obj.source = None
+        result = ticket_admin_util.model_admin.ld_source(ticket_admin_util.obj)
+        assert result == ''
+
+    def test_ld_source_with_source(self, ticket_admin_util):
+        source = Mock(spec=Source, icon='icon', title='title')
+        ticket_admin_util.obj.source = source
+        result = ticket_admin_util.model_admin.ld_source(ticket_admin_util.obj)
+        assert source.title in result
+        assert source.icon in result
+
+    def test_ld_status_return_heldesk_status(self, ticket_admin_util):
+        fake_status = 'open'
+        ticket_admin_util.obj.status = fake_status
+        with patch('helpdesk.admin.helpdesk_tags.helpdesk_status',
+                   return_value=fake_status) as mock_ht:
+            result = ticket_admin_util.model_admin.ld_status(
+                ticket_admin_util.obj)
+        assert result == fake_status
+        mock_ht.assert_called_once_with(fake_status)
+
 
 @pytest.fixture
 def report_util(model_admin_util):
@@ -191,8 +222,8 @@ def report_util(model_admin_util):
     model_admin_util.db_field = FakeDbField()
     return model_admin_util
 
+
 # noinspection PyShadowingNames
-# @pytest.mark.target
 class TestReportAdmin(object):
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_set_sender_field(self, mock_save_model, report_util):
@@ -494,3 +525,11 @@ class TestReportTicketInline(object):
         default_qs.filter.assert_called_once_with(
             sender=report_ticket_inline.user)
         assert qs == [1, 2]
+
+@patch('django.contrib.admin.ChoicesFieldListFilter.__init__')
+def test_status_list_filter_init_set_title_attr(mock_init):
+    from helpdesk.admin import StatusListFilter
+    status_list_filter = StatusListFilter(1, foo='bar')
+    assert status_list_filter.title == StatusListFilter.title
+    mock_init.assert_called_once_with(1, foo='bar')
+

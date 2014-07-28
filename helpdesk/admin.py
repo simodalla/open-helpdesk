@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
-from .templatetags.helpdesk_tags import helpdesk_status
+from .templatetags import helpdesk_tags
 from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
     Report, StatusChangesLog, Source)
@@ -152,7 +152,7 @@ class TicketAdmin(admin.ModelAdmin):
 
     # list_display methods customized #########################################
     def ld_id(self, obj):
-        return obj.id
+        return obj.pk
     ld_id.short_description = _('Id')
 
     def ld_content(self, obj):
@@ -160,7 +160,7 @@ class TicketAdmin(admin.ModelAdmin):
     ld_content.short_description = _('Content')
 
     def ld_status(self, obj):
-        return helpdesk_status(obj.status)
+        return helpdesk_tags.helpdesk_status(obj.status)
     ld_status.admin_order_field = 'status'
     ld_status.allow_tags = True
     ld_status.short_description = _('Status')
@@ -310,13 +310,12 @@ class TicketAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         # get the ticket's messages only if is change form
         user = self.get_request_helpdeskuser(request)
-        if object_id:
-            msgs = user.get_messages_by_ticket(object_id)
-            changelogs = StatusChangesLog.objects.filter(
-                ticket_id=object_id).order_by('created')
-            extra_context.update({'ticket_messages': msgs,
-                                  'ticket_changelogs': changelogs,
-                                  'helpdesk_user': user})
+        msgs = user.get_messages_by_ticket(object_id)
+        changelogs = StatusChangesLog.objects.filter(
+            ticket_id=object_id).order_by('created')
+        extra_context.update({'ticket_messages': msgs,
+                              'ticket_changelogs': changelogs,
+                              'helpdesk_user': user})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
