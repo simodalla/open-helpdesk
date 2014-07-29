@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django import VERSION as DJANGO_VERSION
 from mezzanine.conf import settings
 from mezzanine.utils.sites import current_site_id
 from autocomplete_light import ModelForm as AutocompleteModelForm
@@ -19,18 +20,24 @@ class TicketAdminForm(forms.ModelForm):
         # tipologies is filtered by current site if 'tipologies' in
         # self.fields. If field is read_only isn't in self.fields
         # for field, related_name in ('t')
-        site = Site.objects.get(pk=current_site_id())
-        for field, related_name in [('tipologies', 'helpdesk_tipologies'),
-                                    ('source', 'helpdesk_sources')]:
-            if field in self.fields:
-                relate_manager = getattr(site, related_name, None)
-                if relate_manager:
-                    self.fields[field].queryset = relate_manager.all()
-        if 'source' in self.fields:
-            try:
-                self.fields['source'].initial = Source.get_default_obj()
-            except Source.DoesNotExist:
-                pass
+        if not self.instance.pk:
+            site = Site.objects.get(pk=current_site_id())
+            for field, related_name in [('tipologies', 'helpdesk_tipologies'),
+                                        ('source', 'helpdesk_sources')]:
+                if field in self.fields:
+                    relate_manager = getattr(site, related_name, None)
+                    if relate_manager:
+                        self.fields[field].queryset = relate_manager.all()
+            if 'source' in self.fields:
+                try:
+                    self.fields['source'].initial = Source.get_default_obj()
+                except Source.DoesNotExist:
+                    pass
+            # django 1.5
+        else:
+            if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
+                for field in ['tipologies', 'priority']:
+                    del self.fields[field]
 
     def clean_tipologies(self):
         """
