@@ -120,7 +120,6 @@ def ticket_admin_util(model_admin_util):
     return model_admin_util
 
 
-@pytest.mark.target
 class TestTicketAdmin(object):
 
     @patch('helpdesk.admin.StatusChangesLog', spec_set=StatusChangesLog)
@@ -250,19 +249,19 @@ class TestTicketAdmin(object):
             ticket_admin_util.request, obj=ticket_admin_util.obj)
         assert {inline.__class__ for inline in result} == expected
 
-
-
-#
-# @pytest.mark.target
-# @pytest.mark.django_db
-# class TestFunctionalTicketAdmin(object):
-#     def test_set_sender_field_on_change_ticket_inserting_message_obj(
-#             self, client, requester, opened_ticket):
-#         from django.core.urlresolvers import reverse
-#         client.login(username=requester.username, password='default')
-#         response = client.post(reverse('admin:helpdesk_ticket_change',
-#                                        args=(opened_ticket.pk,)))
-#         print(response.status_code)
+    @pytest.mark.parametrize(
+        'helpdeskuser,expected',
+        [('requester', []),
+         ('operator', ['foo']),
+         ('admin', ['foo'])])
+    def test_overrider_get_action(
+            self, helpdeskuser, expected, ticket_admin_util):
+        ticket_admin_util.user = helpdeskuser
+        with patch('django.contrib.admin.ModelAdmin.get_actions',
+                   return_value=['foo']):
+            result = ticket_admin_util.model_admin.get_actions(
+                ticket_admin_util.request)
+        assert result == expected
 
 
 @pytest.fixture
@@ -554,32 +553,38 @@ def report_ticket_inline(model_admin_util):
 @patch('helpdesk.models.HelpdeskUser.get_from_request')
 class TestReportTicketInline(object):
 
-    @patch('django.contrib.admin.TabularInline.get_queryset')
+    def get_query_set_to_patch(self):
+        from django.contrib import admin
+        return (admin.TabularInline,
+                'get_queryset' if hasattr(admin.TabularInline, 'get_queryset')
+                else 'queryset')
+
     def test_get_queryset_return_default_queryset_is_admin(
-            self, mock_get_qs, mock_gfr, report_ticket_inline):
+            self, mock_gfr, report_ticket_inline):
         request = report_ticket_inline.request
         report_ticket_inline.user.is_admin.return_value = True
         mock_gfr.return_value = report_ticket_inline.user
-        mock_get_qs.return_value = report_ticket_inline.qs
 
-        qs = report_ticket_inline.inline_model_admin.get_queryset(request)
+        with patch.object(*self.get_query_set_to_patch(),
+                          return_value=report_ticket_inline.qs) as mock_get_qs:
+            qs = report_ticket_inline.inline_model_admin.get_queryset(request)
 
         mock_gfr.assert_called_once_with(request)
         mock_get_qs.assert_called_once_with(request)
         report_ticket_inline.user.is_admin.assert_called_once_with()
         assert qs == report_ticket_inline.qs
 
-    @patch('django.contrib.admin.TabularInline.get_queryset')
     def test_get_queryset_return_default_queryset_is_not_admin(
-            self, mock_get_qs, mock_gfr, report_ticket_inline):
+            self, mock_gfr, report_ticket_inline):
         request = report_ticket_inline.request
         report_ticket_inline.user.is_admin.return_value = False
         mock_gfr.return_value = report_ticket_inline.user
         default_qs = report_ticket_inline.qs
         default_qs.filter.return_value = [1, 2]
-        mock_get_qs.return_value = default_qs
 
-        qs = report_ticket_inline.inline_model_admin.get_queryset(request)
+        with patch.object(*self.get_query_set_to_patch(),
+                          return_value=default_qs) as mock_get_qs:
+            qs = report_ticket_inline.inline_model_admin.get_queryset(request)
 
         mock_gfr.assert_called_once_with(request)
         mock_get_qs.assert_called_once_with(request)
@@ -588,6 +593,7 @@ class TestReportTicketInline(object):
             sender=report_ticket_inline.user)
         assert qs == [1, 2]
 
+
 @patch('django.contrib.admin.ChoicesFieldListFilter.__init__')
 def test_status_list_filter_init_set_title_attr(mock_init):
     from helpdesk.admin import StatusListFilter
@@ -595,3 +601,60 @@ def test_status_list_filter_init_set_title_attr(mock_init):
     assert status_list_filter.title == StatusListFilter.title
     mock_init.assert_called_once_with(1, foo='bar')
 
+
+@pytest.fixture
+def source_admin_util(model_admin_util):
+
+    model_admin_util.model_admin = admin.SourceAdmin(Source, AdminSite)
+    model_admin_util.model_admin.message_user = Mock(name='message_user')
+    model_admin_util.obj = Mock(spec=Source)
+
+    return model_admin_util
+
+
+@pytest.mark.target
+class TestSourceAdmin(object):
+
+    @pytest.mark.parametrize(
+        'source,is_default', [('foo', False),  ('bar', True)])
+    @patch('django.contrib.messages.ERROR')
+    def test_has_delete_permission_return_false_if_obj_is_default_source(
+            self, mock_msg, source, is_default, monkeypatch,
+            source_admin_util):
+        default_sources = tuple()
+        source_admin_util.obj.code = source
+        source_admin_util.obj.title = source
+        if is_default:
+            default_sources = ((source, source),)
+        monkeypatch.setattr('helpdesk.core.DEFAULT_SOURCES', default_sources)
+        with patch('django.contrib.admin.ModelAdmin.has_delete_permission',
+                   return_value=True) as mock_has_perms:
+            result = source_admin_util.model_admin.has_delete_permission(
+                source_admin_util.request,
+                obj=source_admin_util.obj)
+        if is_default:
+            assert result is False
+            assert mock_has_perms.called is False
+            source_admin_util.model_admin.message_user.assert_called_once_with(
+                source_admin_util.request, ANY, level=mock_msg)
+        else:
+            assert result is True
+            mock_has_perms.assert_called_once_with(source_admin_util.request,
+                                                   obj=source_admin_util.obj)
+            assert source_admin_util.model_admin.message_user.called is False
+
+    def test_has_delete_permission_return_super_value_if_obj_is_none(
+            self, source_admin_util):
+        returned_value = True
+        with patch('django.contrib.admin.ModelAdmin.has_delete_permission',
+                   return_value=returned_value) as mock_has_perms:
+            result = source_admin_util.model_admin.has_delete_permission(
+                source_admin_util.request, obj=None)
+        assert result is returned_value
+        mock_has_perms.assert_called_once_with(source_admin_util.request,
+                                               obj=None)
+
+    def test_ld_icon_method(self, source_admin_util):
+        source_admin_util.obj.icon = 'foo'
+        assert (source_admin_util.model_admin.ld_icon(source_admin_util.obj)
+                == 'foo')

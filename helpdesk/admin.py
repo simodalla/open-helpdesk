@@ -18,6 +18,7 @@ from django.http.response import HttpResponseRedirectBase
 from django.shortcuts import redirect
 from django.template import Template, Context
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django import VERSION as DJANGO_VERSION
 
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
@@ -46,7 +47,11 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
     def get_queryset(self, request):
         """If request.user is operator return queryset filterd by sender."""
         user = HelpdeskUser.get_from_request(request)
-        qs = super(ReportTicketInline, self).get_queryset(request)
+        # re-compatibility for django 1.5 where "get_queryset" method is
+        # called "queryset" instead
+        _super = super(ReportTicketInline, self)
+        qs = (getattr(_super, 'get_queryset', None)
+              or getattr(_super, 'queryset'))(request)
         if user.is_admin():
             return qs
         return qs.filter(sender=user)
@@ -242,13 +247,11 @@ class TicketAdmin(admin.ModelAdmin):
         an admin or superuser, queryset returned is not filtered.
         """
         user = self.get_request_helpdeskuser(request)
-        # compatibility for django 1.5 where "get_queryset" method is
+        # re-compatibility for django 1.5 where "get_queryset" method is
         # called "queryset" instead
-        f_get_queryset = getattr(
-            super(TicketAdmin, self), 'get_queryset', None)
-        if not f_get_queryset:  # pragma: no cover
-            f_get_queryset = getattr(super(TicketAdmin, self), 'queryset')
-        qs = f_get_queryset(request)
+        _super = super(TicketAdmin, self)
+        qs = (getattr(_super, 'get_queryset', None)
+              or getattr(_super, 'queryset'))(request)
         if user.is_superuser or user.is_operator() or user.is_admin():
             return qs
         return qs.filter(requester=user)
@@ -269,13 +272,6 @@ class TicketAdmin(admin.ModelAdmin):
                 name='{}_object_tools'.format(admin_prefix_url)),
         )
         return my_urls + urls
-
-    def queryset(self, request):
-        """
-        Compatibility for django 1.5 where "get_queryset" method is
-        called "queryset" instead
-        """
-        return self.get_queryset(request)  # pragma: no cover
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
@@ -338,15 +334,15 @@ class TicketAdmin(admin.ModelAdmin):
                 self.message_user(
                     request,
                     error_msg % {'errors': ', '.join(
-                        ['ticket {} [{}]'.format(id, exc)
-                         for id, exc in error_data])},
+                        ['ticket {} [{}]'.format(pk, exc)
+                         for pk, exc in error_data])},
                     level=messages.ERROR)
     open_tickets.short_description = _('Open e assign selected Tickets')
 
     def get_actions(self, request):
         user = self.get_request_helpdeskuser(request)
         if user.is_requester():
-            return []
+            return list()
         return super(TicketAdmin, self).get_actions(request)
 
 
@@ -460,13 +456,19 @@ class SourceAdmin(admin.ModelAdmin):
                 " %(title)s is a system %(model)s and is not"
                 " eliminated.") % {'title': obj.title,
                                    'model': obj._meta.verbose_name.lower()}
-            self.message_user(request, error_msg)
+            self.message_user(request, error_msg, level=messages.ERROR)
             return False
         return super(SourceAdmin, self).has_delete_permission(request, obj=obj)
 
     def ld_icon(self, obj):
         return obj.icon
     ld_icon.short_description = _('Icon')
+
+
+# statements for supporting django version < 1.6
+if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
+    ReportTicketInline.queryset = ReportTicketInline.get_queryset
+    TicketAdmin.queryset = TicketAdmin.get_queryset
 
 
 admin.site.register(Category, CategoryAdmin)
