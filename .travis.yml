@@ -27,6 +27,6 @@ before_install:
 install:
   - pip install tox coveralls
 
-script: tox -e $TESTENV
+script: tox -r -e $TESTENV
 
 after_success: coveralls
