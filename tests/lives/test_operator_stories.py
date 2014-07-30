@@ -47,6 +47,7 @@ def new_tickets(requester, tipologies):
 @pytest.mark.livetest
 def test_open_more_tickets_from_action_without_error(browser_o, new_tickets):
     browser_o.get('admin:helpdesk_ticket_changelist')
+    browser_o.driver.get_screenshot_as_file('selenium_screenshot_1.png')
     new_ticket_ids = [str(t.id) for t in new_tickets]
     for checkbox in [e for e in browser_o.driver.find_elements_by_name(
             "_selected_action")]:
@@ -54,10 +55,12 @@ def test_open_more_tickets_from_action_without_error(browser_o, new_tickets):
             checkbox.click()
     browser_o.driver.find_element_by_css_selector(
         '.changelist-actions .chzn-single').click()
+    browser_o.driver.get_screenshot_as_file('selenium_screenshot_2.png')
     for action in browser_o.driver.find_elements_by_css_selector(
             '.chzn-results li'):
         if action.text.strip().lower() == 'open e assign selected tickets':
             action.click()
+    browser_o.driver.get_screenshot_as_file('selenium_screenshot_3.png')
     success_message = browser_o.get_messages(level='success')
     assert len(success_message) == 1
     for ticket in Ticket.objects.filter(id__in=new_ticket_ids):
