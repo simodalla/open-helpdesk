@@ -2,11 +2,14 @@
 import pytest
 
 
+WINDOW_SIZE = (1024, 768)
+
+
 @pytest.fixture(scope='module')
 def display(request):
     try:
         from pyvirtualdisplay import Display
-        display = Display(visible=0, size=(1024, 768))
+        display = Display(visible=0, size=WINDOW_SIZE)
         display.start()
 
         def fin():
@@ -27,8 +30,8 @@ class LiveBrowser(object):
     def __init__(self, driver, live_server, user=None):
         self.driver = driver
         self.live_server = live_server
-        self.driver.set_window_size(1024, 768)
-        self.driver.implicitly_wait(5)
+        self.driver.set_window_size(*WINDOW_SIZE)
+        self.driver.implicitly_wait(20)
         self.user = user
 
     @property
