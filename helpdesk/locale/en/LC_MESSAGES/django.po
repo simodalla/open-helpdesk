@@ -1,0 +1,386 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-07-31 13:22+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: admin.py:77 admin.py:172
+#: templates/admin/helpdesk/ticket/change_form.html:30
+msgid "Status"
+msgstr ""
+
+#: admin.py:136
+msgid "Open and assign to me"
+msgstr ""
+
+#: admin.py:143
+msgid "Add Report"
+msgstr ""
+
+#: admin.py:146
+msgid "The range of pending is over."
+msgstr ""
+
+#: admin.py:151 core.py:37
+msgid "Remove from pending"
+msgstr ""
+
+#: admin.py:162
+msgid "Id"
+msgstr ""
+
+#: admin.py:166 models.py:408
+#: templates/admin/helpdesk/ticket/change_form.html:31
+msgid "Content"
+msgstr ""
+
+#: admin.py:175 templates/admin/helpdesk/ticket/change_form.html:38
+msgid "Not assigned"
+msgstr ""
+
+#: admin.py:177 models.py:225
+#: templates/admin/helpdesk/ticket/change_form.html:38
+msgid "Assignee"
+msgstr ""
+
+#: admin.py:189 models.py:194 models.py:230
+#: templates/admin/helpdesk/ticket/change_form.html:29
+msgid "Source"
+msgstr ""
+
+#: admin.py:196 templates/admin/helpdesk/ticket/change_form.html:23
+msgid "Created"
+msgstr ""
+
+#: admin.py:328
+#, python-format
+msgid "Tickets %(ticket_ids)s successfully opened and assigned."
+msgstr ""
+
+#: admin.py:330
+#, python-format
+msgid ""
+"Errors occours: \n"
+"%(errors)s."
+msgstr ""
+
+#: admin.py:353
+msgid "Open e assign selected Tickets"
+msgstr ""
+
+#: admin.py:383
+msgid "Error: wrong request for adding Report."
+msgstr ""
+
+#: admin.py:405
+#, python-format
+msgid "You can not change Report with id %(report_id)s"
+msgstr ""
+
+#: admin.py:463
+#, python-format
+msgid "%(title)s is a system %(model)s and is not eliminated."
+msgstr ""
+
+#: admin.py:472
+msgid "Icon"
+msgstr ""
+
+#: autocomplete_light_registry.py:20
+msgid "Type id of content of Ticket..."
+msgstr ""
+
+#: core.py:15
+msgid "New"
+msgstr ""
+
+#: core.py:16
+msgid "Open"
+msgstr ""
+
+#: core.py:17
+msgid "Pending"
+msgstr ""
+
+#: core.py:18
+msgid "Closed"
+msgstr ""
+
+#: core.py:28
+msgid "Web Site"
+msgstr ""
+
+#: core.py:29
+msgid "Email"
+msgstr ""
+
+#: core.py:30
+msgid "Phone"
+msgstr ""
+
+#: core.py:31
+msgid "Chat"
+msgstr ""
+
+#: core.py:35
+msgid "No action (maintain the current status)"
+msgstr ""
+
+#: core.py:36
+msgid "Put on pending"
+msgstr ""
+
+#: core.py:38
+msgid "Close"
+msgstr ""
+
+#: core.py:42
+#, python-format
+msgid "Ticket not in status \"%(status)s\""
+msgstr ""
+
+#: core.py:43
+#, python-format
+msgid "Ticket is already in \"%(status)s\" status"
+msgstr ""
+
+#: core.py:47
+msgid "Ticket Status Error"
+msgstr ""
+
+#: core.py:81
+#, python-format
+msgid "The ticket is still in \"%(status)s\" status"
+msgstr ""
+
+#: forms.py:52
+#, python-format
+msgid "Too many tipologies selected. You can select a maximum of %(max)s."
+msgstr ""
+
+#: models.py:43
+msgid "Urgent"
+msgstr ""
+
+#: models.py:44
+msgid "High"
+msgstr ""
+
+#: models.py:45
+msgid "Normal"
+msgstr ""
+
+#: models.py:46
+msgid "Low"
+msgstr ""
+
+#: models.py:101 models.py:130 models.py:187
+msgid "Title"
+msgstr ""
+
+#: models.py:104
+msgid "Category"
+msgstr ""
+
+#: models.py:105 models.py:132
+msgid "Categories"
+msgstr ""
+
+#: models.py:121 models.py:142 models.py:217
+#: templates/admin/helpdesk/ticket/change_form.html:25
+msgid "Tipologies"
+msgstr ""
+
+#: models.py:135 models.py:157 models.py:166 models.py:189
+msgid "Enable on Sites"
+msgstr ""
+
+#: models.py:137 models.py:218
+#: templates/admin/helpdesk/ticket/change_form.html:28
+msgid "Priority"
+msgstr ""
+
+#: models.py:141
+msgid "Tipology"
+msgstr ""
+
+#: models.py:170
+msgid "File"
+msgstr ""
+
+#: models.py:172
+msgid "Description"
+msgstr ""
+
+#: models.py:179
+msgid "Attachment"
+msgstr ""
+
+#: models.py:180
+msgid "Attachments"
+msgstr ""
+
+#: models.py:186
+msgid "code"
+msgstr ""
+
+#: models.py:195
+msgid "Sources"
+msgstr ""
+
+#: models.py:220 templates/admin/helpdesk/ticket/change_form.html:36
+msgid "Insert by"
+msgstr ""
+
+#: models.py:223 templates/admin/helpdesk/ticket/change_form.html:33
+msgid "Requester"
+msgstr ""
+
+#: models.py:229 templates/admin/helpdesk/ticket/change_form.html:40
+msgid "Related tickets"
+msgstr ""
+
+#: models.py:237 models.py:415
+msgid "Ticket"
+msgstr ""
+
+#: models.py:238
+msgid "Tickets"
+msgstr ""
+
+#: models.py:409
+msgid "Sender"
+msgstr ""
+
+#: models.py:411
+msgid "Recipient"
+msgstr ""
+
+#: models.py:420
+msgid "Message"
+msgstr ""
+
+#: models.py:421
+msgid "Messages"
+msgstr ""
+
+#: models.py:441
+msgid "Report"
+msgstr ""
+
+#: models.py:442
+msgid "Reports"
+msgstr ""
+
+#: models.py:460
+msgid "Pending Range"
+msgstr ""
+
+#: models.py:461
+msgid "Pending Ranges"
+msgstr ""
+
+#: models.py:469
+msgid "Maker"
+msgstr ""
+
+#: models.py:472
+msgid "Co Makers"
+msgstr ""
+
+#: models.py:479
+msgid "Scheduled at"
+msgstr ""
+
+#: models.py:484
+msgid "Activity"
+msgstr ""
+
+#: models.py:485
+msgid "Activities"
+msgstr ""
+
+#: models.py:497
+msgid "Before"
+msgstr ""
+
+#: models.py:498
+msgid "After"
+msgstr ""
+
+#: models.py:499
+msgid "Changer"
+msgstr ""
+
+#: models.py:504
+msgid "Status Changelog"
+msgstr ""
+
+#: models.py:505
+msgid "Status Changelogs"
+msgstr ""
+
+#: views.py:33
+msgid "An error occurs."
+msgstr ""
+
+#: views.py:37
+#, python-format
+msgid "Ticket n.%(pk)s is opened and assigned."
+msgstr ""
+
+#: views.py:40
+#, python-format
+msgid "Ticket n.%(pk)s does not exist."
+msgstr ""
+
+#: templates/admin/helpdesk/report/change_form.html:13
+msgid "Pending Range Data"
+msgstr ""
+
+#: templates/admin/helpdesk/report/change_form.html:16
+msgid "Estimated date of end pending"
+msgstr ""
+
+#. Translators: Alert title of jquery-ui dialog
+#: templates/admin/helpdesk/report/change_form.html:23
+msgid "Alert"
+msgstr ""
+
+#: templates/admin/helpdesk/report/change_form.html:27
+#, python-format
+msgid "You must insert the field \"Content\" of %(model_name)s."
+msgstr ""
+
+#: templates/admin/helpdesk/ticket/change_form.html:14
+msgid "Ticket Data"
+msgstr ""
+
+#: templates/admin/helpdesk/ticket/change_form.html:15
+msgid "Messaging"
+msgstr ""
+
+#: templates/admin/helpdesk/ticket/change_form.html:16
+msgid "Change Status Logs"
+msgstr ""
+
+#: templates/admin/helpdesk/ticket/change_form.html:45
+msgid "No related tickets"
+msgstr ""
+
+#: templates/admin/helpdesk/ticket/change_form.html:59
+msgid "There are no messages until now."
+msgstr ""
