@@ -18,13 +18,13 @@ env:
 #    - AWS_S3_BUCKET="my-travis-build"
 #    - secure: "kM3RJVnQrignGNPIQXh5FvkczdRYWAp1cGTCE4ZyTjDkJt9HdBbtgLB1Du0GutGY162A3/OVt6JnZJivI0DMXLW3Z4ARR3LVsxqSyRwDq2fRisfONS/juNhxS49VhN5Hkt/rRhyv0Fn6mqCv4bGHZPzw5XFhcHhpfc7sBucpw78="
 #    - secure: "pWFFBDVsreZtWA96gLqsFNfyC4yc7yULBIO+zBAdTxuyNEg4KLInWGFeELFCBUXqfF/lMVPI2VYsPr27ii7i4UKAMbCv4F+6QkL+SbBtfsf+fnBip3GI5oF8XRo7/63PYZwk2ipEqabJ5LuoqsCKaRf6fMZSNrzbNz7x9OtnCbo="
-  matrix:
-#  - TESTENV=py27-django15
-#  - TESTENV=py27-django16
-#  - TESTENV=py33-django15
-#  - TESTENV=py33-django16
-#  - TESTENV=py34-django15
-    - TESTENV=py34-django16
+#  matrix:
+  - TESTENV=py27-django15
+  - TESTENV=py27-django16
+  - TESTENV=py33-django15
+  - TESTENV=py33-django16
+  - TESTENV=py34-django15
+  - TESTENV=py34-django16
 
 before_install:
   - "export DISPLAY=:99.0"
@@ -38,4 +38,4 @@ script: tox -r -e $TESTENV
 
 after_success:
   - coveralls
-  - s3cmd put --acl-private --guess-mime-type --access_key=$AWS_S3_KEY --secret_key=$AWS_S3_SECRET selenium_screenshot* s3://my-travis-builds/#$TRAVIS_JOB_ID/
+#  - s3cmd put --acl-private --guess-mime-type --access_key=$AWS_S3_KEY --secret_key=$AWS_S3_SECRET selenium_screenshot* s3://my-travis-builds/#$TRAVIS_JOB_ID/

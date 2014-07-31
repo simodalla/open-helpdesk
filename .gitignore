@@ -50,6 +50,3 @@ docs/_build
 # Database
 *.db
 :memory:
-
-# Static files 
-functional_tests/static/
