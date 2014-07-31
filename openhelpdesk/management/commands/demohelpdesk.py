@@ -79,7 +79,8 @@ class Command(BaseCommand):
                 requester = user
                 Ticket.objects.all().delete()
                 for table in ['ticket', 'message']:
-                    cursor.execute("SELECT setval('public.helpdesk_{}_id_seq',"
+                    cursor.execute("SELECT setval("
+                                   "'public.openhelpdesk_{}_id_seq',"
                                    "  1, true);".format(table))
 
                 for n, priority in enumerate(PRIORITIES):
@@ -89,7 +90,7 @@ class Command(BaseCommand):
                     ticket.content = t.render(Context({}))
                     ticket.site = default_site
                     ticket.source = Source.objects.get(
-                        code='portal' if n % 2 == 1 else 'email')
+                        code='web_site' if n % 2 == 1 else 'email')
                     ticket.save()
                     ticket.tipologies.add(*tipologies[0:2])
                     ticket.initialize()
