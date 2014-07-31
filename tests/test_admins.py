@@ -144,10 +144,12 @@ class TestTicketAdmin(object):
     @pytest.mark.parametrize(
         'helpdeskuser,expected',
         [('requester', admin.TicketAdmin.list_display),
-         ('operator', (admin.TicketAdmin.list_display +
-                       admin.TicketAdmin.operator_list_display)),
-         ('admin', (admin.TicketAdmin.list_display +
-                    admin.TicketAdmin.operator_list_display))])
+         ('operator', (admin.TicketAdmin.list_display[:1] +
+                       admin.TicketAdmin.operator_list_display +
+                       admin.TicketAdmin.list_display[1:])),
+         ('admin', (admin.TicketAdmin.list_display[:1] +
+                    admin.TicketAdmin.operator_list_display +
+                    admin.TicketAdmin.list_display[1:]))])
     def test_custom_list_display(
             self, helpdeskuser, expected, ticket_admin_util):
         ticket_admin_util.user = helpdeskuser

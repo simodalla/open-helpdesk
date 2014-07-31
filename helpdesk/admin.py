@@ -93,7 +93,7 @@ class TicketAdmin(admin.ModelAdmin):
     form = TicketAdminAutocompleteForm
     inlines = [AttachmentInline]
     list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
-                    'ld_source']
+                    'ld_source', 'ld_assegnee']
     list_filter = ['priority', ('status', StatusListFilter), 'tipologies']
     list_per_page = 25
     list_select_related = True
@@ -140,7 +140,7 @@ class TicketAdmin(admin.ModelAdmin):
                         reverse(admin_urlname(Report._meta, 'add')), obj.pk)
                     object_tools[view_name].append({
                         'url': url,
-                        'text': ugettext('Add report'),
+                        'text': ugettext('Add Report'),
                         'id': 'add_report_to_ticket'})
                     if obj.is_pending():
                         default_content = _('The range of pending is over.')
@@ -170,6 +170,11 @@ class TicketAdmin(admin.ModelAdmin):
     ld_status.admin_order_field = 'status'
     ld_status.allow_tags = True
     ld_status.short_description = _('Status')
+
+    def ld_assegnee(self, obj):
+        return obj.assignee or _('Not assigned')
+    ld_assegnee.admin_order_field = 'assignee'
+    ld_assegnee.short_description = _('Assignee')
 
     def ld_source(self, obj):
         if not obj.source:
@@ -226,7 +231,8 @@ class TicketAdmin(admin.ModelAdmin):
         user = HelpdeskUser.get_from_request(request)
         list_display = list(super(TicketAdmin, self).get_list_display(request))
         if user.is_operator() or user.is_admin():
-            list_display += self.operator_list_display
+            list_display = (list_display[:1] + self.operator_list_display +
+                            list_display[1:])
         return list_display
 
     def get_list_filter(self, request):
@@ -374,7 +380,7 @@ class ReportAdmin(admin.ModelAdmin):
             except Ticket.DoesNotExist:
                 error = True
         if error:
-            error = _("Error: wrong request for adding report.")
+            error = _("Error: wrong request for adding Report.")
             messages.error(request, error)
             return redirect(admin_urlname(Ticket._meta, 'changelist'))
 
@@ -396,8 +402,8 @@ class ReportAdmin(admin.ModelAdmin):
         if not self.model.objects.filter(pk=object_id,
                                          sender=request.user).count():
             self.message_user(request,
-                              _("You can not change report with"
-                                " id {}".format(object_id)),
+                              _("You can not change Report with id"
+                                " %(report_id)s") % {'report_id': object_id},
                               level=messages.ERROR)
             return redirect(admin_urlname(self.model._meta, 'changelist'))
         return super(ReportAdmin, self).change_view(
@@ -454,7 +460,7 @@ class SourceAdmin(admin.ModelAdmin):
         from helpdesk.core import DEFAULT_SOURCES
         if obj and obj.code in [code for code, title in DEFAULT_SOURCES]:
             error_msg = _(
-                " %(title)s is a system %(model)s and is not"
+                "%(title)s is a system %(model)s and is not"
                 " eliminated.") % {'title': obj.title,
                                    'model': obj._meta.verbose_name.lower()}
             self.message_user(request, error_msg, level=messages.ERROR)
