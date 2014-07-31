@@ -1,6 +1,6 @@
 Copyright (c) 2014 Simone Dalla. All rights reserved.
 
-mezzanine-helpdesk is licensed under The BSD License (3 Clause, also known as
+open-helpdesk is licensed under The BSD License (3 Clause, also known as
 the new BSD license).  The license is an OSI approved Open Source license
 and is GPL-compatible(1).
 
@@ -46,8 +46,8 @@ http://creativecommons.org/licenses/by-nc-sa/3.0/us/
 
 Footnotes
 =========
-(1) A GPL-compatible license makes it possible to combine mezzanine-helpdesk
+(1) A GPL-compatible license makes it possible to combine open-helpdesk
     with other software that is released under the GPL, it does not mean that
-    we're distributing mezzanine-helpdesk under the GPL license.  The BSD
+    we're distributing open-helpdesk under the GPL license.  The BSD
     license, unlike the GPL, let you distribute a modified version without
     making your changes open source.
