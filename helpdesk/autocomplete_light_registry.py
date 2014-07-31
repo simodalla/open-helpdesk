@@ -17,7 +17,7 @@ User = get_user_model()
 class TicketAutocomplete(autocomplete_light.AutocompleteModelBase):
     search_fields = ['id', 'content']
     attrs = {
-        'placeholder': _('Type number of content...'),
+        'placeholder': _('Type id of content of Ticket...'),
         'data-autocomplete-minimum-characters': 1,
     }
 
