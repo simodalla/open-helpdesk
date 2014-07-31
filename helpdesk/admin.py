@@ -158,6 +158,7 @@ class TicketAdmin(admin.ModelAdmin):
     # list_display methods customized #########################################
     def ld_id(self, obj):
         return obj.pk
+    ld_id.admin_order_field = 'id'
     ld_id.short_description = _('Id')
 
     def ld_content(self, obj):
@@ -190,30 +191,6 @@ class TicketAdmin(admin.ModelAdmin):
     ld_created.short_description = _('Created')
 
     # ModelsAdmin methods customized ##########################################
-    def get_list_display(self, request):
-        """
-        Return default list_display if request.user is a requester. Otherwise
-        if request.user is a operator or an admin return default list_display
-        with operator_list_display.
-        """
-        user = HelpdeskUser.get_from_request(request)
-        list_display = list(super(TicketAdmin, self).get_list_display(request))
-        if user.is_operator() or user.is_admin():
-            list_display += self.operator_list_display
-        return list_display
-
-    def get_list_filter(self, request):
-        """
-        Return default list_filter if request.user is a requester. Otherwise
-        if request.user is a operator, an admin or return default
-        list_filter with append more fields.
-        """
-        user = self.get_request_helpdeskuser(request)
-        list_filter = list(super(TicketAdmin, self).get_list_filter(request))
-        if user.is_operator() or user.is_admin():
-            list_filter += self.operator_list_filter
-        return list_filter
-
     def get_fieldsets(self, request, obj=None):
         """
         Return default fieldsets if request.user is a requester.
@@ -239,6 +216,30 @@ class TicketAdmin(admin.ModelAdmin):
                 return ([MessageInline(self.model, self.admin_site)]
                         + default_inlines_instances)
         return default_inlines_instances
+
+    def get_list_display(self, request):
+        """
+        Return default list_display if request.user is a requester. Otherwise
+        if request.user is a operator or an admin return default list_display
+        with operator_list_display.
+        """
+        user = HelpdeskUser.get_from_request(request)
+        list_display = list(super(TicketAdmin, self).get_list_display(request))
+        if user.is_operator() or user.is_admin():
+            list_display += self.operator_list_display
+        return list_display
+
+    def get_list_filter(self, request):
+        """
+        Return default list_filter if request.user is a requester. Otherwise
+        if request.user is a operator, an admin or return default
+        list_filter with append more fields.
+        """
+        user = self.get_request_helpdeskuser(request)
+        list_filter = list(super(TicketAdmin, self).get_list_filter(request))
+        if user.is_operator() or user.is_admin():
+            list_filter += self.operator_list_filter
+        return list_filter
 
     def get_queryset(self, request):
         """
@@ -311,6 +312,12 @@ class TicketAdmin(admin.ModelAdmin):
             request, object_id, form_url=form_url, extra_context=extra_context)
 
     # ModelsAdmin actions #####################################################
+    def get_actions(self, request):
+        user = self.get_request_helpdeskuser(request)
+        if user.is_requester():
+            return list()
+        return super(TicketAdmin, self).get_actions(request)
+
     def open_tickets(self, request, queryset):
         success_msg = _('Tickets %(ticket_ids)s successfully opened'
                         ' and assigned.')
@@ -338,12 +345,6 @@ class TicketAdmin(admin.ModelAdmin):
                          for pk, exc in error_data])},
                     level=messages.ERROR)
     open_tickets.short_description = _('Open e assign selected Tickets')
-
-    def get_actions(self, request):
-        user = self.get_request_helpdeskuser(request)
-        if user.is_requester():
-            return list()
-        return super(TicketAdmin, self).get_actions(request)
 
 
 class ReportAdmin(admin.ModelAdmin):
