@@ -3,7 +3,7 @@ OpenHelpdesk
 =============================
 
 .. image:: https://badge.fury.io/py/open-helpdesk.png
-    :target: https://badge.fury.io/py/mezzanine-helpdesk
+    :target: https://badge.fury.io/py/open-helpdesk
 
 .. image:: https://travis-ci.org/simodalla/open-helpdesk.png?branch=master
     :target: https://travis-ci.org/simodalla/open-helpdesk

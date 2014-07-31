@@ -55,9 +55,9 @@ coverage-live-html:
 	open htmlcov/index.html
 
 docs:
-	rm -f docs/mezzanine-helpdesk.rst
+	rm -f docs/open-helpdesk.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ mezzanine-helpdesk
+	sphinx-apidoc -o docs/ open-helpdesk
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html

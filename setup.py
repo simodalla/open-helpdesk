@@ -24,13 +24,13 @@ readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
-    name='mezzanine-helpdesk',
+    name='open-helpdesk',
     version=version,
-    description="""Helpdesk app for Mezzanine project""",
+    description="""Helpdesk app for Django/Mezzanine project""",
     long_description=readme + '\n\n' + history,
     author='Simone Dalla',
     author_email='simodalla@gmail.com',
-    url='https://github.com/simodalla/mezzanine-helpdesk',
+    url='https://github.com/simodalla/open-helpdesk',
     packages=[
         'openhelpdesk',
     ],
@@ -39,7 +39,7 @@ setup(
     ],
     license="BSD",
     zip_safe=False,
-    keywords='mezzanine-helpdesk',
+    keywords='open helpdesk',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Framework :: Django',

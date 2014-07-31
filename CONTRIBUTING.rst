@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/simodalla/mezzanine-helpdesk/issues.
+Report bugs at https://github.com/simodalla/open-helpdesk/issues.
 
 If you are reporting a bug, please include:
 
@@ -36,14 +36,14 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-mezzanine-helpdesk could always use more documentation, whether as part of the 
-official mezzanine-helpdesk docs, in docstrings, or even on the web in blog posts,
+open-helpdesk could always use more documentation, whether as part of the 
+official open-helpdesk docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/simodalla/mezzanine-helpdesk/issues.
+The best way to send feedback is to file an issue at https://github.com/simodalla/open-helpdesk/issues.
 
 If you are proposing a feature:
 
@@ -55,17 +55,17 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `mezzanine-helpdesk` for local development.
+Ready to contribute? Here's how to set up `open-helpdesk` for local development.
 
-1. Fork the `mezzanine-helpdesk` repo on GitHub.
+1. Fork the `open-helpdesk` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/mezzanine-helpdesk.git
+    $ git clone git@github.com:your_name_here/open-helpdesk.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
-    $ mkvirtualenv mezzanine-helpdesk
-    $ cd mezzanine-helpdesk/
+    $ mkvirtualenv open-helpdesk
+    $ cd open-helpdesk/
     $ python setup.py develop
 
 4. Create a branch for local development::
@@ -101,7 +101,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 2.6, 2.7, and 3.3, and for PyPy. Check 
-   https://travis-ci.org/simodalla/mezzanine-helpdesk/pull_requests
+   https://travis-ci.org/simodalla/open-helpdesk/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips
