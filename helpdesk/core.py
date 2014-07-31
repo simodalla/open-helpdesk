@@ -25,7 +25,7 @@ TICKET_STATUES_AWESOME_ICONS = {
 }
 
 DEFAULT_SOURCES = [
-    ('portal', _('Portal')),
+    ('web_site', _('Web Site')),
     ('email', _('Email')),
     ('phone', _('Phone')),
     ('chat', _('Chat'))
@@ -34,7 +34,7 @@ DEFAULT_SOURCES = [
 ACTIONS_ON_TICKET = collections.OrderedDict()
 ACTIONS_ON_TICKET['no_action'] = _('No action (maintain the current status)')
 ACTIONS_ON_TICKET['put_on_pending'] = _('Put on pending')
-ACTIONS_ON_TICKET['remove_from_pending'] = _('Remove on pending')
+ACTIONS_ON_TICKET['remove_from_pending'] = _('Remove from pending')
 ACTIONS_ON_TICKET['close'] = _('Close')
 DEFAULT_ACTIONS = ['no_action']
 
