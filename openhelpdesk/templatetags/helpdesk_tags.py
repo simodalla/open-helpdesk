@@ -2,7 +2,9 @@
 from __future__ import unicode_literals, absolute_import
 
 from django import template
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.template import Template, Context
 
 from openhelpdesk.models import Message
@@ -31,10 +33,13 @@ def format_ticket_message(context, message, **kwargs):
         tag_context.update({'css_class': kwargs['css_class']})
     try:
         if message.report:
+            opts = message.report._meta
             tag_context.update({'model': getattr(
-                message.report._meta, 'model_name',
-                message.report._meta.module_name),
-                'css_style': 'text-align: right;'})
+                opts, 'model_name', opts.module_name),
+                'css_style': 'text-align: right;',
+                'view_url': '{}?id={}'.format(
+                    reverse(admin_urlname(opts, 'changelist')),
+                    message.report.pk)})
     except ObjectDoesNotExist:
         pass
     return tag_context

@@ -1,4 +1,3 @@
--r requirements_production.txt
 coverage
 coveralls
 factory_boy==2.3.1
@@ -13,3 +12,4 @@ lxml
 cssselect
 webtest
 django_webtest
+south
