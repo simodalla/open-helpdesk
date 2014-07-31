@@ -201,7 +201,7 @@ class Source(TimeStamped):
     @classmethod
     def get_default_obj(cls):
         try:
-            return cls.objects.get(code='portal')
+            return cls.objects.get(code='web_site')
         except cls.DoesNotExist as dne:
             raise dne
 
