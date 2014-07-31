@@ -29,7 +29,7 @@ postgres-db:
 	dropdb pytest_django$(UID); createdb pytest_django$(UID)
 
 lint:
-	flake8 --exclude=migrations,urls.py helpdesk tests
+	flake8 --exclude=migrations,urls.py openhelpdesk tests
 
 test:
 	py.test tests
@@ -41,17 +41,17 @@ test-all:
 	tox
 
 coverage:
-	py.test --cov-report term-missing --cov helpdesk
+	py.test --cov-report term-missing --cov openhelpdesk
 
 coverage-live:
-	py.test --livetest --cov-report term-missing --cov helpdesk
+	py.test --livetest --cov-report term-missing --cov openhelpdesk
 
 coverage-html:
 	py.test --cov-report html --cov helpdesk
 	open htmlcov/index.html
 
 coverage-live-html:
-	py.test --livetest --cov-report html --cov helpdesk
+	py.test --livetest --cov-report html --cov openhelpdesk
 	open htmlcov/index.html
 
 docs:
