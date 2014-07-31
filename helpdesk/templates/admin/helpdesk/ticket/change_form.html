@@ -33,7 +33,7 @@
                             <tr><th>{% trans "Requester" %}:</th><td>{{ original.requester }}</td></tr>
                         {% endif %}
                         {% if not helpdesk_user.is_requester %}
-                            <tr><th>{% trans "Insert By" %}:</th><td>{{ original.insert_by }}</td></tr>
+                            <tr><th>{% trans "Insert by" %}:</th><td>{{ original.insert_by }}</td></tr>
                         {% endif %}
                         <tr><th>{% trans "Assignee" %}:</th><td>{{ original.assignee|default_if_none:_("Not assigned") }}</td></tr>
                         <tr>
