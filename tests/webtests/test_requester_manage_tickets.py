@@ -5,7 +5,7 @@ import pytest
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 
-from helpdesk.models import Ticket, PRIORITY_NORMAL
+from openhelpdesk.models import Ticket, PRIORITY_NORMAL
 
 
 pytestmark = pytest.mark.django_db
@@ -71,7 +71,7 @@ class TestChangingTicketByRequester(object):
         """
         assert len(opened_ticket.messages.all()) == 0
         response = app.get(
-            reverse('admin:helpdesk_ticket_change', args=(opened_ticket.pk,)),
+            reverse('admin:openhelpdesk_ticket_change', args=(opened_ticket.pk,)),
             user=opened_ticket.requester)
         form = response.forms['ticket_form']
         form['messages-0-content'] = 'foo'

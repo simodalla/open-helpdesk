@@ -4,8 +4,8 @@ from __future__ import unicode_literals, absolute_import
 import pytest
 from django.template import Context
 
-from helpdesk.templatetags.helpdesk_tags import format_ticket_message
-from helpdesk.models import Message, Report
+from openhelpdesk.templatetags.helpdesk_tags import format_ticket_message
+from openhelpdesk.models import Message, Report
 
 
 @pytest.fixture

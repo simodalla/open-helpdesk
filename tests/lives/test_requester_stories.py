@@ -4,7 +4,7 @@ from __future__ import unicode_literals, absolute_import
 import pytest
 from selenium.webdriver.support.ui import Select
 
-from helpdesk.models import Ticket, PRIORITY_NORMAL
+from openhelpdesk.models import Ticket, PRIORITY_NORMAL
 
 
 pytestmark = pytest.mark.django_db

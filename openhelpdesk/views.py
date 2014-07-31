@@ -60,18 +60,18 @@ class ObjectToolsView(GroupRequiredMixin, View):
         object_tools = []
         if view:
             resolved_view = resolve(view)
-            # example: helpdesk, ticket, change from url_name
+            # example: openhelpdesk, ticket, change from url_name
             # 'helpdesk_ticket_change'
             app_label, model_name, view_name = (
                 resolved_view.url_name.split('_'))
             object_id = resolved_view.args[0] if resolved_view.args else None
             obj = None
             try:
-                # dynamic import of module 'helpdesk.admin'
+                # dynamic import of module 'openhelpdesk.admin'
                 app_admin_module = import_module(
                     '{}.{}'.format(app_label, resolved_view.app_name))
                 if object_id:
-                    # # dynamic import of module 'helpdesk.models'
+                    # # dynamic import of module 'openhelpdesk.models'
                     models_module = import_module(
                         '{}.models'.format(app_label))
                     # model is class of model, (eg: Ticket)

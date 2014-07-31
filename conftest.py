@@ -39,11 +39,11 @@ def stringios():
 
 def helpdesker(helpdesker_conf):
     from django.contrib.sites.models import Site
-    import helpdesk.defaults
+    import openhelpdesk.defaults
     from tests.factories import UserFactory, GroupFactory
     from tests.settings_base import SITE_ID
 
-    helpdesker_conf = getattr(helpdesk.defaults, helpdesker_conf, None)
+    helpdesker_conf = getattr(openhelpdesk.defaults, helpdesker_conf, None)
     if not helpdesker_conf:
         return None
     user = UserFactory(
@@ -105,7 +105,7 @@ class ModelAdminUtil(object):
 
 @pytest.fixture
 def model_admin_util(rf):
-    from helpdesk.models import HelpdeskUser
+    from openhelpdesk.models import HelpdeskUser
     from django.db.models.query import QuerySet
 
     mau = ModelAdminUtil()

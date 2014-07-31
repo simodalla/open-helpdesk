@@ -51,7 +51,7 @@ def ticket_content():
 @pytest.fixture
 def new_ticket(requester, tipologies, ticket_content):
     """Return a ticket into 'new' status."""
-    from helpdesk.models import Ticket
+    from openhelpdesk.models import Ticket
     ticket = Ticket.objects.create(requester=requester,
                                    content=ticket_content)
     ticket.tipologies.add(*tipologies)

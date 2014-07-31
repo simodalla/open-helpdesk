@@ -7,8 +7,8 @@ except ImportError:
     from mock import patch, Mock
 
 from django.test import TestCase
-from helpdesk.models import Ticket
-from helpdesk.views import OpenTicketView
+from openhelpdesk.models import Ticket
+from openhelpdesk.views import OpenTicketView
 
 from .helpers import TestViewHelper
 
@@ -24,8 +24,8 @@ class OpenTicketViewTest(TestViewHelper, TestCase):
     def tearDown(self):
         self.mock_user.reset_mock()
 
-    @patch('helpdesk.views.messages', autospec=True)
-    @patch('helpdesk.views.Ticket.objects.get',
+    @patch('openhelpdesk.views.messages', autospec=True)
+    @patch('openhelpdesk.views.Ticket.objects.get',
            side_effect=Ticket.DoesNotExist)
     def test_get_redirect_url_raise_doesnotexist_excpetion(self, mock_get,
                                                            mock_messages):
@@ -38,13 +38,13 @@ class OpenTicketViewTest(TestViewHelper, TestCase):
         # request = self.build_request(user=UserFactory())
         view = self.build_view(request)
         url = view.get_redirect_url(pk=fake_ticket_pk)
-        self.assertEqual(url, '/admin/helpdesk/ticket/')
+        self.assertEqual(url, '/admin/openhelpdesk/ticket/')
         mock_messages.error.assert_called_once_with(
             request, 'An error occurs. Ticket n.{} does not exist.'.format(
                 fake_ticket_pk))
 
-    @patch('helpdesk.views.messages', autospec=True)
-    @patch('helpdesk.views.Ticket.objects.get')
+    @patch('openhelpdesk.views.messages', autospec=True)
+    @patch('openhelpdesk.views.Ticket.objects.get')
     def test_open_in_get_redirect_url_raise_excpetion(self, mock_get,
                                                       mock_messages):
         """
@@ -59,13 +59,13 @@ class OpenTicketViewTest(TestViewHelper, TestCase):
         mock_get.return_value = mock_ticket
         view = self.build_view(request)
         url = view.get_redirect_url(pk=fake_ticket_pk)
-        self.assertEqual(url, '/admin/helpdesk/ticket/')
+        self.assertEqual(url, '/admin/openhelpdesk/ticket/')
         mock_ticket.opening.assert_called_once_with(self.mock_user)
         mock_messages.error.assert_called_once_with(
             request, 'An error occurs. {}'.format(fake_open_error))
 
-    @patch('helpdesk.views.messages', autospec=True)
-    @patch('helpdesk.views.Ticket.objects.get')
+    @patch('openhelpdesk.views.messages', autospec=True)
+    @patch('openhelpdesk.views.Ticket.objects.get')
     def test_get_redirect_url_return_correct_url(self, mock_get,
                                                  mock_messages):
         """
@@ -79,7 +79,7 @@ class OpenTicketViewTest(TestViewHelper, TestCase):
         view = self.build_view(request)
         url = view.get_redirect_url(pk=fake_ticket_pk)
         self.assertEqual(url,
-                         '/admin/helpdesk/ticket/{}/'
+                         '/admin/openhelpdesk/ticket/{}/'
                          '#tab_changestatuslog'.format(fake_ticket_pk))
         mock_ticket.opening.assert_called_once_with(self.mock_user)
         mock_messages.success.assert_called_once_with(

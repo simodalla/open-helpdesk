@@ -16,7 +16,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
-from helpdesk.models import Ticket, StatusChangesLog, Report
+from openhelpdesk.models import Ticket, StatusChangesLog, Report
 
 
 pytestmark = pytest.mark.django_db
@@ -83,7 +83,7 @@ def test_open_more_tickets_from_action_with_errors(browser_o, new_tickets):
     for action in browser_o.driver.find_elements_by_css_selector(
             '.chzn-results li'):
         if action.text.strip().lower() == 'open e assign selected tickets':
-            with patch('helpdesk.models.Ticket.opening', side_effect=exc):
+            with patch('openhelpdesk.models.Ticket.opening', side_effect=exc):
                 action.click()
     error_message = browser_o.get_messages(level='error')
     assert len(error_message) == 1

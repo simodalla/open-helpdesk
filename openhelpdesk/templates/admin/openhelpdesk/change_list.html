@@ -1,0 +1,16 @@
+{% overextends "admin/change_list.html" %}
+
+{% load staticfiles %}
+
+{% block extrahead %}
+    <script>
+        window.__helpdeskStaticAppPath = "{% static "openhelpdesk/js" %}";
+    </script>
+    {{ block.super }}
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="{% static "openhelpdesk/css/jquery-ui/jquery-ui.theme.min.css" %}">
+    <link rel="stylesheet" href="{% static "openhelpdesk/css/openhelpdesk.css" %}">
+    <script src="{% static "openhelpdesk/js/lib/require.js" %}"
+            data-main="{% static "openhelpdesk/js/change_list" %}"></script>
+{% endblock %}

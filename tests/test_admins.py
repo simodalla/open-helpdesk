@@ -15,9 +15,9 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.admin import AdminSite
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
-# from helpdesk.admin import TicketAdmin, ReportAdmin, ReportTicketInline
-from helpdesk import admin
-from helpdesk.models import Ticket, StatusChangesLog, Report, Source
+# from openhelpdesk.admin import TicketAdmin, ReportAdmin, ReportTicketInline
+from openhelpdesk import admin
+from openhelpdesk.models import Ticket, StatusChangesLog, Report, Source
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
 
@@ -27,7 +27,7 @@ class TicketTest(unittest.TestCase):
     def setUp(self):
         self.ticket_admin = admin.TicketAdmin(Ticket, AdminSite)
 
-    @patch('helpdesk.admin.HelpdeskUser.objects.get',
+    @patch('openhelpdesk.admin.HelpdeskUser.objects.get',
            return_value=get_mock_helpdeskuser())
     def test_get_request_helpdeskuser(self, mock_get_req_hpu):
         user = self.ticket_admin.get_request_helpdeskuser(get_mock_request(1))
@@ -35,7 +35,7 @@ class TicketTest(unittest.TestCase):
         self.assertEqual(user, mock_get_req_hpu.return_value)
 
 
-@patch('helpdesk.admin.TicketAdmin.get_request_helpdeskuser')
+@patch('openhelpdesk.admin.TicketAdmin.get_request_helpdeskuser')
 class TicketMethodsByRequesterTypeTest(unittest.TestCase):
 
     def setUp(self):
@@ -102,7 +102,7 @@ class TicketMethodsByRequesterTypeTest(unittest.TestCase):
 
 # @pytest.fixture
 # def ticket_admin_change_view(rf_with_helpdeskuser, monkeypatch):
-#     monkeypatch.setattr('helpdesk.admin.TicketAdmin.get_request_helpdeskuser',
+#     monkeypatch.setattr('openhelpdesk.admin.TicketAdmin.get_request_helpdeskuser',
 #                         lambda self, request: request.user)
 #     return rf_with_helpdeskuser, TicketAdmin(Ticket, AdminSite), 1
 
@@ -122,7 +122,7 @@ def ticket_admin_util(model_admin_util):
 
 class TestTicketAdmin(object):
 
-    @patch('helpdesk.admin.StatusChangesLog', spec_set=StatusChangesLog)
+    @patch('openhelpdesk.admin.StatusChangesLog', spec_set=StatusChangesLog)
     @patch('django.contrib.admin.ModelAdmin.change_view')
     def test_view_calls_has_custom_extra_content(
             self, mock_cv, mock_sclog, ticket_admin_util):
@@ -131,7 +131,7 @@ class TestTicketAdmin(object):
         ticket_admin_util.user.get_messages_by_ticket.return_value = messages
         mock_sclog.objects.filter.return_value.order_by.return_value = (
             statuschangelogs)
-        with patch('helpdesk.models.HelpdeskUser.get_from_request',
+        with patch('openhelpdesk.models.HelpdeskUser.get_from_request',
                    return_value=ticket_admin_util.user):
             ticket_admin_util.model_admin.change_view(
                 ticket_admin_util.request, ticket_admin_util.obj.pk)
@@ -154,7 +154,7 @@ class TestTicketAdmin(object):
             self, helpdeskuser, expected, ticket_admin_util):
         ticket_admin_util.user = helpdeskuser
         request = ticket_admin_util.request
-        with patch('helpdesk.models.HelpdeskUser.get_from_request',
+        with patch('openhelpdesk.models.HelpdeskUser.get_from_request',
                    return_value=ticket_admin_util.user):
             result = ticket_admin_util.model_admin.get_list_display(request)
         assert result == expected
@@ -170,7 +170,7 @@ class TestTicketAdmin(object):
             self, helpdeskuser, expected, ticket_admin_util):
         ticket_admin_util.user = helpdeskuser
         request = ticket_admin_util.request
-        with patch('helpdesk.models.HelpdeskUser.get_from_request',
+        with patch('openhelpdesk.models.HelpdeskUser.get_from_request',
                    return_value=ticket_admin_util.user):
             result = ticket_admin_util.model_admin.get_list_filter(request)
         assert result == expected
@@ -201,7 +201,7 @@ class TestTicketAdmin(object):
     def test_ld_status_return_heldesk_status(self, ticket_admin_util):
         fake_status = 'open'
         ticket_admin_util.obj.status = fake_status
-        with patch('helpdesk.admin.helpdesk_tags.helpdesk_status',
+        with patch('openhelpdesk.admin.helpdesk_tags.helpdesk_status',
                    return_value=fake_status) as mock_ht:
             result = ticket_admin_util.model_admin.ld_status(
                 ticket_admin_util.obj)
@@ -268,7 +268,7 @@ class TestTicketAdmin(object):
 
 @pytest.fixture
 def report_util(model_admin_util):
-    from helpdesk.models import HelpdeskUser
+    from openhelpdesk.models import HelpdeskUser
 
     class FakeDbField(object):
         name = None
@@ -341,7 +341,7 @@ class TestReportAdmin(object):
         ticket.remove_from_pending.assert_called_once_with(
             report_util.request.user)
 
-    @patch('helpdesk.admin.Ticket.get_actions_for_report',
+    @patch('openhelpdesk.admin.Ticket.get_actions_for_report',
            return_value=['foo'])
     @patch('django.contrib.admin.ModelAdmin.formfield_for_choice_field')
     def test_call_formfield_for_choice_field_for_action_on_ticket_fields(
@@ -379,12 +379,12 @@ class TestReportAdmin(object):
             report_util.model_admin.get_readonly_fields(report_util.request)
             == list())
 
-    @patch('helpdesk.admin.messages', autospec=True)
+    @patch('openhelpdesk.admin.messages', autospec=True)
     def test_check_access_with_request_without_ticket_param(
             self, mock_messages, report_util):
         response_redirect = HttpResponseRedirect('/admin/')
 
-        with patch('helpdesk.admin.redirect',
+        with patch('openhelpdesk.admin.redirect',
                    return_value=response_redirect) as mock_redirect:
             # response = ReportAdmin._check_access(report_util.request,
             #                                      report_util.model_admin)
@@ -393,26 +393,26 @@ class TestReportAdmin(object):
         assert response == response_redirect
         assert report_util.model_admin.helpdesk_ticket is None
         mock_redirect.assert_called_once_with(
-            'admin:helpdesk_ticket_changelist')
+            admin_urlname(Ticket._meta, 'changelist'))
         mock_messages.error.assert_called_once_with(
             report_util.request, ANY)
 
-    @patch('helpdesk.admin.Ticket.objects.get',
+    @patch('openhelpdesk.admin.Ticket.objects.get',
            side_effect=Ticket.DoesNotExist)
-    @patch('helpdesk.admin.messages', autospec=True)
+    @patch('openhelpdesk.admin.messages', autospec=True)
     def test_check_access_with_request_with_ticket_not_existing(
             self, mock_messages, mock_get, report_util):
         response_redirect = HttpResponseRedirect('/admin/')
         request = report_util.get('/fake/?ticket=999')
 
-        with patch('helpdesk.admin.redirect',
+        with patch('openhelpdesk.admin.redirect',
                    return_value=response_redirect) as mock_redirect:
             response = report_util.model_admin._check_access(request)
 
         assert response == response_redirect
         assert report_util.model_admin.helpdesk_ticket is None
         mock_redirect.assert_called_once_with(
-            'admin:helpdesk_ticket_changelist')
+            admin_urlname(Ticket._meta, 'changelist'))
         mock_messages.error.assert_called_once_with(request, ANY)
 
     def test_check_access_set_helpdesk_ticket_attr_and_return_none(
@@ -421,7 +421,7 @@ class TestReportAdmin(object):
         ticket.pk = '5'
         request = report_util.get('/fake/?ticket={}'.format(ticket.pk))
 
-        with patch('helpdesk.admin.Ticket.objects.get',
+        with patch('openhelpdesk.admin.Ticket.objects.get',
                    return_value=ticket) as mock_get:
             response = report_util.model_admin._check_access(request)
 
@@ -445,7 +445,7 @@ class TestReportAdmin(object):
             report_util.request)
         assert response == check_access_returned
 
-    @patch('helpdesk.admin.ReportAdmin._check_access', return_value=None)
+    @patch('openhelpdesk.admin.ReportAdmin._check_access', return_value=None)
     @patch('django.contrib.admin.ModelAdmin.add_view')
     def test_add_view_set_estimated_end_pending_date_into_context(
             self, mock_add_view, mock_check_access, report_util):
@@ -464,7 +464,7 @@ class TestReportAdmin(object):
         mock_add_view.assert_called_once_with(
             request, form_url='', extra_context=data)
 
-    @patch('helpdesk.admin.ReportAdmin._check_access', return_value=None)
+    @patch('openhelpdesk.admin.ReportAdmin._check_access', return_value=None)
     @patch('django.contrib.admin.ModelAdmin.add_view')
     def test_add_view_return_http_response(
             self, mock_add_view, mock_check_access, report_util):
@@ -481,7 +481,7 @@ class TestReportAdmin(object):
 
         assert response == response_form
 
-    @patch('helpdesk.admin.ReportAdmin._check_access', return_value=None)
+    @patch('openhelpdesk.admin.ReportAdmin._check_access', return_value=None)
     @patch('django.contrib.admin.ModelAdmin.add_view')
     def test_add_view_return_redirect_ticket_change_view(
             self, mock_add_view, mock_check_access, report_util):
@@ -496,10 +496,10 @@ class TestReportAdmin(object):
             '/fake/', {'estimated_end_pending_date': estimated_date})
         default_redirect = HttpResponseRedirect('/admin/report/changelist/')
         ticket_redirect = HttpResponseRedirect(
-            '/admin/helpdesk/ticket/{}/'.format(ticket.pk))
+            '/admin/openhelpdesk/ticket/{}/'.format(ticket.pk))
         mock_add_view.return_value = default_redirect
 
-        with patch('helpdesk.admin.redirect',
+        with patch('openhelpdesk.admin.redirect',
                    return_value=ticket_redirect) as mock_redirect:
             response = report_util.model_admin.add_view(request, '')
 
@@ -507,7 +507,7 @@ class TestReportAdmin(object):
         mock_redirect.assert_called_once_with(
             admin_urlname(Ticket._meta, 'change'), ticket.pk)
 
-    @patch('helpdesk.admin.messages', autospec=True)
+    @patch('openhelpdesk.admin.messages', autospec=True)
     @patch('django.contrib.admin.ModelAdmin.change_view')
     def test_change_view_redirect_to_changelist_view(
             self, mock_change_view, mock_messages, report_util):
@@ -518,7 +518,7 @@ class TestReportAdmin(object):
         report_util.model_admin.model = model_mock
         http_redirect = HttpResponseRedirect('/admin/report/changelist/')
 
-        with patch('helpdesk.admin.redirect',
+        with patch('openhelpdesk.admin.redirect',
                    return_value=http_redirect) as mock_redirect:
             result = report_util.model_admin.change_view(request, report_id)
 
@@ -552,7 +552,7 @@ def report_ticket_inline(model_admin_util):
     return model_admin_util
 
 
-@patch('helpdesk.models.HelpdeskUser.get_from_request')
+@patch('openhelpdesk.models.HelpdeskUser.get_from_request')
 class TestReportTicketInline(object):
 
     def get_query_set_to_patch(self):
@@ -598,7 +598,7 @@ class TestReportTicketInline(object):
 
 @patch('django.contrib.admin.ChoicesFieldListFilter.__init__')
 def test_status_list_filter_init_set_title_attr(mock_init):
-    from helpdesk.admin import StatusListFilter
+    from openhelpdesk.admin import StatusListFilter
     status_list_filter = StatusListFilter(1, foo='bar')
     assert status_list_filter.title == StatusListFilter.title
     mock_init.assert_called_once_with(1, foo='bar')
@@ -628,7 +628,7 @@ class TestSourceAdmin(object):
         source_admin_util.obj.title = source
         if is_default:
             default_sources = ((source, source),)
-        monkeypatch.setattr('helpdesk.core.DEFAULT_SOURCES', default_sources)
+        monkeypatch.setattr('openhelpdesk.core.DEFAULT_SOURCES', default_sources)
         with patch('django.contrib.admin.ModelAdmin.has_delete_permission',
                    return_value=True) as mock_has_perms:
             result = source_admin_util.model_admin.has_delete_permission(

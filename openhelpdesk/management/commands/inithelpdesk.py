@@ -6,15 +6,15 @@ from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from mezzanine.utils.sites import current_site_id
 
-from helpdesk.core import DEFAULT_SOURCES
-from helpdesk.defaults import (
+from openhelpdesk.core import DEFAULT_SOURCES
+from openhelpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
-from helpdesk.models import Source
+from openhelpdesk.models import Source
 
 
 class Command(BaseCommand):
     """
-    Execute init operation for helpdesk app. Create default group with relative
+    Execute init operation for openhelpdesk app. Create default group with relative
     permissions.
     """
 
@@ -22,7 +22,7 @@ class Command(BaseCommand):
     usage = lambda foo, bar: ("usage: %prog [appname1] [appname2] [options] "
                               "\n" + str(Command.__doc__.rstrip()))
 
-    app_label = 'helpdesk'
+    app_label = 'openhelpdesk'
 
     def handle(self, *apps, **options):
 
@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
             permission_codenames = [permission.split('.')[1] for permission
                                     in permission_codenames
-                                    if permission.startswith('helpdesk')]
+                                    if permission.startswith('openhelpdesk')]
             group.permissions.add(*Permission.objects.filter(
                 content_type__app_label=self.app_label,
                 codename__in=permission_codenames))

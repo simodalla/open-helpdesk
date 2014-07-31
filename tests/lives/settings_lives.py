@@ -22,7 +22,7 @@ INSTALLED_APPS = (
     "mezzanine.generic",
     "mezzanine.pages",
     "autocomplete_light",
-    "helpdesk",
+    "openhelpdesk",
 )
 
 try:

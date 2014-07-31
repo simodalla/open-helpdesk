@@ -150,7 +150,7 @@ class Tipology(TimeStamped):
         return (
             '<a href="{url}?id={category.pk}" class="view_category">'
             '{category.title}</a>'.format(
-                url=reverse('admin:helpdesk_category_changelist'),
+                url=reverse(admin_urlname(self.category._meta, 'changelist')),
                 category=self.category))
     admin_category.allow_tags = True
     admin_category.admin_order_field = 'category'
@@ -168,7 +168,7 @@ class Tipology(TimeStamped):
 
 class Attachment(TimeStamped):
     f = models.FileField(verbose_name=_('File'),
-                         upload_to='helpdesk/attachments/%Y/%m/%d')
+                         upload_to='openhelpdesk/attachments/%Y/%m/%d')
     description = models.CharField(_('Description'), max_length=500,
                                    blank=True)
     content_type = models.ForeignKey('contenttypes.ContentType')

@@ -5,14 +5,14 @@ from django import template
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import Template, Context
 
-from helpdesk.models import Message
-from helpdesk.core import TICKET_STATUES_AWESOME_ICONS
+from openhelpdesk.models import Message
+from openhelpdesk.core import TICKET_STATUES_AWESOME_ICONS
 
 
 register = template.Library()
 
 
-@register.inclusion_tag('admin/helpdesk/ticket/message.html',
+@register.inclusion_tag('admin/openhelpdesk/ticket/message.html',
                         takes_context=True)
 def format_ticket_message(context, message, **kwargs):
     if not issubclass(message.__class__, Message):
@@ -45,14 +45,14 @@ def _context_awesome_icon(name, list_icon=False, spin=False,
     return {'name': name, 'list': list_icon, 'spin': spin, 'larger': larger}
 
 
-@register.inclusion_tag('helpdesk/awesome_icon.html')
+@register.inclusion_tag('openhelpdesk/awesome_icon.html')
 def awesome_status_icon(status):
     name, spin = TICKET_STATUES_AWESOME_ICONS.get(status,
                                                   ('circle-o-notch', True))
     return _context_awesome_icon(name, spin=spin)
 
 
-@register.inclusion_tag('helpdesk/awesome_icon.html')
+@register.inclusion_tag('openhelpdesk/awesome_icon.html')
 def awesome_icon(name, spin=False, larger=None):
     return _context_awesome_icon(name, spin=spin, larger=larger)
 
