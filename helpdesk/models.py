@@ -217,7 +217,7 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                         verbose_name=_('Tipologies'))
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
-    insert_by = models.ForeignKey(user_model_name, verbose_name=_('Insert By'),
+    insert_by = models.ForeignKey(user_model_name, verbose_name=_('Insert by'),
                                   related_name='inserted_tickets',
                                   editable=False)
     requester = models.ForeignKey(user_model_name, verbose_name=_('Requester'),
@@ -494,8 +494,8 @@ class StatusChangesLog(TimeStamped):
     StatusChangesLog model for record the changes of status of Tickets objects.
     """
     ticket = models.ForeignKey('Ticket', related_name='status_changelogs')
-    before = models.CharField(max_length=100)
-    after = models.CharField(max_length=100)
+    before = models.CharField(max_length=100, verbose_name=_('Before'))
+    after = models.CharField(max_length=100, verbose_name=_('After'))
     changer = models.ForeignKey(user_model_name, verbose_name=_('Changer'))
 
     class Meta:
