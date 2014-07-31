@@ -457,7 +457,7 @@ class SourceAdmin(admin.ModelAdmin):
     list_display = ['code', 'title', 'ld_icon']
 
     def has_delete_permission(self, request, obj=None):
-        from helpdesk.core import DEFAULT_SOURCES
+        from openhelpdesk.core import DEFAULT_SOURCES
         if obj and obj.code in [code for code, title in DEFAULT_SOURCES]:
             error_msg = _(
                 "%(title)s is a system %(model)s and is not"

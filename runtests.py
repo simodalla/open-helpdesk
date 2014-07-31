@@ -11,12 +11,12 @@ try:
                 "ENGINE": "django.db.backends.sqlite3",
             }
         },
-        ROOT_URLCONF="helpdesk.urls",
+        ROOT_URLCONF="openhelpdesk.urls",
         INSTALLED_APPS=[
             "django.contrib.auth",
             "django.contrib.contenttypes",
             "django.contrib.sites",
-            "helpdesk",
+            "openhelpdesk",
         ],
         SITE_ID=1,
         NOSE_ARGS=['-s'],

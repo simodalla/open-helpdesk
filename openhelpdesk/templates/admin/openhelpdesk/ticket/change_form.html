@@ -1,10 +1,10 @@
-{% overextends "admin/helpdesk/change_form.html" %}
+{% overextends "admin/openhelpdesk/change_form.html" %}
 
 {% load helpdesk_tags i18n staticfiles %}
 
 {% block extrahead %}
     {{ block.super }}
-    <script src="{% static "helpdesk/js/lib/require.js" %}" data-main="{% static "helpdesk/js/ticket" %}"></script>
+    <script src="{% static "openhelpdesk/js/lib/require.js" %}" data-main="{% static "openhelpdesk/js/ticket" %}"></script>
 {% endblock %}
 
 {% block after_field_sets %}

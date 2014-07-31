@@ -6,7 +6,7 @@ import pytest
 from django.contrib.auth.models import Group
 from django.core.management import call_command
 
-from helpdesk.defaults import (
+from openhelpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
 
 
@@ -25,4 +25,4 @@ def test_call_initihelpsedk_command(stringios):
     for group in groups:
         assert (set(group.permissions.values_list('codename', flat=True)) ==
                 set([p.split('.')[1] for p in groups_data[group.name]
-                     if p.startswith('helpdesk')]))
+                     if p.startswith('openhelpdesk')]))

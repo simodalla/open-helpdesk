@@ -10,10 +10,10 @@ from mezzanine.utils.models import get_user_model
 from mezzanine.utils.sites import current_site_id
 
 from six.moves import cStringIO
-from helpdesk.management.commands import inithelpdesk
-from helpdesk.models import (HelpdeskUser, Category, Ticket, Message, Report,
+from openhelpdesk.management.commands import inithelpdesk
+from openhelpdesk.models import (HelpdeskUser, Category, Ticket, Message, Report,
                              PRIORITIES, Tipology, Source)
-from helpdesk.defaults import (
+from openhelpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
 
 
@@ -22,7 +22,7 @@ User = get_user_model()
 
 class Command(BaseCommand):
     """
-    Execute init operation for helpdesk app. Create default group with relative
+    Execute init operation for openhelpdesk app. Create default group with relative
     permissions.
     """
 
@@ -30,7 +30,7 @@ class Command(BaseCommand):
     usage = lambda foo, bar: ("usage: %prog [appname1] [appname2] [options] "
                               "\n" + str(Command.__doc__.rstrip()))
 
-    app_label = 'helpdesk'
+    app_label = 'openhelpdesk'
 
     def handle(self, *apps, **options):
         requester = None

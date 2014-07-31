@@ -10,10 +10,10 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from lxml.html import fromstring
 
-from helpdesk.defaults import (HELPDESK_REQUESTERS,
+from openhelpdesk.defaults import (HELPDESK_REQUESTERS,
                                HELPDESK_TICKET_MAX_TIPOLOGIES)
-from helpdesk.models import Ticket, Tipology, Category, Report
-from helpdesk.admin import MessageInline
+from openhelpdesk.models import Ticket, Tipology, Category, Report
+from openhelpdesk.admin import MessageInline
 from .helpers import AdminTestMixin
 from .factories import (
     UserFactory, CategoryFactory, GroupFactory, SiteFactory, TicketFactory,
@@ -29,7 +29,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
         self.post_data = self.get_formset_post_data(
             data={'content': 'helpdesk_content', 'tipologies': None,
                   'priority': 1},
-            formset='helpdesk-attachment-content_type-object_id')
+            formset='openhelpdesk-attachment-content_type-object_id')
         self.default_site = Site.objects.get(pk=1)
 
     def get_category(self, n_tipologies=None, site=None):
@@ -192,8 +192,8 @@ def test_object_tools_view(client, operator):
     print(operator)
     print(operator.groups.all())
     print(client.login(username=operator.username, password='default'))
-    client.get('/admin/helpdesk/ticket/object_tools/'
-               '?view=/admin/helpdesk/ticket/4/')
+    client.get('/admin/openhelpdesk/ticket/object_tools/'
+               '?view=/admin/openhelpdesk/ticket/4/')
 
 
 @pytest.fixture
@@ -224,7 +224,7 @@ class TestTicketChangeView(object):
     def test_custom_template_renderized(self, client_r, change_view):
         response = client_r.get(change_view.url)
         assert (response.templates[0].name ==
-                'admin/helpdesk/ticket/change_form.html')
+                'admin/openhelpdesk/ticket/change_form.html')
 
     def test_messages_are_empty_on_new_ticket(self, client_r, change_view):
         response = client_r.get(change_view.url)

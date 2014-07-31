@@ -5,15 +5,15 @@
 {% block extrahead %}
 
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="{% static "helpdesk/js/helpdesk.js" %}" type="text/javascript"></script>
+    <script src="{% static "openhelpdesk/js/openhelpdesk.js" %}" type="text/javascript"></script>
     <script>
         django.jQuery(function ($) { helpdeskInit($); });
-        window.__helpdeskStaticAppPath = "{% static "helpdesk/js" %}";
+        window.__helpdeskStaticAppPath = "{% static "openhelpdesk/js" %}";
     </script>
     {{ block.super }}
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js" type="text/javascript"></script>
     {% include 'autocomplete_light/static.html' %}
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="{% static "helpdesk/css/jquery-ui/jquery-ui.theme.min.css" %}">
-    <link rel="stylesheet" href="{% static "helpdesk/css/helpdesk.css" %}">
+    <link rel="stylesheet" href="{% static "openhelpdesk/css/jquery-ui/jquery-ui.theme.min.css" %}">
+    <link rel="stylesheet" href="{% static "openhelpdesk/css/openhelpdesk.css" %}">
 {% endblock %}

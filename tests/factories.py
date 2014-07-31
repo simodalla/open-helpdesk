@@ -6,8 +6,8 @@ from django.contrib.sites.models import Site
 
 from mezzanine.core.models import SitePermission
 
-from helpdesk.core import get_perm
-from helpdesk.models import Category, Tipology, HelpdeskUser as User, Ticket
+from openhelpdesk.core import get_perm
+from openhelpdesk.models import Category, Tipology, HelpdeskUser as User, Ticket
 
 
 class GroupFactory(factory.DjangoModelFactory):

@@ -4,14 +4,14 @@
 import os
 import sys
 
-import helpdesk
+import openhelpdesk
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-version = helpdesk.__version__
+version = openhelpdesk.__version__
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -32,7 +32,7 @@ setup(
     author_email='simodalla@gmail.com',
     url='https://github.com/simodalla/mezzanine-helpdesk',
     packages=[
-        'helpdesk',
+        'openhelpdesk',
     ],
     include_package_data=True,
     install_requires=[

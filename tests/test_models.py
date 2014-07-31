@@ -15,11 +15,11 @@ from django.test import TestCase
 
 from mezzanine.utils.sites import current_site_id
 
-from helpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
+from openhelpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
-from helpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
+from openhelpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
                              PRIORITY_LOW, PendingRange)
-from helpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
+from openhelpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
                            TicketIsClosedError, TicketIsNotPendingError,
                            TicketIsNewError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
@@ -62,14 +62,14 @@ class TipologyTest(TestCase):
         admin_category_result = (
             '<a href="{url}?id={category.pk}" class="view_category">'
             '{category.title}</a>'.format(
-                url=reverse('admin:helpdesk_category_changelist'),
+                url=reverse('admin:openhelpdesk_category_changelist'),
                 category=tipology.category))
         self.assertEqual(tipology.admin_category(), admin_category_result)
 
 
 class HelpdeskUserTest(TestCase):
 
-    @patch('helpdesk.models.HelpdeskUser.groups')
+    @patch('openhelpdesk.models.HelpdeskUser.groups')
     def test_group_names_property(self, mock_groups):
         user = UserFactory()
         mock_groups.values_list.return_value = ['g1', 'g2']
@@ -89,19 +89,19 @@ class HelpdeskUserTest(TestCase):
         user = UserFactory()
         self.assertFalse(user.is_admin())
 
-    @patch('helpdesk.models.settings')
+    @patch('openhelpdesk.models.settings')
     def test_is_requester_return_true(self, mock_settings):
         mock_settings.HELPDESK_REQUESTERS = HELPDESK_REQUESTERS[0]
         user = UserFactory(groups=[GroupFactory(name=HELPDESK_REQUESTERS[0])])
         self.assertTrue(user.is_requester())
 
-    @patch('helpdesk.models.settings')
+    @patch('openhelpdesk.models.settings')
     def test_is_operator_return_true(self, mock_settings):
         mock_settings.HELPDESK_OPERATORS = HELPDESK_OPERATORS[0]
         user = UserFactory(groups=[GroupFactory(name=HELPDESK_OPERATORS[0])])
         self.assertTrue(user.is_operator())
 
-    @patch('helpdesk.models.settings')
+    @patch('openhelpdesk.models.settings')
     def test_is_admins_return_true(self, mock_settings):
         mock_settings.HELPDESK_ADMINS = HELPDESK_ADMINS[0]
         user = UserFactory(

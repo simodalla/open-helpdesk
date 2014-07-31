@@ -5,25 +5,25 @@ from mezzanine.conf import register_setting
 
 
 HELPDESK_REQUESTERS = ('helpdesk_requesters', [
-    'helpdesk.add_ticket', 'helpdesk.change_ticket',
-    'helpdesk.add_attachment', 'helpdesk.change_attachment',
-    'helpdesk.add_message',
+    'openhelpdesk.add_ticket', 'openhelpdesk.change_ticket',
+    'openhelpdesk.add_attachment', 'openhelpdesk.change_attachment',
+    'openhelpdesk.add_message',
 ])
 HELPDESK_OPERATORS = ('helpdesk_operators', [
-    'helpdesk.add_ticket', 'helpdesk.change_ticket',
-    'helpdesk.add_attachment', 'helpdesk.change_attachment',
-    'helpdesk.delete_attachment',
-    'helpdesk.add_report', 'helpdesk.change_report',
+    'openhelpdesk.add_ticket', 'openhelpdesk.change_ticket',
+    'openhelpdesk.add_attachment', 'openhelpdesk.change_attachment',
+    'openhelpdesk.delete_attachment',
+    'openhelpdesk.add_report', 'openhelpdesk.change_report',
 ])
 HELPDESK_ADMINS = ('helpdesk_admins', [
-    'helpdesk.add_ticket', 'helpdesk.change_ticket',
-    'helpdesk.add_attachment', 'helpdesk.change_attachment',
-    'helpdesk.delete_attachment',
-    'helpdesk.add_report', 'helpdesk.change_report',
-    'helpdesk.add_category', 'helpdesk.change_category',
-    'helpdesk.delete_category',
-    'helpdesk.add_tipology', 'helpdesk.change_tipology',
-    'helpdesk.delete_tipology',
+    'openhelpdesk.add_ticket', 'openhelpdesk.change_ticket',
+    'openhelpdesk.add_attachment', 'openhelpdesk.change_attachment',
+    'openhelpdesk.delete_attachment',
+    'openhelpdesk.add_report', 'openhelpdesk.change_report',
+    'openhelpdesk.add_category', 'openhelpdesk.change_category',
+    'openhelpdesk.delete_category',
+    'openhelpdesk.add_tipology', 'openhelpdesk.change_tipology',
+    'openhelpdesk.delete_tipology',
 ])
 HELPDESK_TICKET_MAX_TIPOLOGIES = 3
 

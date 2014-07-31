@@ -89,7 +89,7 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 ROOT_URLCONF = 'tests.urls'
 
 TEMPLATE_DIRS = (os.path.join(PROJECT_ROOT, "templates"),
-                 os.path.join(PROJECT_ROOT, "../helpdesk", "templates"))
+                 os.path.join(PROJECT_ROOT, "../openhelpdesk", "templates"))
 
 
 ################
@@ -114,7 +114,7 @@ INSTALLED_APPS = (
     "mezzanine.pages",
     # "mezzanine.galleries",
     "autocomplete_light",
-    "helpdesk",
+    "openhelpdesk",
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
