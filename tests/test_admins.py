@@ -614,7 +614,6 @@ def source_admin_util(model_admin_util):
     return model_admin_util
 
 
-@pytest.mark.target
 class TestSourceAdmin(object):
 
     @pytest.mark.parametrize(

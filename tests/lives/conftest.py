@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
+import os
 
 
 WINDOW_SIZE = (1024, 768)
@@ -28,10 +29,13 @@ def display(request):
 class LiveBrowser(object):
 
     def __init__(self, driver, live_server, user=None):
+        length_implicitly_wait = 5
         self.driver = driver
         self.live_server = live_server
         self.driver.set_window_size(*WINDOW_SIZE)
-        self.driver.implicitly_wait(20)
+        if 'TRAVIS' in os.environ and os.environ['TRAVIS']:
+            length_implicitly_wait = 20
+        self.driver.implicitly_wait(length_implicitly_wait)
         self.user = user
 
     @property
@@ -69,8 +73,11 @@ class LiveBrowser(object):
         session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
         session.save()
         # to set a cookie we need fo first visit the domain.
-        # 404 pages load the quicktest!
-        self.driver.get('{}/404_no_such_url/'.format(self.live_server.url))
+        # 404 pages load the quicktest! If is in testing of Mezzanine (>=3.1.9)
+        # use an "admin" for bug on template_tags of mezzanine if app 'blog'
+        # is not installed.
+        self.driver.get(
+            '{}/admin/404_no_such_url/'.format(self.live_server.url))
         self.driver.add_cookie(dict(
             name=settings.SESSION_COOKIE_NAME,
             value=session.session_key,

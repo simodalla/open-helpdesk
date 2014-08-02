@@ -2,6 +2,9 @@
 from __future__ import unicode_literals, absolute_import
 
 import pytest
+
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
+
 from selenium.webdriver.support.ui import Select
 
 from openhelpdesk.models import Ticket, PRIORITY_NORMAL
@@ -12,7 +15,7 @@ pytestmark = pytest.mark.django_db
 
 @pytest.mark.livetest
 def test_add_ticket(browser_r, tipologies, ticket_content):
-    browser_r.get('admin:helpdesk_ticket_add')
+    browser_r.get(admin_urlname(Ticket._meta, 'add'))
     tipologies_pks = []
     for t in tipologies:
         tipologies_pks.append(t.pk)
@@ -33,12 +36,13 @@ def test_add_ticket(browser_r, tipologies, ticket_content):
             == set(tipologies_pks))
 
 
+@pytest.mark.target
 @pytest.mark.livetest
 def test_add_message_to_new_ticket(browser_r, new_ticket, operator, settings):
     assert isinstance(new_ticket, Ticket)
     message_content = 'help'
     # requester got to 'change' view
-    browser_r.get('admin:helpdesk_ticket_change', new_ticket.pk)
+    browser_r.get(admin_urlname(Ticket._meta, 'change'), new_ticket.pk)
     # requester insert message's content
     browser_r.driver.find_element_by_id(
         'id_messages-0-content').send_keys(message_content)

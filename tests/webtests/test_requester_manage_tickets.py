@@ -60,7 +60,6 @@ class TestAddingTicketByRequester(object):
         assert statuschangelog.changer.pk == requester.pk
 
 
-@pytest.mark.target
 class TestChangingTicketByRequester(object):
     def test_set_sender_field_on_change_ticket_inserting_message_obj(
             self, app, opened_ticket):

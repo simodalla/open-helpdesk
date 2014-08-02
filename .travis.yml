@@ -13,10 +13,10 @@ cache:
     - $HOME/.pip-cache/
 
 env:
-  - TESTENV=py27-django15
-  - TESTENV=py27-django16
-  - TESTENV=py33-django15
-  - TESTENV=py33-django16
+#  - TESTENV=py27-django15
+#  - TESTENV=py27-django16
+#  - TESTENV=py33-django15
+#  - TESTENV=py33-django16
   - TESTENV=py34-django15
   - TESTENV=py34-django16
 
