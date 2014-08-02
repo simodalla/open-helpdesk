@@ -20,10 +20,13 @@ INSTALLED_APPS = (
     "mezzanine.conf",
     "mezzanine.core",
     "mezzanine.generic",
+    "mezzanine.blog",
     "mezzanine.pages",
     "autocomplete_light",
     "openhelpdesk",
 )
+
+SEARCH_MODEL_CHOICES = tuple()
 
 try:
     from mezzanine.utils.conf import set_dynamic_settings
