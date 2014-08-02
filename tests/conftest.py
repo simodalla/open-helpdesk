@@ -22,7 +22,7 @@ def rf_with_helpdeskuser(request, rf):
     return rf
 
 
-def _get_tipologies(n_tipologies):
+def get_tipologies(n_tipologies):
     from django.contrib.sites.models import Site
     from .factories import CategoryFactory, TipologyFactory
     from .settings_base import SITE_ID
@@ -35,12 +35,12 @@ def _get_tipologies(n_tipologies):
 
 @pytest.fixture
 def tipologies():
-    return _get_tipologies(2)
+    return get_tipologies(2)
 
 
 @pytest.fixture(scope='class')
 def tipologies_cls(request):
-    setattr(request.cls, 'tipologies', _get_tipologies(5))
+    setattr(request.cls, 'tipologies', get_tipologies(5))
 
 
 @pytest.fixture

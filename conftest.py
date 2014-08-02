@@ -63,7 +63,12 @@ def operator():
 
 @pytest.fixture(scope='class')
 def requester_cls(request):
-    setattr(request.cls, 'requester', helpdesker('HELPDESK_REQUESTERS'))
+    setattr(request.cls, 'user', requester())
+
+
+@pytest.fixture(scope='class')
+def operator_cls(request):
+    setattr(request.cls, 'user', operator())
 
 
 class ModelAdminUtil(object):
@@ -96,7 +101,6 @@ class ModelAdminUtil(object):
             mock = getattr(self._user, 'is_{}'.format(type_helpdeskuser))
             mock.return_value = (
                 True if helpdeskuser == type_helpdeskuser else False)
-
 
 
 @pytest.fixture
