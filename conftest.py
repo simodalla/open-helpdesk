@@ -19,17 +19,13 @@ def pytest_configure():
 
 def pytest_addoption(parser):
     parser.addoption('--livetest', action='store_true',
-                     help='run live  tests')
+                     help='run live tests')
 
 
 def pytest_runtest_setup(item):
     if ('livetest' in item.keywords and
             not item.config.getoption('--livetest')):
         pytest.skip('need --livetest option to run')
-    # dynamically set DJANGO_SETTINGS_MODULE if module of current test (item)
-    # is 'tests.lives'
-    if item.module.__package__ == 'tests.lives':
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings_lives'
 
 
 @pytest.fixture(scope='module')
