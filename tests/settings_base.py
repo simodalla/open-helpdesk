@@ -165,6 +165,11 @@ OPTIONAL_APPS = (
     PACKAGE_NAME_GRAPPELLI,
 )
 
+###############################
+# OVERRIDE MEZZANINE SETTINGS #
+###############################
+SEARCH_MODEL_CHOICES = tuple()
+
 ####################
 # DYNAMIC SETTINGS #
 ####################

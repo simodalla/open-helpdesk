@@ -36,7 +36,6 @@ def test_add_ticket(browser_r, tipologies, ticket_content):
             == set(tipologies_pks))
 
 
-@pytest.mark.target
 @pytest.mark.livetest
 def test_add_message_to_new_ticket(browser_r, new_ticket, operator, settings):
     assert isinstance(new_ticket, Ticket)
