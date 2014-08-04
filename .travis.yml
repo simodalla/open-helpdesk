@@ -17,8 +17,8 @@ env:
 #  - TESTENV=py27-django16
 #  - TESTENV=py33-django15
 #  - TESTENV=py33-django16
-  - TESTENV=py34-django15
-  - TESTENV=py34-django16
+#  - TESTENV=py34-django15
+#  - TESTENV=py34-django16
   - TESTENV=py34-django16-live
 
 
@@ -29,7 +29,7 @@ before_install:
 install:
   - pip install tox coveralls
 
-script: tox -r -e $TESTENV
+script: tox -e $TESTENV
 
 after_success:
   - coveralls
