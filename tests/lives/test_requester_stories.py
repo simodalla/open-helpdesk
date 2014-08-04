@@ -28,8 +28,7 @@ def test_add_ticket(browser_r, tipologies, ticket_content):
     browser_r.driver.find_element_by_css_selector(
         "#id_priority input[value='{}']".format(PRIORITY_NORMAL)).click()
     browser_r.driver.find_element_by_name('_save').click()
-    import time
-    time.sleep(5)
+    browser_r.driver.find_element_by_id("result-list")
     print("************** ", Ticket.objects.all())
     ticket = Ticket.objects.latest()
     assert ticket.requester.pk == browser_r.user.pk
