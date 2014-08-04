@@ -8,7 +8,7 @@ from django_webtest import WebTest
 
 from openhelpdesk.models import Ticket, PRIORITY_NORMAL
 
-from ..conftest import get_tipologies, requester
+from ..conftest import get_tipologies, requester, new_ticket, operator
 
 
 class AddFormData(object):
@@ -55,4 +55,34 @@ class TestAddingTicketByRequester(WebTest):
         self.assertEqual(statuschangelog.before, '')
         self.assertEqual(statuschangelog.after, Ticket.STATUS.new)
         self.assertEqual(statuschangelog.changer_id, self.user.pk)
+
+
+class TestManageMessagesOfTicket(WebTest):
+
+    def setUp(self):
+        self.user = requester()
+
+    def test_add_message_to_new_ticket(self):
+        ticket = new_ticket(self.user, get_tipologies(2), 'Foo')
+        message_content = 'help'
+        recipient = operator()
+        url = reverse(admin_urlname(Ticket._meta, 'change'), args=(ticket.pk,))
+        response = self.app.get(url, user=self.user)
+        form = response.forms['ticket_form']
+        form['messages-0-content'] = message_content
+        form['messages-0-recipient'].select(text=recipient.username)
+        form.submit('_continue').follow()
+        message = ticket.messages.latest()
+        self.assertEqual(message.content, message_content)
+        self.assertEqual(message.sender_id, self.user.pk)
+        self.assertEqual(message.recipient_id, recipient.pk)
+        response = self.app.get(url + '#tab_messages')
+        message_div = response.lxml.get_element_by_id(
+                        'ticket_message_{}'.format(message.pk))
+        self.assertIn(message_content, message_div.text_content())
+
+
+
+
+
 

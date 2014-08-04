@@ -14,7 +14,6 @@ def display(request):
         display.start()
 
         def fin():
-            print("finalizing pyvirtualdisplay...")
             display.stop()
 
         request.addfinalizer(fin)
@@ -106,13 +105,11 @@ class MezzanineLiveBrowser(LiveBrowser):
 
 @pytest.fixture
 def browser(request, live_server):
-    print('starting firefox webdriver...')
     from selenium import webdriver
     driver = webdriver.Firefox()
     live_browser = MezzanineLiveBrowser(driver, live_server)
 
     def fin():
-        print('finalizing firefox webdriver...')
         live_browser.quit()
 
     request.addfinalizer(fin)
