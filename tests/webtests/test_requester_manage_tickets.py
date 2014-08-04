@@ -29,14 +29,11 @@ class TestAddingTicketByRequester(WebTest):
 
     def test_requester_field_is_setted_with_current_logged_user(self):
         response = self.app.get(self.url, user=self.user)
-        response.showbrowser()
         form = response.forms['ticket_form']
         form['content'] = self.add_form_data.content
         form['priority'] = self.add_form_data.priority
         form['tipologies'] = self.add_form_data.tipologies
-        response = form.submit('_save').follow()
-        print(response)
-        response.showbrowser()
+        form.submit('_save').follow()
         ticket = Ticket.objects.latest()
         self.assertEqual(ticket.requester_id, self.user.pk)
         self.assertEqual(ticket.priority, PRIORITY_NORMAL)

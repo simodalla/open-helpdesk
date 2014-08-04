@@ -44,7 +44,7 @@ coverage:
 	py.test --cov-report term-missing --cov openhelpdesk
 
 coverage-live:
-	py.test --livetest --cov-report term-missing --cov openhelpdesk
+	py.test --livetest --cov-report term-missing --cov openhelpdesk -s -v
 
 coverage-html:
 	py.test --cov-report html --cov openhelpdesk

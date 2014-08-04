@@ -6,24 +6,24 @@ import os
 WINDOW_SIZE = (1024, 768)
 
 
-# @pytest.fixture(scope='session')
-# def display(request):
-#     try:
-#         from pyvirtualdisplay import Display
-#         display = Display(visible=0, size=WINDOW_SIZE)
-#         display.start()
-#
-#         def fin():
-#             print("finalizing pyvirtualdisplay...")
-#             display.stop()
-#
-#         request.addfinalizer(fin)
-#         return display
-#     except ImportError:
-#         pass
-#     except Exception as e:
-#         print("Error with pyvirtualdisplay.Display: {}".format(str(e)))
-#     return None
+@pytest.fixture(scope='session')
+def display(request):
+    try:
+        from pyvirtualdisplay import Display
+        display = Display(visible=0, size=WINDOW_SIZE)
+        display.start()
+
+        def fin():
+            print("finalizing pyvirtualdisplay...")
+            display.stop()
+
+        request.addfinalizer(fin)
+        return display
+    except ImportError:
+        pass
+    except Exception as e:
+        print("Error with pyvirtualdisplay.Display: {}".format(str(e)))
+    return None
 
 
 class LiveBrowser(object):
@@ -107,19 +107,13 @@ class MezzanineLiveBrowser(LiveBrowser):
 @pytest.fixture
 def browser(request, live_server):
     print('starting firefox webdriver...')
-    from pyvirtualdisplay import Display
     from selenium import webdriver
-    display = Display(visible=0, size=(1024, 768))
-    display.start()
-    print(display)
     driver = webdriver.Firefox()
     live_browser = MezzanineLiveBrowser(driver, live_server)
 
     def fin():
         print('finalizing firefox webdriver...')
-        print("finalizing pyvirtualdisplay...")
         live_browser.quit()
-        display.stop()
 
     request.addfinalizer(fin)
     return live_browser

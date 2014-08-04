@@ -10,9 +10,6 @@ from selenium.webdriver.support.ui import Select
 from openhelpdesk.models import Ticket, PRIORITY_NORMAL
 
 
-# pytestmark = pytest.mark.django_db
-
-
 @pytest.mark.livetest
 def test_add_ticket(browser_r, tipologies, ticket_content):
     browser_r.get(admin_urlname(Ticket._meta, 'add'))
