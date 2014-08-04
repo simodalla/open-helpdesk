@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
-import pytest
-
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 
@@ -10,7 +8,7 @@ from django_webtest import WebTest
 
 from openhelpdesk.models import Ticket, PRIORITY_NORMAL
 
-from ..conftest import get_tipologies
+from ..conftest import get_tipologies, requester
 
 
 class AddFormData(object):
@@ -20,10 +18,10 @@ class AddFormData(object):
         self.tipologies = [t.pk for t in tipologies] if tipologies else []
 
 
-@pytest.mark.usefixtures('requester_cls')
 class TestAddingTicketByRequester(WebTest):
 
     def setUp(self):
+        self.user = requester()
         self.url = reverse(admin_urlname(Ticket._meta, 'add'))
         self.content = "Foo"
         self.tipologies = get_tipologies(2)
@@ -57,3 +55,4 @@ class TestAddingTicketByRequester(WebTest):
         self.assertEqual(statuschangelog.before, '')
         self.assertEqual(statuschangelog.after, Ticket.STATUS.new)
         self.assertEqual(statuschangelog.changer_id, self.user.pk)
+
