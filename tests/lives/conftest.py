@@ -6,35 +6,35 @@ import os
 WINDOW_SIZE = (1024, 768)
 
 
-@pytest.fixture(scope='session')
-def display(request):
-    try:
-        from pyvirtualdisplay import Display
-        display = Display(visible=0, size=WINDOW_SIZE)
-        display.start()
-
-        def fin():
-            print("finalizing pyvirtualdisplay...")
-            display.stop()
-
-        request.addfinalizer(fin)
-        return display
-    except ImportError:
-        pass
-    except Exception as e:
-        print("Error with pyvirtualdisplay.Display: {}".format(str(e)))
-    return None
+# @pytest.fixture(scope='session')
+# def display(request):
+#     try:
+#         from pyvirtualdisplay import Display
+#         display = Display(visible=0, size=WINDOW_SIZE)
+#         display.start()
+#
+#         def fin():
+#             print("finalizing pyvirtualdisplay...")
+#             display.stop()
+#
+#         request.addfinalizer(fin)
+#         return display
+#     except ImportError:
+#         pass
+#     except Exception as e:
+#         print("Error with pyvirtualdisplay.Display: {}".format(str(e)))
+#     return None
 
 
 class LiveBrowser(object):
 
     def __init__(self, driver, live_server, user=None):
-        length_implicitly_wait = 5
+        length_implicitly_wait = 30
         self.driver = driver
         self.live_server = live_server
         self.driver.set_window_size(*WINDOW_SIZE)
-        if 'TRAVIS' in os.environ and os.environ['TRAVIS']:
-            length_implicitly_wait = 20
+        # if 'TRAVIS' in os.environ and os.environ['TRAVIS']:
+        #     length_implicitly_wait = 20
         self.driver.implicitly_wait(length_implicitly_wait)
         self.user = user
 
@@ -105,15 +105,21 @@ class MezzanineLiveBrowser(LiveBrowser):
 
 
 @pytest.fixture
-def browser(request, display, live_server):
+def browser(request, live_server):
     print('starting firefox webdriver...')
+    from pyvirtualdisplay import Display
     from selenium import webdriver
+    display = Display(visible=0, size=(1024, 768))
+    display.start()
+    print(display)
     driver = webdriver.Firefox()
     live_browser = MezzanineLiveBrowser(driver, live_server)
 
     def fin():
         print('finalizing firefox webdriver...')
+        print("finalizing pyvirtualdisplay...")
         live_browser.quit()
+        display.stop()
 
     request.addfinalizer(fin)
     return live_browser
