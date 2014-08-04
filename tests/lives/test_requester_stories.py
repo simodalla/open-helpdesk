@@ -21,7 +21,7 @@ def test_add_ticket(browser_r, tipologies, ticket_content):
     for t in tipologies:
         tipologies_pks.append(t.pk)
         e = browser_r.driver.find_element_by_css_selector(
-            "#id_tipologies_from option[value='{}']".format(t.pk))\
+            "#id_tipologies_from option[value='{}']".format(t.pk))
         print(e)
         e.click()
         e = browser_r.driver.find_element_by_css_selector(
