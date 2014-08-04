@@ -36,7 +36,7 @@ def create_pre_authenticated_session(driver, user, liveserver_url):
 def test_live_live(live_server):
     print(get_user_model().objects.values_list('pk', flat=True))
     driver = webdriver.Firefox()
-    user = requester()
+    # user = requester()
     # create_pre_authenticated_session(driver, user, live_server.url)
     print(get_user_model().objects.values_list('pk', flat=True))
     # session = SessionStore()
@@ -50,7 +50,7 @@ def test_live_live(live_server):
 def test_live_live_1(live_server):
     print(get_user_model().objects.values_list('pk', flat=True))
     driver = webdriver.Firefox()
-    user = requester()
+    # user = requester()
     # create_pre_authenticated_session(driver, user, live_server.url)
     print(get_user_model().objects.values_list('pk', flat=True))
     driver.get("http://www.python.org")
