@@ -4,7 +4,7 @@
 
 {% block extrahead %}
     {{ block.super }}
-    <script src="{% static "openhelpdesk/js/lib/require.js" %}" data-main="{% static "openhelpdesk/js/report" %}"></script>
+    <script src="{% static 'openhelpdesk/js/lib/require.js' %}" data-main="{% static 'openhelpdesk/js/report' %}"></script>
 {% endblock %}
 
 {% block after_related_objects %}
@@ -20,7 +20,7 @@
     </fieldset>
 
     {# Translators: Alert title of jquery-ui dialog #}
-    <div id="alert_for_empty_content" title="{% trans "Alert" %}!">
+    <div id="alert_for_empty_content" title="{% trans 'Alert' %}!">
         <div class="ui-state-highlight ui-corner-all" style="padding: .7em;">
             <p>
                 <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>
