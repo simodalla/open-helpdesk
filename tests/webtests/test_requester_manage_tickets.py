@@ -18,7 +18,7 @@ class AddFormData(object):
         self.tipologies = [t.pk for t in tipologies] if tipologies else []
 
 
-class TestAddingTicketByRequester(WebTest):
+class TestAddingTicket(WebTest):
 
     def setUp(self):
         self.user = requester()
@@ -78,7 +78,7 @@ class TestManageMessagesOfTicket(WebTest):
         self.assertEqual(message.recipient_id, recipient.pk)
         response = self.app.get(url + '#tab_messages')
         message_div = response.lxml.get_element_by_id(
-                        'ticket_message_{}'.format(message.pk))
+            'ticket_message_{}'.format(message.pk))
         self.assertIn(message_content, message_div.text_content())
 
 

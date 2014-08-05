@@ -15,6 +15,17 @@ def stringios():
     return cStringIO(), cStringIO()
 
 
+@pytest.fixture
+def app(request):
+    """Fixture for use Webtest (django-webtest)"""
+    from django_webtest import WebTestMixin
+    wt = WebTestMixin()
+    wt._patch_settings()
+    request.addfinalizer(wt._unpatch_settings)
+    wt.renew_app()
+    return wt.app
+
+
 def helpdesker(helpdesker_conf):
     from django.contrib.sites.models import Site
     import openhelpdesk.defaults
@@ -162,3 +173,5 @@ def pending_ticket(opened_ticket, operator):
     opened_ticket.put_on_pending(operator,
                                  estimated_end_date=estimated_end_date)
     return opened_ticket
+
+

@@ -325,6 +325,7 @@ class TicketAdmin(admin.ModelAdmin):
         return super(TicketAdmin, self).get_actions(request)
 
     def open_tickets(self, request, queryset):
+        print("*************", queryset)
         success_msg = _('Tickets %(ticket_ids)s successfully opened'
                         ' and assigned.')
         error_msg = _('Errors occours: \n%(errors)s.')
