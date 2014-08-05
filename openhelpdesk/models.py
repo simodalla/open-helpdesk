@@ -19,7 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
 from mezzanine.core.models import RichText, SiteRelated, TimeStamped
-from mezzanine.utils.models import (get_user_model_name, get_user_model)
+from mezzanine.utils.models import get_user_model
 
 from model_utils.models import StatusModel
 from model_utils import Choices
@@ -31,7 +31,6 @@ from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
 
 
 User = get_user_model()
-user_model_name = get_user_model_name()
 
 
 PRIORITY_URGENT = 8
@@ -406,9 +405,9 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
 @python_2_unicode_compatible
 class Message(TimeStamped):
     content = models.TextField(_('Content'))
-    sender = models.ForeignKey(user_model_name, verbose_name=_('Sender'),
+    sender = models.ForeignKey('HelpdeskUser', verbose_name=_('Sender'),
                                related_name='sender_of_messages')
-    recipient = models.ForeignKey(user_model_name, verbose_name=_('Recipient'),
+    recipient = models.ForeignKey('HelpdeskUser', verbose_name=_('Recipient'),
                                   blank=True, null=True,
                                   related_name='recipent_of_messages')
     ticket = models.ForeignKey('Ticket', related_name='messages',
@@ -466,9 +465,9 @@ class PendingRange(models.Model):
 
 @python_2_unicode_compatible
 class Activity(TimeStamped, RichText):
-    maker = models.ForeignKey(user_model_name, verbose_name=_('Maker'),
+    maker = models.ForeignKey('HelpdeskUser', verbose_name=_('Maker'),
                               related_name='maker_of_activities')
-    co_maker = models.ManyToManyField(user_model_name,
+    co_maker = models.ManyToManyField('HelpdeskUser',
                                       verbose_name=_('Co Makers'),
                                       blank=True, null=True,
                                       related_name='co_maker_of_activities')
@@ -496,7 +495,7 @@ class StatusChangesLog(TimeStamped):
     ticket = models.ForeignKey('Ticket', related_name='status_changelogs')
     before = models.CharField(max_length=100, verbose_name=_('Before'))
     after = models.CharField(max_length=100, verbose_name=_('After'))
-    changer = models.ForeignKey(user_model_name, verbose_name=_('Changer'))
+    changer = models.ForeignKey('HelpdeskUser', verbose_name=_('Changer'))
 
     class Meta:
         get_latest_by = 'created'

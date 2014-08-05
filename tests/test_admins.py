@@ -287,59 +287,95 @@ def report_util(model_admin_util):
 
 # noinspection PyShadowingNames
 class TestReportAdmin(object):
+    @patch('openhelpdesk.views.HelpdeskUser.get_from_request')
     @patch('django.contrib.admin.ModelAdmin.save_model')
-    def test_save_model_set_sender_field(self, mock_save_model, report_util):
-        report_util.model_admin.save_model(
-            report_util.request, report_util.report, report_util.form, False)
-        assert report_util.report.sender == report_util.request.user
+    def test_save_model_set_sender_field(self, mock_save_model,
+                                         mock_get_helpdeskuser, report_util):
+        mock_helpdeskuser = get_mock_helpdeskuser(operator=True)
+        mock_get_helpdeskuser.return_value = mock_helpdeskuser
 
-    @patch('django.contrib.admin.ModelAdmin.save_model')
-    def test_save_model_set_recipient_field(self, mock_save_model,
-                                            report_util):
         report_util.model_admin.save_model(
             report_util.request, report_util.report, report_util.form, False)
+
+        assert report_util.report.sender == mock_helpdeskuser
+        mock_get_helpdeskuser.assert_called_once_with(report_util.request)
+
+    @patch('openhelpdesk.views.HelpdeskUser.get_from_request')
+    @patch('django.contrib.admin.ModelAdmin.save_model')
+    def test_save_model_set_recipient_field(
+            self, mock_save_model, mock_get_helpdeskuser, report_util):
+        mock_helpdeskuser = get_mock_helpdeskuser(operator=True)
+        mock_get_helpdeskuser.return_value = mock_helpdeskuser
+
+        report_util.model_admin.save_model(
+            report_util.request, report_util.report, report_util.form, False)
+
         assert (report_util.report.recipient ==
                 report_util.report.ticket.requester)
+        mock_get_helpdeskuser.assert_called_once_with(report_util.request)
 
+    @patch('openhelpdesk.views.HelpdeskUser.get_from_request')
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_call_closing_if_action_is_close(
-            self, mock_save_model, report_util):
+            self, mock_save_model, mock_get_helpdeskuser, report_util):
+        mock_helpdeskuser = get_mock_helpdeskuser(operator=True)
+        mock_get_helpdeskuser.return_value = mock_helpdeskuser
         report_util.report.action_on_ticket = 'close'
+
         report_util.model_admin.save_model(
             report_util.request, report_util.report, report_util.form, False)
-        report_util.report.ticket.closing.assert_called_once_with(
-            report_util.request.user)
 
+        report_util.report.ticket.closing.assert_called_once_with(
+            mock_helpdeskuser)
+        mock_get_helpdeskuser.assert_called_once_with(report_util.request)
+
+    @patch('openhelpdesk.views.HelpdeskUser.get_from_request')
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_call_put_on_pending_without_estimated_date(
-            self, mock_save_model, report_util):
+            self, mock_save_model, mock_get_helpdeskuser, report_util):
+        mock_helpdeskuser = get_mock_helpdeskuser(operator=True)
+        mock_get_helpdeskuser.return_value = mock_helpdeskuser
         report_util.report.action_on_ticket = 'put_on_pending'
+
         report_util.model_admin.save_model(
             report_util.request, report_util.report, report_util.form, False)
-        report_util.report.ticket.put_on_pending.assert_called_once_with(
-            report_util.request.user, estimated_end_date=None)
 
+        report_util.report.ticket.put_on_pending.assert_called_once_with(
+            mock_helpdeskuser, estimated_end_date=None)
+        mock_get_helpdeskuser.assert_called_once_with(report_util.request)
+
+    @patch('openhelpdesk.views.HelpdeskUser.get_from_request')
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_call_put_on_pending_with_estimated_date(
-            self, mock_save_model, report_util):
+            self, mock_save_model, mock_get_helpdeskuser, report_util):
+        mock_helpdeskuser = get_mock_helpdeskuser(operator=True)
+        mock_get_helpdeskuser.return_value = mock_helpdeskuser
         estimated_date = '2014-09-10'
         request = report_util.post(
             '/fake/', {'estimated_end_pending_date': estimated_date})
         report_util.report.action_on_ticket = 'put_on_pending'
+
         report_util.model_admin.save_model(
             request, report_util.report, report_util.form, False)
-        report_util.report.ticket.put_on_pending.assert_called_once_with(
-            request.user, estimated_end_date=estimated_date)
 
+        report_util.report.ticket.put_on_pending.assert_called_once_with(
+            mock_helpdeskuser, estimated_end_date=estimated_date)
+        mock_get_helpdeskuser.assert_called_once_with(request)
+
+    @patch('openhelpdesk.views.HelpdeskUser.get_from_request')
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_call_remove_from_pending_if_action_is_remove_from(
-            self, mock_save_model, report_util):
+            self, mock_save_model, mock_get_helpdeskuser, report_util):
+        mock_helpdeskuser = get_mock_helpdeskuser(operator=True)
+        mock_get_helpdeskuser.return_value = mock_helpdeskuser
         report_util.report.action_on_ticket = 'remove_from_pending'
+
         report_util.model_admin.save_model(
             report_util.request, report_util.report, report_util.form, False)
+
         ticket = report_util.report.ticket
-        ticket.remove_from_pending.assert_called_once_with(
-            report_util.request.user)
+        ticket.remove_from_pending.assert_called_once_with(mock_helpdeskuser)
+        mock_get_helpdeskuser.assert_called_once_with(report_util.request)
 
     @patch('openhelpdesk.admin.Ticket.get_actions_for_report',
            return_value=['foo'])

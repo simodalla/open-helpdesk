@@ -74,7 +74,7 @@ class Command(BaseCommand):
             t = Template("{% load webdesign %} {% lorem 5 w random %}.")
             tipologies = Tipology.objects.all()
             cursor = connection.cursor()
-            user = User.objects.get(pk=huser.pk)
+            user = HelpdeskUser.objects.get(pk=huser.pk)
             if group_name == HELPDESK_REQUESTERS[0]:
                 requester = user
                 Ticket.objects.all().delete()

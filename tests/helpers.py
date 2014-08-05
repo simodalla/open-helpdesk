@@ -90,7 +90,8 @@ class AdminTestMixin(object):
 
 def get_mock_helpdeskuser(requester=False, operator=False, admin=False,
                           superuser=False):
-    mock_helpdesk_user = Mock()
+    from openhelpdesk.models import HelpdeskUser
+    mock_helpdesk_user = Mock(spec=HelpdeskUser)
     mock_helpdesk_user.is_superuser = superuser
     mock_helpdesk_user.is_requester.return_value = requester
     mock_helpdesk_user.is_operator.return_value = operator

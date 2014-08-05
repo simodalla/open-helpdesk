@@ -281,22 +281,21 @@ class TicketAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def save_formset(self, request, form, formset, change):
-        # user = self.get_request_helpdeskuser(request)
         instances = formset.save(commit=False)
         for instance in instances:
             if isinstance(instance, Message):
                 if instance.sender_id is None:
-                    instance.sender = request.user
+                    instance.sender = self.get_request_helpdeskuser(request)
             instance.save()
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
-        user = self.get_request_helpdeskuser(request)
         if obj.source_id is None:
             try:
                 obj.source = Source.get_default_obj()
             except Source.DoesNotExist:
                 pass
+        user = self.get_request_helpdeskuser(request)
         if obj.requester_id is None:
             obj.requester = user
         if obj:
@@ -437,20 +436,21 @@ class ReportAdmin(admin.ModelAdmin):
 
     @atomic
     def save_model(self, request, obj, form, change):
+        user = HelpdeskUser.get_from_request(request)
         if obj.sender_id is None:
-            obj.sender = request.user
+            obj.sender = user
         if obj.recipient_id is None:
             obj.recipient = obj.ticket.requester
         super(ReportAdmin, self).save_model(request, obj, form, change)
         if obj.action_on_ticket == 'close':
-            obj.ticket.closing(request.user)
+            obj.ticket.closing(user)
         elif obj.action_on_ticket == 'put_on_pending':
             estimated_end_date = request.POST.get(
                 'estimated_end_pending_date', '').strip() or None
-            obj.ticket.put_on_pending(request.user,
+            obj.ticket.put_on_pending(user,
                                       estimated_end_date=estimated_end_date)
         elif obj.action_on_ticket == 'remove_from_pending':
-            obj.ticket.remove_from_pending(request.user)
+            obj.ticket.remove_from_pending(user)
 
 
 class SourceAdmin(admin.ModelAdmin):
