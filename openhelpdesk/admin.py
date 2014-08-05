@@ -281,6 +281,7 @@ class TicketAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def save_formset(self, request, form, formset, change):
+        # user = self.get_request_helpdeskuser(request)
         instances = formset.save(commit=False)
         for instance in instances:
             if isinstance(instance, Message):
@@ -290,15 +291,16 @@ class TicketAdmin(admin.ModelAdmin):
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
+        user = self.get_request_helpdeskuser(request)
         if obj.source_id is None:
             try:
                 obj.source = Source.get_default_obj()
             except Source.DoesNotExist:
                 pass
         if obj.requester_id is None:
-            obj.requester = request.user
+            obj.requester = user
         if obj:
-            obj.insert_by = request.user
+            obj.insert_by = user
         super(TicketAdmin, self).save_model(request, obj, form, change)
         if not change:
             obj.initialize()

@@ -217,12 +217,12 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
                                         verbose_name=_('Tipologies'))
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
-    insert_by = models.ForeignKey(user_model_name, verbose_name=_('Insert by'),
+    insert_by = models.ForeignKey(HelpdeskUser, verbose_name=_('Insert by'),
                                   related_name='inserted_tickets',
                                   editable=False)
-    requester = models.ForeignKey(user_model_name, verbose_name=_('Requester'),
+    requester = models.ForeignKey(HelpdeskUser, verbose_name=_('Requester'),
                                   related_name='requested_tickets')
-    assignee = models.ForeignKey(user_model_name, verbose_name=_('Assignee'),
+    assignee = models.ForeignKey(HelpdeskUser, verbose_name=_('Assignee'),
                                  related_name="assigned_tickets",
                                  blank=True, null=True)
     related_tickets = models.ManyToManyField(

@@ -16,7 +16,7 @@ from braces.views import GroupRequiredMixin
 
 from mezzanine.conf import settings
 
-from .models import Ticket
+from .models import HelpdeskUser, Ticket
 
 
 settings.use_editable()
@@ -33,7 +33,8 @@ class OpenTicketView(GroupRequiredMixin, RedirectView):
         error_msg_prefix = _('An error occurs.')
         try:
             ticket = Ticket.objects.get(pk=ticket_pk)
-            ticket.opening(self.request.user)
+            user = HelpdeskUser.get_from_request(self.request)
+            ticket.opening(user)
             msg = _('Ticket n.%(pk)s is opened and assigned.') % {
                 'pk': ticket_pk}
         except Ticket.DoesNotExist:
