@@ -32,7 +32,7 @@ lint:
 	flake8 --exclude=migrations,urls.py openhelpdesk tests
 
 test:
-	py.test tests
+	py.test
 
 test-live:
 	py.test -m livetest --livetest
@@ -41,17 +41,17 @@ test-all:
 	tox
 
 coverage:
-	py.test --cov-report term-missing --cov openhelpdesk
+	which py.test
+	py.test --cov-report html --cov openhelpdesk
 
 coverage-live:
+	which py.test
 	py.test --livetest --cov-report term-missing --cov openhelpdesk -s -v
 
-coverage-html:
-	py.test --cov-report html --cov openhelpdesk
+coverage-html: coverage
 	open htmlcov/index.html
 
-coverage-live-html:
-	py.test --livetest --cov-report html --cov openhelpdesk
+coverage-live-html: coverage-live
 	open htmlcov/index.html
 
 docs:

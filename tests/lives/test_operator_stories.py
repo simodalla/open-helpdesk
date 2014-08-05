@@ -76,6 +76,7 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
             (By.CSS_SELECTOR, 'td.ui-datepicker-today{}'.format(
                 ' + td' * days_after_today)))).click()
     browser_o.driver.find_element_by_name('_save').click()
+    browser_o.driver.find_element_by_css_selector("div.result-list")
     report = Report.objects.filter(ticket__id=opened_ticket.id).latest()
     assert report.ticket.id == opened_ticket.id
     assert report.content == content

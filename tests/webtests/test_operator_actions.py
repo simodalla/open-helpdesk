@@ -48,7 +48,7 @@ def test_open_more_tickets_from_action_without_error(app, operator,
     form['_selected_action'] = new_ticket_ids
     form['action'].select(text='Open e assign selected Tickets')
     response = form.submit().follow()
-    assert 'messages' in response.context.keys()
+    assert 'messages' in response.context
     request_messages = [m for m in response.context['messages']]
     assert len(request_messages) == 1
     assert request_messages[0].level == messages.SUCCESS
@@ -69,7 +69,7 @@ def test_open_more_tickets_from_action_with_errors(app, operator, new_tickets):
     with patch('openhelpdesk.models.Ticket.opening', side_effect=exc):
         response = form.submit().follow()
 
-    assert 'messages' in response.context.keys()
+    assert 'messages' in response.context
     request_messages = [m for m in response.context['messages']]
     assert len(request_messages) == 1
     assert request_messages[0].level == messages.ERROR
