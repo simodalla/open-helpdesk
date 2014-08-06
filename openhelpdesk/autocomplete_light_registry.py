@@ -15,11 +15,11 @@ User = get_user_model()
 
 
 class TicketAutocomplete(autocomplete_light.AutocompleteModelBase):
-    search_fields = ['id', 'content']
     attrs = {
-        'placeholder': _('Type id of content of Ticket...'),
+        'placeholder': _('Type id or content for search Ticket...'),
         'data-autocomplete-minimum-characters': 1,
     }
+    search_fields = ['id', 'content']
 
     def choices_for_request(self):
         user = HelpdeskUser.objects.get(pk=self.request.user.pk)
@@ -34,8 +34,12 @@ class TicketAutocomplete(autocomplete_light.AutocompleteModelBase):
 
 
 class RequesterAutocomplete(autocomplete_light.AutocompleteModelBase):
-    search_fields = ['username', 'last_name', 'first_name', 'email']
+    attrs = {
+        'placeholder': _('Type text for search Requester...'),
+        'data-autocomplete-minimum-characters': 2,
+    }
     choices = User.objects.filter(groups__name=settings.HELPDESK_REQUESTERS)
+    search_fields = ['username', 'last_name', 'first_name', 'email']
 
 
 autocomplete_light.register(Ticket, TicketAutocomplete)
