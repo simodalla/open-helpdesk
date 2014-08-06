@@ -25,7 +25,7 @@ HELPDESK_ADMINS = ('helpdesk_admins', [
     'openhelpdesk.add_tipology', 'openhelpdesk.change_tipology',
     'openhelpdesk.delete_tipology',
 ])
-HELPDESK_TICKET_MAX_TIPOLOGIES = 3
+HELPDESK_MAX_TIPOLOGIES_FOR_TICKET = 3
 
 register_setting(
     name="HELPDESK_REQUESTERS",
@@ -49,9 +49,9 @@ register_setting(
 )
 
 register_setting(
-    name="HELPDESK_TICKET_MAX_TIPOLOGIES",
+    name="HELPDESK_MAX_TIPOLOGIES_FOR_TICKET",
     description="The max number of tipologies which can be related to a "
                 "single ticket",
     editable=True,
-    default=HELPDESK_TICKET_MAX_TIPOLOGIES,
+    default=HELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
 )
