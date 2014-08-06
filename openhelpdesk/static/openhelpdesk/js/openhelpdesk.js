@@ -1,4 +1,4 @@
-function helpdeskGetObjectTools() {
+function helpdeskGetObjectTools($) {
     var url = "/admin/openhelpdesk/ticket/object_tools/?view=" + location.pathname;
     $.get(url, function (data) {
         var objectToolsUl = $('ul.object-tools');
@@ -15,7 +15,6 @@ function helpdeskGetObjectTools() {
 }
 
 function helpdeskInit($) {
-    helpdeskGetObjectTools();
     $("div#content-main").hide();
     $('<div id="loading"><i class="fa fa-circle-o-notch fa-spin' +
             ' fa-4x"></i> Loading...</div>').appendTo('#content');
