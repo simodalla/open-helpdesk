@@ -223,8 +223,9 @@ class Source(TimeStamped):
 
 
 @python_2_unicode_compatible
-class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
+class Ticket(SiteRelated, TimeStamped, StatusModel):
     STATUS = Choices(*TICKET_STATUSES)
+    content = models.TextField(_("Content"))
     tipologies = models.ManyToManyField(
         'Tipology', verbose_name=_('Tipologies'),
         help_text=_("You can select a maximum of %(max)s %(tipologies)s"
@@ -235,13 +236,20 @@ class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     insert_by = models.ForeignKey(user_model_name, verbose_name=_('Insert by'),
                                   related_name='inserted_tickets',
                                   editable=False)
-    requester = models.ForeignKey(user_model_name, verbose_name=_('Requester'),
-                                  related_name='requested_tickets')
+    requester = models.ForeignKey(
+        user_model_name, verbose_name=_('Requester'),
+        related_name='requested_tickets',
+        help_text=_("You must insert the Requester of Ticket.  Start to type"
+                    " characters for searching into 'username', 'first name'"
+                    " 'last name' or 'email' fields of Requester users."))
     assignee = models.ForeignKey(user_model_name, verbose_name=_('Assignee'),
                                  related_name="assigned_tickets",
                                  blank=True, null=True)
     related_tickets = models.ManyToManyField(
-        'self', verbose_name=_('Related tickets'), blank=True)
+        'self', verbose_name=_('Related tickets'), blank=True,
+        help_text=_("You can insert one or more related Tickets. Start to type"
+                    " digits for searching into 'id' or 'content' fields of"
+                    " your other Tickets previously inserted."))
     source = models.ForeignKey('Source', verbose_name=_('Source'),
                                blank=True, null=True)
     pending_ranges = generic.GenericRelation('PendingRange')

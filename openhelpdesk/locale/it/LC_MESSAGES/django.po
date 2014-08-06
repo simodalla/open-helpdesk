@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-06 11:53+0200\n"
+"POT-Creation-Date: 2014-08-06 12:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,7 +43,7 @@ msgstr "Termina il periodo di attesa"
 msgid "Id"
 msgstr "Id"
 
-#: admin.py:166 models.py:424
+#: admin.py:166 models.py:430
 #: templates/admin/openhelpdesk/ticket/change_form.html:31
 msgid "Content"
 msgstr "Contenuto"
@@ -52,12 +52,12 @@ msgstr "Contenuto"
 msgid "Not assigned"
 msgstr "Non assegnato"
 
-#: admin.py:177 models.py:241
+#: admin.py:177 models.py:244
 #: templates/admin/openhelpdesk/ticket/change_form.html:38
 msgid "Assignee"
 msgstr "Assegnato a"
 
-#: admin.py:189 models.py:207 models.py:246
+#: admin.py:189 models.py:206 models.py:252
 #: templates/admin/openhelpdesk/ticket/change_form.html:29
 msgid "Source"
 msgstr "Sorgente"
@@ -180,82 +180,82 @@ msgstr ""
 "Sono state selezionate troppe tipologie. Ne puoi selezionare al massimo "
 "%(max)s."
 
-#: models.py:44
+#: models.py:43
 msgid "Urgent"
 msgstr "Urgente"
 
-#: models.py:45
+#: models.py:44
 msgid "High"
 msgstr "Alta"
 
-#: models.py:46
+#: models.py:45
 msgid "Normal"
 msgstr "Normale"
 
-#: models.py:47
+#: models.py:46
 msgid "Low"
 msgstr "Bassa"
 
-#: models.py:114 models.py:143 models.py:200
+#: models.py:113 models.py:142 models.py:199
 msgid "Title"
 msgstr "Titolo"
 
-#: models.py:117
+#: models.py:116
 msgid "Category"
 msgstr "Categoria"
 
-#: models.py:118 models.py:145
+#: models.py:117 models.py:144
 msgid "Categories"
 msgstr "Categorie"
 
-#: models.py:134 models.py:155 models.py:230
+#: models.py:133 models.py:154 models.py:229
 #: templates/admin/openhelpdesk/ticket/change_form.html:25
 msgid "Tipologies"
 msgstr "Tipologie"
 
-#: models.py:148 models.py:170 models.py:179 models.py:202
+#: models.py:147 models.py:169 models.py:178 models.py:201
 msgid "Enable on Sites"
 msgstr "Abilita sui Siti"
 
-#: models.py:150 models.py:234
+#: models.py:149 models.py:233
 #: templates/admin/openhelpdesk/ticket/change_form.html:28
 msgid "Priority"
 msgstr "Piorità"
 
-#: models.py:154
+#: models.py:153
 msgid "Tipology"
 msgstr "Tipologia"
 
-#: models.py:183
+#: models.py:182
 msgid "File"
 msgstr "File"
 
-#: models.py:185
+#: models.py:184
 msgid "Description"
 msgstr "Descrizione"
 
-#: models.py:192
+#: models.py:191
 msgid "Attachment"
 msgstr "Allegato"
 
-#: models.py:193
+#: models.py:192
 msgid "Attachments"
 msgstr "Allegati"
 
-#: models.py:199
+#: models.py:198
 msgid "code"
 msgstr "codice"
 
-#: models.py:208
+#: models.py:207
 msgid "Sources"
 msgstr "Sorgenti"
 
-#: models.py:231
-#, fuzzy, python-format
+#: models.py:230
+#, python-format
 msgid "You can select a maximum of %(max)s %(tipologies)s."
 msgstr "Puoi selezionare al massimo %(max)s %(tipologies)s."
 
-#: models.py:236 templates/admin/openhelpdesk/ticket/change_form.html:36
+#: models.py:235 templates/admin/openhelpdesk/ticket/change_form.html:36
 msgid "Insert by"
 msgstr "Inserito da"
 
@@ -263,87 +263,107 @@ msgstr "Inserito da"
 msgid "Requester"
 msgstr "Richiedente"
 
-#: models.py:245 templates/admin/openhelpdesk/ticket/change_form.html:40
+#: models.py:241
+msgid ""
+"You must insert the Requester of Ticket.  Start to type characters for "
+"searching into 'username', 'first name' 'last name' or 'email' fields of "
+"Requester users."
+msgstr ""
+"Devi inserire il Richidente del Ticket. Inizia a digitare i caratteri da "
+"ricercare nei campi 'username', 'nome' 'cognome' ed 'email' degli utenti "
+"Richiedenti."
+
+#: models.py:248 templates/admin/openhelpdesk/ticket/change_form.html:40
 msgid "Related tickets"
 msgstr "Ticket correlati"
 
-#: models.py:253 models.py:431
+#: models.py:249
+msgid ""
+"You can insert one or more related Tickets. Start to type digits for "
+"searching into 'id' or 'content' fields of your other Tickets previously "
+"inserted."
+msgstr ""
+"Puoi inserire uno o più Ticket collegati a questo. Inizia a digitare numeri "
+"da ricercare nel campo 'id' o caratteri da ricercare nel campo 'contenuto' "
+"dei tuoi Ticket precedentemente inseriti."
+
+#: models.py:259 models.py:437
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models.py:254
+#: models.py:260
 msgid "Tickets"
 msgstr "Ticket"
 
-#: models.py:425
+#: models.py:431
 msgid "Sender"
 msgstr "Mittente"
 
-#: models.py:427
+#: models.py:433
 msgid "Recipient"
 msgstr "Destinatario"
 
-#: models.py:436
+#: models.py:442
 msgid "Message"
 msgstr "Messaggio"
 
-#: models.py:437
+#: models.py:443
 msgid "Messages"
 msgstr "Messaggi"
 
-#: models.py:457
+#: models.py:463
 msgid "Report"
 msgstr "Report"
 
-#: models.py:458
+#: models.py:464
 msgid "Reports"
 msgstr "Report"
 
-#: models.py:476
+#: models.py:482
 msgid "Pending Range"
 msgstr "Periodo di attesa"
 
-#: models.py:477
+#: models.py:483
 msgid "Pending Ranges"
 msgstr "Periodi di attesa"
 
-#: models.py:485
+#: models.py:491
 msgid "Maker"
 msgstr "Maker"
 
-#: models.py:488
+#: models.py:494
 msgid "Co Makers"
 msgstr "Co Maker"
 
-#: models.py:495
+#: models.py:501
 msgid "Scheduled at"
 msgstr "Schedulato il"
 
-#: models.py:500
+#: models.py:506
 msgid "Activity"
 msgstr "Attivita"
 
-#: models.py:501
+#: models.py:507
 msgid "Activities"
 msgstr "Attivita"
 
-#: models.py:513
+#: models.py:519
 msgid "Before"
 msgstr "Prima"
 
-#: models.py:514
+#: models.py:520
 msgid "After"
 msgstr "Dopo"
 
-#: models.py:515
+#: models.py:521
 msgid "Changer"
 msgstr "Cambiato da"
 
-#: models.py:520
+#: models.py:526
 msgid "Status Changelog"
 msgstr "Changelog Stato"
 
-#: models.py:521
+#: models.py:527
 msgid "Status Changelogs"
 msgstr "Changelog Stato"
 
