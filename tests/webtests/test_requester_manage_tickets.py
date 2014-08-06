@@ -70,7 +70,7 @@ class TestManageMessagesOfTicket(WebTest):
         response = self.app.get(url, user=self.user)
         form = response.forms['ticket_form']
         form['messages-0-content'] = message_content
-        form['messages-0-recipient'].select(text=recipient.username)
+        form['messages-0-recipient'].select(text=str(recipient))
         form.submit('_continue').follow()
         message = ticket.messages.latest()
         self.assertEqual(message.content, message_content)

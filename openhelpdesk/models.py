@@ -47,9 +47,15 @@ PRIORITIES = (
 )
 
 
+@python_2_unicode_compatible
 class HelpdeskUser(User):
     class Meta:
         proxy = True
+
+    def __str__(self):
+        return ('{} {}'.format(self.last_name.capitalize(),
+                               self.first_name.capitalize())
+                if (self.last_name and self.first_name) else self.username)
 
     @property
     def group_names(self):
@@ -94,6 +100,12 @@ class HelpdeskUser(User):
                 report__visible_from_requester=False).filter(
                     Q(sender__id=self.id) | Q(recipient__id=self.id))
         return messages.order_by('created')
+
+
+# monkey-patch for add __str__ method of HelpdeskUser to system User model
+User.__str__ = HelpdeskUser.__str__
+if hasattr(User, '__unicode__') and hasattr(HelpdeskUser, '__unicode__'):
+    User.__unicode__ = HelpdeskUser.__unicode__
 
 
 @python_2_unicode_compatible
@@ -213,8 +225,11 @@ class Source(TimeStamped):
 @python_2_unicode_compatible
 class Ticket(SiteRelated, TimeStamped, RichText, StatusModel):
     STATUS = Choices(*TICKET_STATUSES)
-    tipologies = models.ManyToManyField('Tipology',
-                                        verbose_name=_('Tipologies'))
+    tipologies = models.ManyToManyField(
+        'Tipology', verbose_name=_('Tipologies'),
+        help_text=_("You can select a maximum of %(max)s %(tipologies)s"
+                    ".") % {'max': settings.HELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
+                            'tipologies': Tipology._meta.verbose_name_plural})
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
     insert_by = models.ForeignKey(user_model_name, verbose_name=_('Insert by'),
