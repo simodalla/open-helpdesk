@@ -1,6 +1,6 @@
 require(['./common'], function (common) {
 
-    require([ "jquery", "jquery-ui/jquery-ui.min", ], function ($) {
+    require([ "jquery", "jquery-ui/jquery-ui.min"], function ($) {
         var ticketInfos = "#ticket_infos";
         var tabsIds = ['ticket_data', 'messages', 'changestatuslog'];
 
@@ -23,7 +23,6 @@ require(['./common'], function (common) {
         helpdeskFinalize($);
 
         if (typeof tinyMCE != 'undefined') {
-
             tinyMCE.init({
 
                 // main settings
@@ -43,22 +42,17 @@ require(['./common'], function (common) {
                 remove_script_host : true,
                 accessibility_warnings : false,
                 object_resizing: false,
-                //cleanup: false, // SETTING THIS TO FALSE WILL BREAK EMBEDDING YOUTUBE VIDEOS
                 forced_root_block: "p",
                 remove_trailing_nbsp: true,
 
-                external_link_list_url: '/displayable_links.js',
                 relative_urls: false,
                 convert_urls: false,
-
-                // callbackss
-    //            file_browser_callback: "CustomFileBrowser",
 
                 // theme_advanced
                 theme_advanced_toolbar_location: "top",
                 theme_advanced_toolbar_align: "left",
                 theme_advanced_statusbar_location: "",
-                theme_advanced_buttons1: "bold,italic,|,link,unlink,|,image,|,media,charmap,|,code,|,table,|,bullist,numlist,blockquote,|,undo,redo,|,formatselect,|,search,replace,|,fullscreen,",
+                theme_advanced_buttons1: "bold,italic,|,link,unlink,|,table,|,bullist,numlist,|,undo,redo,|,formatselect,",
                 theme_advanced_buttons2: "",
                 theme_advanced_buttons3: "",
                 theme_advanced_path: false,
@@ -67,12 +61,9 @@ require(['./common'], function (common) {
                 theme_advanced_resizing : true,
                 theme_advanced_resize_horizontal : false,
                 theme_advanced_resizing_use_cookie : true,
-                theme_advanced_styles: "Image left-aligned=img_left;Image left-aligned (nospace)=img_left_nospacetop;Image right-aligned=img_right;Image right-aligned (nospace)=img_right_nospacetop;Image Block=img_block",
                 advlink_styles: "intern=internal;extern=external",
 
-                // plugins
-                plugins: "inlinepopups,contextmenu,tabfocus,searchreplace,fullscreen,advimage,advlink,paste,media,table",
-                advimage_update_dimensions_onchange: true,
+                plugins: "autolink,inlinepopups,contextmenu,tabfocus,searchreplace,paste,table",
 
                 // remove MS Word's inline styles when copying and pasting.
                 paste_remove_spans: true,

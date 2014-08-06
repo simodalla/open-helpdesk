@@ -22,6 +22,8 @@ class TicketAdminForm(forms.ModelForm):
         # for field, related_name in ('t')
         if 'content' in self.fields:
             self.fields['content'].required = True
+            self.fields['content'].widget.attrs['class'] = 'mceEditor'
+            # print("---> ", self.fields['content'].widget.attrs['class'])
         if 'source' in self.fields:
             self.fields['source'].required = True
             try:
