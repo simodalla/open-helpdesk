@@ -20,6 +20,14 @@ class TicketAdminForm(forms.ModelForm):
         # tipologies is filtered by current site if 'tipologies' in
         # self.fields. If field is read_only isn't in self.fields
         # for field, related_name in ('t')
+        if 'content' in self.fields:
+            self.fields['content'].required = True
+        if 'source' in self.fields:
+            self.fields['source'].required = True
+            try:
+                self.fields['source'].initial = Source.get_default_obj()
+            except Source.DoesNotExist:
+                pass
         if not self.instance.pk:
             site = Site.objects.get(pk=current_site_id())
             for field, related_name in [('tipologies', 'helpdesk_tipologies'),
@@ -28,13 +36,7 @@ class TicketAdminForm(forms.ModelForm):
                     relate_manager = getattr(site, related_name, None)
                     if relate_manager:
                         self.fields[field].queryset = relate_manager.all()
-            if 'source' in self.fields:
-                try:
-                    self.fields['source'].initial = Source.get_default_obj()
-                except Source.DoesNotExist:
-                    pass
-            # django 1.5
-        else:
+        else:  # django 1.5
             if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
                 for field in ['tipologies', 'priority']:
                     del self.fields[field]
@@ -42,11 +44,11 @@ class TicketAdminForm(forms.ModelForm):
     def clean_tipologies(self):
         """
         Additional validation for 'tipologies' field. If the number of
-        tipologies selected is greater than 'HELPDESK_TICKET_MAX_TIPOLOGIES'
+        tipologies selected is greater than 'HELPDESK_MAX_TIPOLOGIES_FOR_TICKET'
         setting, raise an ValidationError
         """
         settings.use_editable()
-        max_tipologies = settings.HELPDESK_TICKET_MAX_TIPOLOGIES
+        max_tipologies = settings.HELPDESK_MAX_TIPOLOGIES_FOR_TICKET
         tipologies = self.cleaned_data['tipologies']
         if len(tipologies) > max_tipologies:
             msg = _('Too many tipologies selected. You can select a maximum'
