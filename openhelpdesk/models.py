@@ -109,6 +109,29 @@ if hasattr(User, '__unicode__') and hasattr(HelpdeskUser, '__unicode__'):
 
 
 @python_2_unicode_compatible
+class SiteConfiguration(TimeStamped):
+    site = models.OneToOneField('sites.Site')
+    email_addr_from = models.EmailField(blank=True)
+    email_addr_to_1 = models.EmailField(blank=True)
+    email_addr_to_2 = models.EmailField(blank=True)
+    email_addr_to_3 = models.EmailField(blank=True)
+
+    class Meta:
+        verbose_name = _('Site Configuration')
+        verbose_name_plural = _('Site Configurations')
+        ordering = ('site',)
+
+    def __str__(self):
+        return '{}'.format(self.site)
+
+    @property
+    def email_addrs_to(self):
+        emails = {getattr(self, 'email_addr_to_%s' % i, None)
+                  for i in [1, 2, 3]}
+        return [email for email in emails if len(email)]
+
+
+@python_2_unicode_compatible
 class Category(TimeStamped):
     title = models.CharField(_('Title'), max_length=500, unique=True)
 

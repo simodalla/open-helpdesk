@@ -18,7 +18,7 @@ from mezzanine.utils.sites import current_site_id
 from openhelpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
                                HELPDESK_ADMINS)
 from openhelpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
-                             PRIORITY_LOW, PendingRange)
+                             PRIORITY_LOW, PendingRange, SiteConfiguration)
 from openhelpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
                            TicketIsClosedError, TicketIsNotPendingError,
                            TicketIsNewError)
@@ -393,3 +393,33 @@ class TestTicketModel(object):
         statuschangelog = pending_ticket.closing(operator)
         assert (PendingRange.objects.get(pk=pending_range.pk).end ==
                 statuschangelog.updated)
+
+
+class TestSiteConfigurationModel(object):
+    def test_str_method(self):
+        with patch.object(SiteConfiguration, 'site',
+                          __str__=lambda x: 'site foo'):
+            site_conf = SiteConfiguration()
+            assert str(site_conf) == 'site foo'
+
+    def test_email_addrs_to_return_list_of_not_null_email_addresses(
+            self):
+        site_conf = SiteConfiguration()
+        site_conf.email_addr_to_1 = 'foo1@example.com'
+        site_conf.email_addr_to_2 = 'foo2@example.com'
+        site_conf.email_addr_to_3 = 'foo3@example.com'
+        assert set(site_conf.email_addrs_to) == {'foo1@example.com',
+                                                 'foo2@example.com',
+                                                 'foo3@example.com'}
+
+    def test_mail_addrs_to_return_list_of_not_duplicate_email_addresses(self):
+        site_conf = SiteConfiguration()
+        site_conf.email_addr_to_1 = 'foo1@example.com'
+        site_conf.email_addr_to_2 = 'foo1@example.com'
+        site_conf.email_addr_to_3 = 'foo1@example.com'
+        assert set(site_conf.email_addrs_to) == {'foo1@example.com'}
+
+    def test_mail_addrs_to_return_empty_list_if_all_null_email_addresses(self):
+        site_conf = SiteConfiguration()
+        assert site_conf.email_addrs_to == list()
+
