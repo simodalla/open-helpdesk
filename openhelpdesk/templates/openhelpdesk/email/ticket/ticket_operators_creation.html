@@ -4,7 +4,7 @@
 {#New {{ ticket_name }} with id <b>{{ id }}</b> was created</b>#}
 {# Translators: Header of email sends on creation of ticket to operators  #}
 {% block content_header %}
-{% blocktrans with ticket_name=ticket_name|lower%}A new {{ ticket_name }} has been created{% endblocktrans %}
+{% blocktrans with ticket_name=ticket_name|lower %}A new {{ ticket_name }} has been created{% endblocktrans %}
 {% endblock %}
 
 {% block body %}

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib.auth import get_user_model
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
@@ -19,7 +20,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
 from mezzanine.core.models import RichText, SiteRelated, TimeStamped
-from mezzanine.utils.models import (get_user_model_name, get_user_model)
 from mezzanine.utils.email import send_mail_template, subject_template
 
 from model_utils.models import StatusModel
@@ -32,7 +32,7 @@ from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
 
 
 User = get_user_model()
-user_model_name = get_user_model_name()
+user_model_name = settings.AUTH_USER_MODEL
 
 
 PRIORITY_URGENT = 8
@@ -480,10 +480,9 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
                              args=(self.pk,))
         context = {'ticket_name': self._meta.verbose_name, 'ticket': self,
                    'request': request, 'change_url': change_url}
-        print(subject, template, addr_from, addr_to, change_url)
+        # print(subject, template, addr_from, addr_to, context)
         send_mail_template(subject, template, addr_from, addr_to,
-                           context=context, attachments=None,
-                           fail_silently=False)
+                           context=context, attachments=None)
 
 
 @python_2_unicode_compatible

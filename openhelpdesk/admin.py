@@ -310,7 +310,8 @@ class TicketAdmin(admin.ModelAdmin):
         super(TicketAdmin, self).save_model(request, obj, form, change)
         if not change:
             obj.initialize()
-            obj.send_email_to_operators_on_adding(request)
+            if obj.requester_id == obj.insert_by_id:
+                obj.send_email_to_operators_on_adding(request)
 
     # ModelsAdmin views methods customized ####################################
     def change_view(self, request, object_id, form_url='', extra_context=None):

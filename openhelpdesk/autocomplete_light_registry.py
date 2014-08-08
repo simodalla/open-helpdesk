@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 
 import autocomplete_light
 
 from mezzanine.conf import settings
-from mezzanine.utils.models import get_user_model
 from mezzanine.utils.sites import current_site_id
 
 from .models import Ticket, HelpdeskUser

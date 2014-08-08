@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.db import connection
 from django.template import Template, Context
-from mezzanine.utils.models import get_user_model
+
 from mezzanine.utils.sites import current_site_id
 
 from six.moves import cStringIO
+
 from openhelpdesk.management.commands import inithelpdesk
-from openhelpdesk.models import (HelpdeskUser, Category, Ticket, Message, Report,
-                             PRIORITIES, Tipology, Source)
+from openhelpdesk.models import (HelpdeskUser, Category, Ticket, Message,
+                                 Report, PRIORITIES, Tipology, Source)
 from openhelpdesk.defaults import (
     HELPDESK_REQUESTERS, HELPDESK_OPERATORS, HELPDESK_ADMINS)
 
@@ -22,8 +24,8 @@ User = get_user_model()
 
 class Command(BaseCommand):
     """
-    Execute init operation for openhelpdesk app. Create default group with relative
-    permissions.
+    Execute init operation for openhelpdesk app. Create default group with
+    relative permissions.
     """
 
     can_import_settings = True
