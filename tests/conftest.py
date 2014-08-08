@@ -27,7 +27,6 @@ def app(request):
 
 
 def helpdesker(helpdesker_conf):
-    from django.contrib.sites.models import Site
     import openhelpdesk.defaults
     from tests.factories import UserFactory, GroupFactory
     from mezzanine.utils.sites import current_site_id
@@ -39,8 +38,9 @@ def helpdesker(helpdesker_conf):
         username=helpdesker_conf[0].rstrip('s'),
         groups=[GroupFactory(name=helpdesker_conf[0],
                              permissions=list(helpdesker_conf[1]))])
-    sp = user.sitepermissions.create(user=user)
-    sp.sites.add(Site.objects.get(pk=current_site_id()))
+    site_perm, created = user.sitepermissions.get_or_create(user=user)
+    if created or site_perm.sites.count() < 1:
+        site_perm.sites.add(current_site_id())
     return user
 
 
@@ -173,5 +173,3 @@ def pending_ticket(opened_ticket, operator):
     opened_ticket.put_on_pending(operator,
                                  estimated_end_date=estimated_end_date)
     return opened_ticket
-
-
