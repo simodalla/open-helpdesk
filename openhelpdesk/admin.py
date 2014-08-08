@@ -26,7 +26,7 @@ from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
 from .templatetags import helpdesk_tags
 from .models import (
     Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
-    Report, StatusChangesLog, Source)
+    Report, StatusChangesLog, Source, SiteConfiguration)
 from .views import OpenTicketView, ObjectToolsView
 
 
@@ -79,6 +79,10 @@ class StatusListFilter(admin.ChoicesFieldListFilter):
     def __init__(self, *args, **kwargs):
         super(StatusListFilter, self).__init__(*args, **kwargs)
         self.title = StatusListFilter.title
+
+
+class SiteConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['site', 'email_addrs_to', 'email_addr_from']
 
 
 class TicketAdmin(admin.ModelAdmin):
@@ -290,6 +294,10 @@ class TicketAdmin(admin.ModelAdmin):
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
+        """
+        :param obj: Ticket object
+        :type obj: openhelpdesk.models.Ticket
+        """
         if obj.source_id is None:
             try:
                 obj.source = Source.get_default_obj()
@@ -302,6 +310,7 @@ class TicketAdmin(admin.ModelAdmin):
         super(TicketAdmin, self).save_model(request, obj, form, change)
         if not change:
             obj.initialize()
+            obj.send_email_to_operators_on_adding(request)
 
     # ModelsAdmin views methods customized ####################################
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -482,4 +491,5 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(Tipology, TipologyAdmin)
 admin.site.register(Report, ReportAdmin)
 admin.site.register(Ticket, TicketAdmin)
+admin.site.register(SiteConfiguration, SiteConfigurationAdmin)
 admin.site.register(Source, SourceAdmin)
