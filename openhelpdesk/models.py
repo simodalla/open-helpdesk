@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from mezzanine.conf import settings
 from mezzanine.core.models import RichText, SiteRelated, TimeStamped
 from mezzanine.utils.models import (get_user_model_name, get_user_model)
+from mezzanine.utils.email import send_mail_template, subject_template
 
 from model_utils.models import StatusModel
 from model_utils import Choices
@@ -109,12 +110,13 @@ if hasattr(User, '__unicode__') and hasattr(HelpdeskUser, '__unicode__'):
 
 
 @python_2_unicode_compatible
-class SiteConfiguration(TimeStamped):
-    site = models.OneToOneField('sites.Site')
-    email_addr_from = models.EmailField(blank=True)
-    email_addr_to_1 = models.EmailField(blank=True)
-    email_addr_to_2 = models.EmailField(blank=True)
-    email_addr_to_3 = models.EmailField(blank=True)
+# class SiteConfiguration(TimeStamped):
+class SiteConfiguration(models.Model):
+    site = models.OneToOneField('sites.Site', primary_key=True)
+    _email_addr_from = models.EmailField(blank=True)
+    _email_addr_to_1 = models.EmailField(blank=True)
+    _email_addr_to_2 = models.EmailField(blank=True)
+    _email_addr_to_3 = models.EmailField(blank=True)
 
     class Meta:
         verbose_name = _('Site Configuration')
@@ -126,9 +128,22 @@ class SiteConfiguration(TimeStamped):
 
     @property
     def email_addrs_to(self):
-        emails = {getattr(self, 'email_addr_to_%s' % i, None)
+        emails = {getattr(self, '_email_addr_to_%s' % i, None)
                   for i in [1, 2, 3]}
         return [email for email in emails if len(email)]
+
+    @property
+    def email_addr_from(self):
+        return (self._email_addr_from if self._email_addr_from
+                else self.get_no_site_email_addr_from())
+
+    @staticmethod
+    def get_no_site_email_addr_from():
+        return settings.SERVER_EMAIL
+
+    @staticmethod
+    def get_no_site_email_addrs_to():
+        return []
 
 
 @python_2_unicode_compatible
@@ -447,6 +462,28 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
                                       for k in ['remove_from_pending',
                                                 'close'])
         return result
+
+    def send_email_to_operators_on_adding(self, request):
+        template = "openhelpdesk/email/ticket/ticket_operators_creation"
+        subject = subject_template(
+            "{}_subject.html".format(template),
+            {'ticket_name': self._meta.verbose_name.lower(),
+             'username': self.requester.username})
+        try:
+            site_conf = SiteConfiguration.objects.get(site=self.site)
+            addr_from = site_conf.email_addr_from
+            addr_to = site_conf.email_addrs_to
+        except SiteConfiguration.DoesNotExist:
+            addr_from = SiteConfiguration.get_no_site_email_addr_from()
+            addr_to = SiteConfiguration.get_no_site_email_addrs_to()
+        change_url = reverse(admin_urlname(self._meta, 'change'),
+                             args=(self.pk,))
+        context = {'ticket_name': self._meta.verbose_name, 'ticket': self,
+                   'request': request, 'change_url': change_url}
+        print(subject, template, addr_from, addr_to, change_url)
+        send_mail_template(subject, template, addr_from, addr_to,
+                           context=context, attachments=None,
+                           fail_silently=False)
 
 
 @python_2_unicode_compatible

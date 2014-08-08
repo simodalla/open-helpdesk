@@ -2,28 +2,34 @@
 from __future__ import unicode_literals, absolute_import
 
 import datetime
+import os.path
 
 import pytest
 
 try:
-    from unittest.mock import patch, Mock
+    from unittest.mock import patch, Mock, ANY, PropertyMock
 except ImportError:
-    from mock import patch, Mock
+    from mock import patch, Mock, ANY, PropertyMock
 
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from mezzanine.utils.sites import current_site_id
 
 from openhelpdesk.defaults import (HELPDESK_REQUESTERS, HELPDESK_OPERATORS,
-                               HELPDESK_ADMINS)
+                                   HELPDESK_ADMINS)
 from openhelpdesk.models import (Category, Tipology, Ticket, StatusChangesLog,
-                             PRIORITY_LOW, PendingRange, SiteConfiguration)
+                                 PRIORITY_LOW, PendingRange, SiteConfiguration)
 from openhelpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
-                           TicketIsClosedError, TicketIsNotPendingError,
-                           TicketIsNewError)
+                               TicketIsClosedError, TicketIsNotPendingError,
+                               TicketIsNewError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
+
+
+TEMPLATES_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '../openhelpdesk/templates/')
 
 
 class CategoryTest(TestCase):
@@ -179,6 +185,13 @@ def unsaved_ticket(requester):
     return ticket
 
 
+@pytest.fixture
+def request_for_email(rf):
+    request_obj = rf.get('/fake_ticket_created/')
+    return request_obj
+
+
+# noinspection PyUnresolvedReferences
 @pytest.mark.django_db
 class TestTicketModel(object):
 
@@ -215,7 +228,6 @@ class TestTicketModel(object):
         """
         assert opened_ticket.status == Ticket.STATUS.open
         opened_ticket.put_on_pending(operator)
-        # ticket = Ticket.objects.get()
         assert opened_ticket.status == Ticket.STATUS.pending
 
     def test_put_on_pending_method_create_statuschangelog_obj(
@@ -394,6 +406,152 @@ class TestTicketModel(object):
         assert (PendingRange.objects.get(pk=pending_range.pk).end ==
                 statuschangelog.updated)
 
+    def get_site_config_for_ticket(
+            self, ticket, email_addr_from=''):
+        defaults = {'_email_addr_from': email_addr_from}
+        site_conf, created = SiteConfiguration.objects.get_or_create(
+            site=ticket.site, defaults=defaults)
+        return site_conf
+
+    @patch('openhelpdesk.models.send_mail_template')
+    def test_send_email_to_operators_addr_from_without_matchin_configsite(
+            self, mock_send_email, initialized_ticket, request_for_email):
+        """
+        :param initialized_ticket: Ticket already intialized
+        :type initialized_ticket: openhelpdesk.models.Ticket
+        """
+        server_email = 'server@example.com'
+        with patch('openhelpdesk.models.SiteConfiguration'
+                   '.get_no_site_email_addr_from', return_value=server_email):
+            initialized_ticket.send_email_to_operators_on_adding(
+                request_for_email)
+
+        mock_send_email.assert_called_once_with(ANY, ANY, server_email, ANY,
+                                                context=ANY, attachments=ANY)
+
+    @patch('openhelpdesk.models.send_mail_template')
+    def test_send_email_to_operators_add_from_set_by_site_configuration(
+            self, mock_send_email, initialized_ticket, request_for_email):
+        """
+        :param initialized_ticket: Ticket already intialized
+        :type initialized_ticket: openhelpdesk.models.Ticket
+        """
+        site_email = 'helpdesk@example.com'
+        self.get_site_config_for_ticket(
+            initialized_ticket, email_addr_from=site_email)
+
+        initialized_ticket.send_email_to_operators_on_adding(request_for_email)
+
+        mock_send_email.assert_called_once_with(ANY, ANY, site_email, ANY,
+                                                context=ANY, attachments=ANY)
+
+    @patch('openhelpdesk.models.send_mail_template')
+    def test_send_email_to_operators_addrs_to_without_matchin_configsite(
+            self, mock_send_email, initialized_ticket, request_for_email):
+        """
+        :param initialized_ticket: Ticket already intialized
+        :type initialized_ticket: openhelpdesk.models.Ticket
+        """
+        site_ops_email = ['operator1@example.com', 'operator2@example.com']
+        with patch('openhelpdesk.models.SiteConfiguration'
+                   '.get_no_site_email_addrs_to', return_value=site_ops_email):
+            initialized_ticket.send_email_to_operators_on_adding(
+                request_for_email)
+
+        mock_send_email.assert_called_once_with(ANY, ANY, ANY, site_ops_email,
+                                                context=ANY, attachments=ANY)
+
+    @patch('openhelpdesk.models.send_mail_template')
+    def test_send_email_to_operators_add_to_set_by_site_configuration(
+            self, mock_send_email, initialized_ticket, request_for_email):
+        """
+        :param initialized_ticket: Ticket already intialized
+        :type initialized_ticket: openhelpdesk.models.Ticket
+        """
+        site_ops_email = ['ced@example.com', 'support@example.com']
+        self.get_site_config_for_ticket(initialized_ticket)
+        with patch(
+                'openhelpdesk.models.SiteConfiguration.email_addrs_to',
+                new_callable=PropertyMock(return_value=site_ops_email)):
+            initialized_ticket.send_email_to_operators_on_adding(
+                request_for_email)
+
+        mock_send_email.assert_called_once_with(ANY, ANY, ANY, site_ops_email,
+                                                context=ANY, attachments=ANY)
+
+    @patch('openhelpdesk.models.send_mail_template')
+    def test_send_email_to_operators_context_set(
+            self, mock_send_email, initialized_ticket, request_for_email):
+        """
+        :param initialized_ticket: Ticket already intialized
+        :type initialized_ticket: openhelpdesk.models.Ticket
+        """
+        site_ops_email = ['ced@example.com', 'support@example.com']
+        self.get_site_config_for_ticket(initialized_ticket)
+        change_url = reverse(admin_urlname(initialized_ticket._meta, 'change'),
+                             args=(initialized_ticket.pk,))
+        context = {'ticket_name': initialized_ticket._meta.verbose_name,
+                   'ticket': initialized_ticket,
+                   'request': request_for_email,
+                   'change_url': change_url}
+
+        with patch('openhelpdesk.models.SiteConfiguration'
+                   '.email_addrs_to', return_value=site_ops_email):
+            initialized_ticket.send_email_to_operators_on_adding(
+                request_for_email)
+
+        mock_send_email.assert_called_once_with(
+            ANY, ANY, ANY, ANY, context=context, attachments=ANY)
+
+    @patch('openhelpdesk.models.send_mail_template')
+    def test_send_email_to_operators_call_with_right_template(
+            self, mock_send_email, initialized_ticket):
+        """
+        :param initialized_ticket: Ticket already intialized
+        :type initialized_ticket: openhelpdesk.models.Ticket
+        """
+        template = ("openhelpdesk/email/ticket/"
+                    "ticket_operators_creation")
+        template_paths = [
+            os.path.join(TEMPLATES_DIR, template + '.%s' % tpl_type)
+            for tpl_type in ('html', 'txt')]
+        ticket = initialized_ticket
+
+        for path in template_paths:
+            assert os.path.exists(path), ("File {} doesn't"
+                                          " exists.".format(path))
+
+        ticket.send_email_to_operators_on_adding(request_for_email)
+
+        mock_send_email.assert_called_once_with(ANY, template, ANY, ANY,
+                                                context=ANY, attachments=ANY)
+
+    @patch('openhelpdesk.models.send_mail_template')
+    def test_send_email_to_operators_call_subject_template(
+            self, mock_send_email, initialized_ticket):
+        """
+        :param initialized_ticket: Ticket already intialized
+        :type initialized_ticket: openhelpdesk.models.Ticket
+        """
+        template = ("openhelpdesk/email/ticket/"
+                    "ticket_operators_creation_subject.html")
+        template_path = os.path.join(TEMPLATES_DIR, template)
+        ticket = initialized_ticket
+        subject = 'foo subject'
+
+        assert os.path.exists(template_path), ("File {} doesn't exists"
+                                               ".".format(template_path))
+        with patch('openhelpdesk.models.subject_template',
+                   return_value=subject) as mock_subj:
+            ticket.send_email_to_operators_on_adding(request_for_email)
+
+        mock_subj.assert_called_once_with(
+            template, {'ticket_name': ticket._meta.verbose_name.lower(),
+                       'username': ticket.requester.username})
+
+        mock_send_email.assert_called_once_with(subject, ANY, ANY, ANY,
+                                                context=ANY, attachments=ANY)
+
 
 class TestSiteConfigurationModel(object):
     def test_str_method(self):
@@ -405,21 +563,38 @@ class TestSiteConfigurationModel(object):
     def test_email_addrs_to_return_list_of_not_null_email_addresses(
             self):
         site_conf = SiteConfiguration()
-        site_conf.email_addr_to_1 = 'foo1@example.com'
-        site_conf.email_addr_to_2 = 'foo2@example.com'
-        site_conf.email_addr_to_3 = 'foo3@example.com'
+        site_conf._email_addr_to_1 = 'foo1@example.com'
+        site_conf._email_addr_to_2 = 'foo2@example.com'
+        site_conf._email_addr_to_3 = 'foo3@example.com'
         assert set(site_conf.email_addrs_to) == {'foo1@example.com',
                                                  'foo2@example.com',
                                                  'foo3@example.com'}
 
     def test_mail_addrs_to_return_list_of_not_duplicate_email_addresses(self):
         site_conf = SiteConfiguration()
-        site_conf.email_addr_to_1 = 'foo1@example.com'
-        site_conf.email_addr_to_2 = 'foo1@example.com'
-        site_conf.email_addr_to_3 = 'foo1@example.com'
+        site_conf._email_addr_to_1 = 'foo1@example.com'
+        site_conf._email_addr_to_2 = 'foo1@example.com'
+        site_conf._email_addr_to_3 = 'foo1@example.com'
         assert set(site_conf.email_addrs_to) == {'foo1@example.com'}
 
     def test_mail_addrs_to_return_empty_list_if_all_null_email_addresses(self):
         site_conf = SiteConfiguration()
         assert site_conf.email_addrs_to == list()
 
+    def test_email_add_from_return_field_value_isnt_none(self):
+        site_conf = SiteConfiguration()
+        site_conf._email_addr_from = 'helpdesk@example.com'
+        assert site_conf.email_addr_from == 'helpdesk@example.com'
+
+    def test_email_add_from_return_settings_server_email(self):
+        site_conf = SiteConfiguration()
+        site_conf._email_addr_from = None
+        with patch('openhelpdesk.models.settings',
+                   SERVER_EMAIL='bar@example.com'):
+            assert site_conf.email_addr_from == 'bar@example.com'
+
+    def test_get_no_site_email_add_from_return_settings_server_email(self):
+        with patch('openhelpdesk.models.settings',
+                   SERVER_EMAIL='bar@example.com'):
+            assert (SiteConfiguration.get_no_site_email_addr_from()
+                    == 'bar@example.com')

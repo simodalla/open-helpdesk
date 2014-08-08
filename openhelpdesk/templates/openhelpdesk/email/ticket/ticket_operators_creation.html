@@ -1,0 +1,27 @@
+{% extends "openhelpdesk/email/email_base.html" %}
+{% load i18n %}
+
+{#New {{ ticket_name }} with id <b>{{ id }}</b> was created</b>#}
+{# Translators: Header of email sends on creation of ticket to operators  #}
+{% block content_header %}
+{% blocktrans with ticket_name=ticket_name|lower%}A new {{ ticket_name }} has been created{% endblocktrans %}
+{% endblock %}
+
+{% block body %}
+<div>
+<p><b>{% trans "Id" %}</b>: {{ ticket.pk }}</p>
+<p><b>{% trans "Tipologies" %}</b>: {{ ticket.tipologies.all|join:", " }}</p>
+<p><b>{% trans "Priority" %}</b>: {{ ticket.get_priority_display }}</p>
+<p><b>{% trans "Source" %}</b>: {{ ticket.source.title }}</p>
+<p><b>{% trans "Created at" %}</b>: {{ ticket.created|date:"DATETIME_FORMAT" }}</p>
+<p><b>{% trans "Created by" %}</b>: {{ ticket.requester }}</p>
+</div>
+<div style="clear: left; border-top: 1px solid lightblue; padding-top: 5px;">
+    <div style="float: left;"><b>{% trans "Content" %}</b>:</div>
+    <div style="float: left; padding:0; margin:0 0 10px 20px;">{{ ticket.content|safe }}</div>
+</div>
+<div style="clear: left; border-top: 1px solid lightblue; margin-bottom: 20px;">
+<p>{% trans "Use the link below to view the ticket" %}:</p>
+<p><a href="http://{{ request.get_host }}{{ change_url }}">http://{{ request.get_host }}{{ change_url }}</a></p>
+</div>
+{% endblock %}
