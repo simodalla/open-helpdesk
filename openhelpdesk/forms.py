@@ -40,7 +40,7 @@ class TicketAdminForm(forms.ModelForm):
                         self.fields[field].queryset = relate_manager.all()
         else:  # django 1.5
             if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
-                for field in ['tipologies', 'priority']:
+                for field in ['tipologies', 'priority', 'content']:
                     del self.fields[field]
 
     def clean_tipologies(self):
