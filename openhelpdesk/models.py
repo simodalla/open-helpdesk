@@ -104,9 +104,10 @@ class HelpdeskUser(User):
 
 
 # monkey-patch for add __str__ method of HelpdeskUser to system User model
-User.__str__ = HelpdeskUser.__str__
-if hasattr(User, '__unicode__') and hasattr(HelpdeskUser, '__unicode__'):
-    User.__unicode__ = HelpdeskUser.__unicode__
+for method_to_patch in ['__str__', '__unicode__']:
+    if (hasattr(User, method_to_patch)
+            and hasattr(HelpdeskUser, method_to_patch)):
+        setattr(User, method_to_patch, getattr(HelpdeskUser, method_to_patch))
 
 
 @python_2_unicode_compatible
