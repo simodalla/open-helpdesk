@@ -468,7 +468,7 @@ class SourceAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         from openhelpdesk.core import DEFAULT_SOURCES
-        if obj and obj.code in [code for code, title in DEFAULT_SOURCES]:
+        if obj and obj.code in [source[0] for source in DEFAULT_SOURCES]:
             error_msg = _(
                 "%(title)s is a system %(model)s and is not"
                 " eliminated.") % {'title': obj.title,

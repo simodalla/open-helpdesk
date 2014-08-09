@@ -25,10 +25,10 @@ TICKET_STATUES_AWESOME_ICONS = {
 }
 
 DEFAULT_SOURCES = [
-    ('web_site', _('Web Site')),
-    ('email', _('Email')),
-    ('phone', _('Phone')),
-    ('chat', _('Chat'))
+    ('web_site', _('Web Site'), 'desktop'),
+    ('email', _('Email'), 'envelope'),
+    ('phone', _('Phone'), 'phone'),
+    ('chat', _('Chat'), 'wechat')
 ]
 
 ACTIONS_ON_TICKET = collections.OrderedDict()

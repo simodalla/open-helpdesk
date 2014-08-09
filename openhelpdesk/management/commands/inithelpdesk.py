@@ -44,8 +44,6 @@ class Command(BaseCommand):
 
         site = Site.objects.get(pk=current_site_id())
         Source.objects.all().delete()
-        for code, title in DEFAULT_SOURCES:
-            source, created = Source.objects.get_or_create(
-                code=code, defaults={'title': title})
-            if created:
-                source.sites.add(site)
+        for code, title, icon in DEFAULT_SOURCES:
+            source = Source.objects.create(code=code, title=title, icon=icon)
+            source.sites.add(site)

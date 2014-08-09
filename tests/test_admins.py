@@ -627,7 +627,8 @@ class TestSourceAdmin(object):
         source_admin_util.obj.title = source
         if is_default:
             default_sources = ((source, source),)
-        monkeypatch.setattr('openhelpdesk.core.DEFAULT_SOURCES', default_sources)
+        monkeypatch.setattr('openhelpdesk.core.DEFAULT_SOURCES',
+                            default_sources)
         with patch('django.contrib.admin.ModelAdmin.has_delete_permission',
                    return_value=True) as mock_has_perms:
             result = source_admin_util.model_admin.has_delete_permission(
