@@ -3,7 +3,7 @@ from __future__ import unicode_literals, absolute_import
 
 from copy import deepcopy
 
-from django.conf.urls import patterns, url
+from django.conf import urls as django_urls
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
@@ -85,12 +85,14 @@ class SiteConfigurationAdmin(admin.ModelAdmin):
     list_display = ['site', 'email_addrs_to', 'email_addr_from']
 
 
+# noinspection PyProtectedMember
 class TicketAdmin(admin.ModelAdmin):
     actions = ['open_tickets']
     date_hierarchy = 'created'
     fieldsets = (
         (None, {
-            'fields': ['tipologies', 'priority', 'related_tickets', 'content'],
+            'fields': ['requester', 'source', 'tipologies', 'priority',
+                       'related_tickets', 'content'],
         }),
     )
     filter_horizontal = ('tipologies',)
@@ -209,9 +211,10 @@ class TicketAdmin(admin.ModelAdmin):
         user = self.get_request_helpdeskuser(request)
         fieldset = tuple() if obj else deepcopy(
             super(TicketAdmin, self).get_fieldsets(request, obj=obj))
-        if not obj and user.is_operator() or user.is_admin():
-            fieldset[0][1]['fields'] = (['requester', 'source'] +
-                                        fieldset[0][1]['fields'])
+        if not obj and user.is_requester():
+            [fieldset[0][1]['fields'].remove(field)
+             for field in ['requester', 'source']
+             if field in fieldset[0][1]['fields']]
         return fieldset
 
     def get_inline_instances(self, request, obj=None):
@@ -273,12 +276,14 @@ class TicketAdmin(admin.ModelAdmin):
                                       getattr(self.opts, 'model_name',
                                               self.opts.module_name))
         urls = super(TicketAdmin, self).get_urls()
-        my_urls = patterns(
+        my_urls = django_urls.patterns(
             '',
-            url(r'^open/(?P<pk>\d+)/$',
+            django_urls.url(
+                r'^open/(?P<pk>\d+)/$',
                 self.admin_site.admin_view(OpenTicketView.as_view()),
                 name='{}_open'.format(admin_prefix_url)),
-            url(r'^object_tools/$',
+            django_urls.url(
+                r'^object_tools/$',
                 self.admin_site.admin_view(ObjectToolsView.as_view()),
                 name='{}_object_tools'.format(admin_prefix_url)),
         )
