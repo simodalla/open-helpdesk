@@ -14,8 +14,8 @@ from openhelpdesk.models import Source
 
 class Command(BaseCommand):
     """
-    Execute init operation for openhelpdesk app. Create default group with relative
-    permissions.
+    Execute init operation for openhelpdesk app. Create default group with
+    relative permissions.
     """
 
     can_import_settings = True

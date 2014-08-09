@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, absolute_import
+
 import pytest
-import os
 
 
 WINDOW_SIZE = (1024, 768)

@@ -3,11 +3,6 @@ from __future__ import unicode_literals, absolute_import
 
 import pytest
 
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
-
 from django.core.urlresolvers import reverse
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.utils import timezone

@@ -20,7 +20,6 @@ class TicketAdminForm(forms.ModelForm):
         # tipologies is filtered by current site if 'tipologies' in
         # self.fields. If field is read_only isn't in self.fields
         # for field, related_name in ('t')
-
         if 'content' in self.fields:
             self.fields['content'].required = True
             self.fields['content'].widget.attrs['class'] = 'mceEditor'
@@ -46,8 +45,8 @@ class TicketAdminForm(forms.ModelForm):
     def clean_tipologies(self):
         """
         Additional validation for 'tipologies' field. If the number of
-        tipologies selected is greater than 'HELPDESK_MAX_TIPOLOGIES_FOR_TICKET'
-        setting, raise an ValidationError
+        tipologies selected is greater than
+        'HELPDESK_MAX_TIPOLOGIES_FOR_TICKET' setting, raise an ValidationError
         """
         settings.use_editable()
         max_tipologies = settings.HELPDESK_MAX_TIPOLOGIES_FOR_TICKET

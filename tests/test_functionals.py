@@ -11,7 +11,7 @@ from django.test import TestCase
 from lxml.html import fromstring
 
 from openhelpdesk.defaults import (HELPDESK_REQUESTERS,
-                               HELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
+                                   HELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
 from openhelpdesk.models import Ticket, Tipology, Category, Report
 from openhelpdesk.admin import MessageInline
 from .helpers import AdminTestMixin

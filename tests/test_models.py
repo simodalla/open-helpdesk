@@ -7,9 +7,9 @@ import os.path
 import pytest
 
 try:
-    from unittest.mock import patch, Mock, ANY, PropertyMock, MagicMock
+    from unittest.mock import patch, Mock, ANY, PropertyMock
 except ImportError:
-    from mock import patch, Mock, ANY, PropertyMock, MagicMock
+    from mock import patch, Mock, ANY, PropertyMock
 
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse

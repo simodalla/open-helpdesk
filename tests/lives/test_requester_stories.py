@@ -5,8 +5,6 @@ import pytest
 
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 
-from selenium.webdriver.support.ui import Select
-
 from openhelpdesk.models import Ticket, PRIORITY_NORMAL
 
 
