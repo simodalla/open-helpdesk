@@ -260,6 +260,10 @@ class Source(TimeStamped):
     def icon(self):
         return self.awesome_icon
 
+    @icon.setter
+    def icon(self, icon_name):
+        self.awesome_icon = icon_name
+
 
 @python_2_unicode_compatible
 class Ticket(SiteRelated, TimeStamped, StatusModel):
