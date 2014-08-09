@@ -20,10 +20,10 @@ class TicketAdminForm(forms.ModelForm):
         # tipologies is filtered by current site if 'tipologies' in
         # self.fields. If field is read_only isn't in self.fields
         # for field, related_name in ('t')
+
         if 'content' in self.fields:
             self.fields['content'].required = True
             self.fields['content'].widget.attrs['class'] = 'mceEditor'
-            # print("---> ", self.fields['content'].widget.attrs['class'])
         if 'source' in self.fields:
             self.fields['source'].required = True
             try:
@@ -40,7 +40,7 @@ class TicketAdminForm(forms.ModelForm):
                         self.fields[field].queryset = relate_manager.all()
         else:  # django 1.5
             if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
-                for field in ['tipologies', 'priority']:
+                for field in ['tipologies', 'priority', 'content']:
                     del self.fields[field]
 
     def clean_tipologies(self):
