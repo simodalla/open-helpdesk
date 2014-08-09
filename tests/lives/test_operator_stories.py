@@ -56,7 +56,7 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
         browser_o, opened_ticket):
     content = 'foo ' * 10
     action = 'put_on_pending'
-    days_after_today = 2
+    days_after_today = 4
     now = timezone.now()
     browser_o.get(reverse(admin_urlname(Report._meta, 'add')) +
                   '?ticket={}'.format(opened_ticket.id,))
@@ -71,10 +71,11 @@ def test_add_report_to_open_ticket_with_put_on_pending_action(
         ec.visibility_of_element_located(
             (By.ID, 'id_estimated_end_pending_date')))
     estimated_end_pending_date.click()
-    WebDriverWait(browser_o.driver, 10).until(
+    datepicker = WebDriverWait(browser_o.driver, 10).until(
         ec.visibility_of_element_located(
-            (By.CSS_SELECTOR, 'td.ui-datepicker-today{}'.format(
-                ' + td' * days_after_today)))).click()
+            (By.CSS_SELECTOR, 'table.ui-datepicker-calendar')))
+    datepicker.find_element_by_link_text(
+        str((now + timezone.timedelta(days=days_after_today)).day)).click()
     browser_o.driver.find_element_by_name('_save').click()
     browser_o.driver.find_element_by_id("ticket_form")
     report = Report.objects.filter(ticket__id=opened_ticket.id).latest()
