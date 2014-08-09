@@ -61,8 +61,7 @@ class TestAddingTicket(WebTest):
         site_conf._email_addr_from = 'helpdesk@example.com'
         site_conf._email_addr_to_1 = 'support@example.com'
         site_conf.save()
-        response = self.form.submit('_save')
-        ticket = Ticket.objects.latest()
+        self.form.submit('_save')
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
         """:type : django.core.mail.EmailMessage"""
@@ -95,9 +94,3 @@ class TestManageMessagesOfTicket(WebTest):
         message_div = response.lxml.get_element_by_id(
             'ticket_message_{}'.format(message.pk))
         self.assertIn(message_content, message_div.text_content())
-
-
-
-
-
-

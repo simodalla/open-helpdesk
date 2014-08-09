@@ -12,8 +12,6 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 
-from django_webtest import WebTest
-
 from openhelpdesk.models import Report, Ticket
 
 pytestmark = pytest.mark.django_db
@@ -145,5 +143,3 @@ def test_add_report_to_peding_ticket_without_action(app, pending_ticket):
     assert report.recipient.pk == pending_ticket.requester.pk
     assert report.ticket.status == Ticket.STATUS.pending
     assert report.ticket.status_changelogs.count() == pre_changelogs
-
-
