@@ -517,10 +517,13 @@ ACTIONS_ON_TICKET_CHOICES = tuple((k, ACTIONS_ON_TICKET[k])
 
 @python_2_unicode_compatible
 class Report(Message):
-    action_on_ticket = models.CharField(max_length=50,
-                                        choices=ACTIONS_ON_TICKET_CHOICES,
-                                        default=DEFAULT_ACTIONS[0])
-    visible_from_requester = models.BooleanField(default=False)
+    action_on_ticket = models.CharField(
+        _('Action on ticket'), max_length=50,
+        choices=ACTIONS_ON_TICKET_CHOICES, default=DEFAULT_ACTIONS[0],
+        help_text=_('Select any action to perform on the ticket.'))
+    visible_from_requester = models.BooleanField(
+        _('Visible from requester'), default=False,
+        help_text=_('Check to make visible this report to the requester.'))
 
     class Meta:
         get_latest_by = 'created'
