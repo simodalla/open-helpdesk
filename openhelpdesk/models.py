@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from future.builtins import str
+
+import six
 
 from django.contrib.auth import get_user_model
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
@@ -104,10 +107,12 @@ class HelpdeskUser(User):
 
 
 # monkey-patch for add __str__ method of HelpdeskUser to system User model
-for method_to_patch in ['__str__', '__unicode__']:
-    if (hasattr(User, method_to_patch)
-            and hasattr(HelpdeskUser, method_to_patch)):
-        setattr(User, method_to_patch, getattr(HelpdeskUser, method_to_patch))
+if six.PY3:
+    for method_to_patch in ['__str__', '__unicode__']:
+        if (hasattr(User, method_to_patch)
+                and hasattr(HelpdeskUser, method_to_patch)):
+            setattr(User, method_to_patch, getattr(HelpdeskUser,
+                                                   method_to_patch))
 
 
 @python_2_unicode_compatible

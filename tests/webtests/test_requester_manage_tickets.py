@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
+from future.builtins import str
+
+import six
 
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.sites.models import Site
@@ -80,11 +83,14 @@ class TestManageMessagesOfTicket(WebTest):
         ticket = new_ticket(self.user, get_tipologies(2), 'Foo')
         message_content = 'help'
         recipient = operator()
+        str_recipient = str(recipient)
         url = reverse(admin_urlname(Ticket._meta, 'change'), args=(ticket.pk,))
         response = self.app.get(url, user=self.user)
         form = response.forms['ticket_form']
         form['messages-0-content'] = message_content
-        form['messages-0-recipient'].select(text=str(recipient))
+        if six.PY2:
+            str_recipient = str(recipient.username)
+        form['messages-0-recipient'].select(text=str_recipient)
         form.submit('_continue').follow()
         message = ticket.messages.latest()
         self.assertEqual(message.content, message_content)

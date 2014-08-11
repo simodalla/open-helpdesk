@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
+from future.builtins import str
 
 import datetime
 import os.path
+import six
 
 import pytest
 
@@ -560,9 +562,17 @@ class TestTicketModel(object):
 
 
 class TestSiteConfigurationModel(object):
+    @pytest.mark.skipif(six.PY2, reason="requires python3")
     def test_str_method(self):
         with patch.object(SiteConfiguration, 'site',
                           __str__=lambda x: 'site foo'):
+            site_conf = SiteConfiguration()
+            assert site_conf.__str__() == 'site foo'
+
+    @pytest.mark.skipif(six.PY3, reason="requires python2")
+    def test_unicode_method(self):
+        with patch.object(SiteConfiguration, 'site',
+                          __unicode__=lambda x: 'site foo'):
             site_conf = SiteConfiguration()
             assert str(site_conf) == 'site foo'
 
