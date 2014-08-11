@@ -524,9 +524,14 @@ if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
     TicketAdmin.queryset = TicketAdmin.get_queryset
 
 
+class HeldeskUserAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(Tipology, TipologyAdmin)
+admin.site.register(HelpdeskUser, HeldeskUserAdmin)
 admin.site.register(Report, ReportAdmin)
-admin.site.register(Ticket, TicketAdmin)
 admin.site.register(SiteConfiguration, SiteConfigurationAdmin)
 admin.site.register(Source, SourceAdmin)
+admin.site.register(Ticket, TicketAdmin)
+admin.site.register(Tipology, TipologyAdmin)
