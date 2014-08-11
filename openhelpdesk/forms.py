@@ -15,6 +15,8 @@ from .models import Ticket, Report, Source
 
 class TicketAdminForm(forms.ModelForm):
 
+    _ohp_only_operators_fields = ['requester', 'source']
+
     def __init__(self, *args, **kwargs):
         super(TicketAdminForm, self).__init__(*args, **kwargs)
         # tipologies is filtered by current site if 'tipologies' in
@@ -37,10 +39,20 @@ class TicketAdminForm(forms.ModelForm):
                     relate_manager = getattr(site, related_name, None)
                     if relate_manager:
                         self.fields[field].queryset = relate_manager.all()
-        else:  # django 1.5
-            if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
+
+        # The next code is tricky for ensure compatibility with django 1.5
+        if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:  # django 1.5
+            if self.instance.pk:  # change form
                 for field in ['tipologies', 'priority', 'content']:
                     del self.fields[field]
+            if len(args) > 0:  # the form is bound
+                form_data = args[0]
+                for field in self._ohp_only_operators_fields:
+                    # if current field is not in buond data whereas is in
+                    # self.fields therefore user is an "requester". We then
+                    # remove field from form fields (self.fields)
+                    if field not in form_data and field in self.fields:
+                        del self.fields[field]
 
     def clean_tipologies(self):
         """
