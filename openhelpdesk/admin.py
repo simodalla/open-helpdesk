@@ -30,6 +30,9 @@ from .models import (
 from .views import OpenTicketView, ObjectToolsView
 
 
+DEFAULT_LIST_PER_PAGE = 15
+
+
 class TipologyInline(TabularDynamicInlineAdmin):
     extra = 3
     model = Tipology
@@ -64,14 +67,37 @@ class AttachmentInline(TabularDynamicInlineAdmin, GenericTabularInline):
 class CategoryAdmin(admin.ModelAdmin):
     inlines = [TipologyInline]
     list_display = ['title', 'admin_tipologies']
+    list_per_page = DEFAULT_LIST_PER_PAGE
     search_fields = ['title']
 
 
 class TipologyAdmin(admin.ModelAdmin):
+    fields = ('title', 'category', 'priority', 'sites',)
     filter_horizontal = ('sites',)
-    list_display = ['title', 'admin_category', 'admin_sites']
+    list_display = ['title', 'ld_category', 'ld_sites']
     list_filter = ['category']
+    list_per_page = DEFAULT_LIST_PER_PAGE
+    list_select_related = True
     search_fields = ['title', 'category__title']
+
+    def ld_category(self, obj):
+        return (
+            '<a href="{url}?id={category.pk}" class="view_category">'
+            '{category.title}</a>'.format(
+                url=reverse(admin_urlname(obj.category._meta, 'changelist')),
+                category=obj.category))
+    ld_category.allow_tags = True
+    ld_category.admin_order_field = 'category'
+    ld_category.short_description = _('Category')
+
+    def ld_sites(self, obj):
+        return '<br>'.join(
+            ['<a href="{url}?id={site.pk}" class="view_site">{site.domain}'
+             '</a>'.format(url=reverse(admin_urlname(s._meta, 'changelist')),
+                           site=s)
+             for s in obj.sites.all()])
+    ld_sites.allow_tags = True
+    ld_sites.short_description = _('Enabled on Sites')
 
 
 class StatusListFilter(admin.ChoicesFieldListFilter):
@@ -84,6 +110,7 @@ class StatusListFilter(admin.ChoicesFieldListFilter):
 
 class SiteConfigurationAdmin(admin.ModelAdmin):
     list_display = ['site', 'email_addrs_to', 'email_addr_from']
+    list_per_page = DEFAULT_LIST_PER_PAGE
 
 
 # noinspection PyProtectedMember
@@ -102,7 +129,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
                     'ld_source', 'ld_assegnee']
     list_filter = ['priority', ('status', StatusListFilter), 'tipologies']
-    list_per_page = 25
+    list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
     search_fields = ['content', 'requester__username',
@@ -378,7 +405,8 @@ class ReportAdmin(admin.ModelAdmin):
                     'recipient']
     list_filter = ['sender', 'recipient', 'action_on_ticket',
                    'visible_from_requester']
-    list_per_page = 20
+    list_per_page = DEFAULT_LIST_PER_PAGE
+    list_select_related = True
     radio_fields = {'action_on_ticket': admin.VERTICAL}
     search_fields = ['ticket__pk', 'ticket__content', 'content']
     helpdesk_ticket = None
@@ -471,6 +499,7 @@ class SourceAdmin(admin.ModelAdmin):
     actions = None
     filter_horizontal = ('sites',)
     list_display = ['code', 'title', 'ld_icon']
+    list_per_page = DEFAULT_LIST_PER_PAGE
 
     def has_delete_permission(self, request, obj=None):
         from openhelpdesk.core import DEFAULT_SOURCES
