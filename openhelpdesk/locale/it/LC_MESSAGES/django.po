@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-11 10:09+0200\n"
+"POT-Creation-Date: 2014-08-11 10:46+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,65 +18,73 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:78 admin.py:179
+#: admin.py:85 models.py:155
+msgid "Category"
+msgstr "Categoria"
+
+#: admin.py:94
+msgid "Enabled on Sites"
+msgstr "Abilitata sui Siti"
+
+#: admin.py:98 admin.py:199
 #: templates/admin/openhelpdesk/ticket/change_form.html:30
 msgid "Status"
 msgstr "Stato"
 
-#: admin.py:143
+#: admin.py:163
 msgid "Open and assign to me"
 msgstr "Aprila e assegnatela"
 
-#: admin.py:150
+#: admin.py:170
 msgid "Add Report"
 msgstr "Aggiungi Report"
 
-#: admin.py:153
+#: admin.py:173
 msgid "The range of pending is over."
 msgstr "Il periodo di attesa è terminato."
 
-#: admin.py:158 core.py:37
+#: admin.py:178 core.py:37
 msgid "Remove from pending"
 msgstr "Termina il periodo di attesa"
 
-#: admin.py:169
+#: admin.py:189
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:12
 msgid "Id"
 msgstr "Id"
 
-#: admin.py:173 models.py:271 models.py:495
+#: admin.py:193 models.py:252 models.py:476
 #: templates/admin/openhelpdesk/ticket/change_form.html:31
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:20
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:11
 msgid "Content"
 msgstr "Contenuto"
 
-#: admin.py:182 templates/admin/openhelpdesk/ticket/change_form.html:38
+#: admin.py:202 templates/admin/openhelpdesk/ticket/change_form.html:38
 msgid "Not assigned"
 msgstr "Non assegnato"
 
-#: admin.py:184 models.py:288
+#: admin.py:204 models.py:269
 #: templates/admin/openhelpdesk/ticket/change_form.html:38
 msgid "Assignee"
 msgstr "Assegnato a"
 
-#: admin.py:196 models.py:245 models.py:296
+#: admin.py:216 models.py:226 models.py:277
 #: templates/admin/openhelpdesk/ticket/change_form.html:29
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:15
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:8
 msgid "Source"
 msgstr "Sorgente"
 
-#: admin.py:203 templates/admin/openhelpdesk/ticket/change_form.html:23
+#: admin.py:223 templates/admin/openhelpdesk/ticket/change_form.html:23
 msgid "Created"
 msgstr "Creato il"
 
-#: admin.py:344
+#: admin.py:364
 #, python-format
 msgid "Tickets %(ticket_ids)s successfully opened and assigned."
 msgstr "I Ticket %(ticket_ids)s sono stati aperti e assegnati con successo."
 
-#: admin.py:346
+#: admin.py:366
 #, python-format
 msgid ""
 "Errors occours: \n"
@@ -85,25 +93,25 @@ msgstr ""
 "Errori occorsi: \n"
 "%(errors)s."
 
-#: admin.py:369
+#: admin.py:389
 msgid "Open e assign selected Tickets"
 msgstr "Apri a assegnati i Ticket selezionati"
 
-#: admin.py:399
+#: admin.py:419
 msgid "Error: wrong request for adding Report."
 msgstr "Errore: richiesta errata nel tentativo di aggiungere un Report."
 
-#: admin.py:421
+#: admin.py:441
 #, python-format
 msgid "You can not change Report with id %(report_id)s"
 msgstr "Tu non puoi modificare il Report con id %(report_id)s"
 
-#: admin.py:479
+#: admin.py:499
 #, python-format
 msgid "%(title)s is a system %(model)s and is not eliminated."
 msgstr "%(title)s è un %(model)s di sistema e non può essere eliminato."
 
-#: admin.py:488
+#: admin.py:508
 msgid "Icon"
 msgstr "Icona"
 
@@ -209,30 +217,26 @@ msgstr "Configurazione Sito"
 msgid "Site Configurations"
 msgstr "Configurazione Siti"
 
-#: models.py:152 models.py:181 models.py:238
+#: models.py:152 models.py:181 models.py:219
 msgid "Title"
 msgstr "Titolo"
-
-#: models.py:155
-msgid "Category"
-msgstr "Categoria"
 
 #: models.py:156 models.py:183
 msgid "Categories"
 msgstr "Categorie"
 
-#: models.py:172 models.py:193 models.py:273
+#: models.py:172 models.py:193 models.py:254
 #: templates/admin/openhelpdesk/ticket/change_form.html:25
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:13
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:6
 msgid "Tipologies"
 msgstr "Tipologie"
 
-#: models.py:186 models.py:208 models.py:217 models.py:240
+#: models.py:186 models.py:221
 msgid "Enable on Sites"
 msgstr "Abilita sui Siti"
 
-#: models.py:188 models.py:277
+#: models.py:188 models.py:258
 #: templates/admin/openhelpdesk/ticket/change_form.html:28
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:14
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:7
@@ -243,44 +247,44 @@ msgstr "Piorità"
 msgid "Tipology"
 msgstr "Tipologia"
 
-#: models.py:221
+#: models.py:202
 msgid "File"
 msgstr "File"
 
-#: models.py:223
+#: models.py:204
 msgid "Description"
 msgstr "Descrizione"
 
-#: models.py:230
+#: models.py:211
 msgid "Attachment"
 msgstr "Allegato"
 
-#: models.py:231
+#: models.py:212
 msgid "Attachments"
 msgstr "Allegati"
 
-#: models.py:237
+#: models.py:218
 msgid "code"
 msgstr "codice"
 
-#: models.py:246
+#: models.py:227
 msgid "Sources"
 msgstr "Sorgenti"
 
-#: models.py:274
+#: models.py:255
 #, python-format
 msgid "You can select a maximum of %(max)s %(tipologies)s."
 msgstr "Puoi selezionare al massimo %(max)s %(tipologies)s."
 
-#: models.py:279 templates/admin/openhelpdesk/ticket/change_form.html:36
+#: models.py:260 templates/admin/openhelpdesk/ticket/change_form.html:36
 msgid "Insert by"
 msgstr "Inserito da"
 
-#: models.py:283 templates/admin/openhelpdesk/ticket/change_form.html:33
+#: models.py:264 templates/admin/openhelpdesk/ticket/change_form.html:33
 msgid "Requester"
 msgstr "Richiedente"
 
-#: models.py:285
+#: models.py:266
 msgid ""
 "You must insert the Requester of Ticket.  Start to type characters for "
 "searching into 'username', 'first name' 'last name' or 'email' fields of "
@@ -290,11 +294,11 @@ msgstr ""
 "ricercare nei campi 'username', 'nome' 'cognome' ed 'email' degli utenti "
 "Richiedenti."
 
-#: models.py:292 templates/admin/openhelpdesk/ticket/change_form.html:40
+#: models.py:273 templates/admin/openhelpdesk/ticket/change_form.html:40
 msgid "Related tickets"
 msgstr "Ticket correlati"
 
-#: models.py:293
+#: models.py:274
 msgid ""
 "You can insert one or more related Tickets. Start to type digits for "
 "searching into 'id' or 'content' fields of your other Tickets previously "
@@ -304,99 +308,99 @@ msgstr ""
 "da ricercare nel campo 'id' o caratteri da ricercare nel campo 'contenuto' "
 "dei tuoi Ticket precedentemente inseriti."
 
-#: models.py:303 models.py:502
+#: models.py:284 models.py:483
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models.py:304
+#: models.py:285
 msgid "Tickets"
 msgstr "Ticket"
 
-#: models.py:496
+#: models.py:477
 msgid "Sender"
 msgstr "Mittente"
 
-#: models.py:498
+#: models.py:479
 msgid "Recipient"
 msgstr "Destinatario"
 
-#: models.py:507
+#: models.py:488
 msgid "Message"
 msgstr "Messaggio"
 
-#: models.py:508
+#: models.py:489
 msgid "Messages"
 msgstr "Messaggi"
 
-#: models.py:521
+#: models.py:502
 msgid "Action on ticket"
 msgstr "Azione sul ticket"
 
-#: models.py:523
+#: models.py:504
 msgid "Select any action to perform on the ticket."
 msgstr "Seleziona l'eventuale azione da effettuare sul ticket."
 
-#: models.py:525
+#: models.py:506
 msgid "Visible from requester"
 msgstr "Visibile dal richiedente"
 
-#: models.py:526
+#: models.py:507
 msgid "Check to make visible this report to the requester."
 msgstr "Metti la spunta per rendere visibile questo report al richiedente."
 
-#: models.py:531
+#: models.py:512
 msgid "Report"
 msgstr "Report"
 
-#: models.py:532
+#: models.py:513
 msgid "Reports"
 msgstr "Report"
 
-#: models.py:550
+#: models.py:531
 msgid "Pending Range"
 msgstr "Periodo di attesa"
 
-#: models.py:551
+#: models.py:532
 msgid "Pending Ranges"
 msgstr "Periodi di attesa"
 
-#: models.py:559
+#: models.py:540
 msgid "Maker"
 msgstr "Maker"
 
-#: models.py:562
+#: models.py:543
 msgid "Co Makers"
 msgstr "Co Maker"
 
-#: models.py:569
+#: models.py:550
 msgid "Scheduled at"
 msgstr "Schedulato il"
 
-#: models.py:574
+#: models.py:555
 msgid "Activity"
 msgstr "Attivita"
 
-#: models.py:575
+#: models.py:556
 msgid "Activities"
 msgstr "Attivita"
 
-#: models.py:587
+#: models.py:568
 msgid "Before"
 msgstr "Prima"
 
-#: models.py:588
+#: models.py:569
 msgid "After"
 msgstr "Dopo"
 
-#: models.py:589
+#: models.py:570
 msgid "Changer"
 msgstr "Cambiato da"
 
-#: models.py:594
+#: models.py:575
 msgid "Status Changelog"
 msgstr "Changelog di Stato"
 
-#: models.py:595 templates/admin/openhelpdesk/ticket/change_form.html:16
+#: models.py:576 templates/admin/openhelpdesk/ticket/change_form.html:16
 msgid "Status Changelogs"
 msgstr "Changelog di Stato"
 
