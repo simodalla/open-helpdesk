@@ -105,6 +105,8 @@ INSTALLED_APPS = (
     "django.contrib.sites",
     # "django.contrib.sitemaps",
     "django.contrib.staticfiles",
+    "autocomplete_light",
+    "openhelpdesk",
     # "mezzanine.boot",
     "mezzanine.conf",
     "mezzanine.core",
@@ -113,8 +115,6 @@ INSTALLED_APPS = (
     # "mezzanine.forms",
     "mezzanine.pages",
     # "mezzanine.galleries",
-    "autocomplete_light",
-    "openhelpdesk",
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -159,9 +159,9 @@ PACKAGE_NAME_GRAPPELLI = "grappelli_safe"
 
 OPTIONAL_APPS = (
     "debug_toolbar",
-    "django_extensions",
-    "compressor",
-    PACKAGE_NAME_FILEBROWSER,
+    # "django_extensions",
+    # "compressor",
+    # PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
 
