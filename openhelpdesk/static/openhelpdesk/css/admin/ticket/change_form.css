@@ -1,0 +1,7 @@
+.selector select[multiple=multiple] {
+    height: 150px;
+}
+
+.selector-chosen select[multiple=multiple] {
+    height: 70px;
+}

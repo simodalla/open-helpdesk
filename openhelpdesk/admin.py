@@ -71,6 +71,7 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['title']
 
 
+# noinspection PyMethodMayBeStatic
 class TipologyAdmin(admin.ModelAdmin):
     fields = ('title', 'category', 'priority', 'sites',)
     filter_horizontal = ('sites',)
@@ -123,7 +124,7 @@ class TicketAdmin(admin.ModelAdmin):
                        'related_tickets', 'content'],
         }),
     )
-    filter_horizontal = ('tipologies',)
+    filter_vertical = ('tipologies',)
     form = TicketAdminAutocompleteForm
     inlines = [AttachmentInline]
     list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',

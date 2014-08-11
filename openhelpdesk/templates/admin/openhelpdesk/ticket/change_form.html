@@ -5,6 +5,7 @@
 {% block extrahead %}
     {{ block.super }}
     <script src="{% static "openhelpdesk/js/lib/require.js" %}" data-main="{% static "openhelpdesk/js/ticket" %}"></script>
+    <link rel="stylesheet" href="{% static "openhelpdesk/css/admin/ticket/change_form.css" %}">
 {% endblock %}
 
 {% block after_field_sets %}
