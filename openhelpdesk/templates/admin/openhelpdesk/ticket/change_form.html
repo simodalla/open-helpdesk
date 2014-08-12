@@ -41,7 +41,7 @@
                             <th>{% trans "Related tickets" %}:</th>
                             <td>
                                 {% for related_ticket in original.related_tickets.all %}
-                                <a class="related_ticket" href="{% url 'admin:helpdesk_ticket_change' related_ticket.pk %}">{% trans opts.verbose_name %}{{ related_ticket.id }}</a>&nbsp;
+                                <a class="related_ticket" href="{% url 'admin:openhelpdesk_ticket_change' related_ticket.pk %}">{% trans opts.verbose_name %}{{ related_ticket.id }}</a>&nbsp;
                                 {% empty %}
                                     {% trans "No related tickets" %}
                                 {% endfor %}
