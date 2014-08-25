@@ -59,14 +59,13 @@ coverage-live-html:
 docs:
 	rm -f docs/open-helpdesk.rst
 	rm -f docs/modules.rst
-#	sphinx-apidoc -o docs/ openhelpdesk
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
 
 release: clean
-#	python setup.py sdist upload
-#	python setup.py bdist_wheel upload
+	python setup.py sdist upload
+	python setup.py bdist_wheel upload
 	@echo "\n\nYou probably want to also tag the version now:"
 	@echo "    git tag -a VERSION_NUMBER -m 'version VERSION_NUMBER'"
 	@echo "    git push --tags"
