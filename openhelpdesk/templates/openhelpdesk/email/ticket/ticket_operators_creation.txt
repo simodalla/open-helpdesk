@@ -3,6 +3,7 @@
 {% blocktrans with ticket_name=ticket_name|lower%}A new {{ ticket_name }} has been created{% endblocktrans %}
 
 {% block body %}
+{% trans "Id" %}: {{ ticket.pk }}
 {% trans "Tipologies" %}: {{ ticket.tipologies.all|join:", " }}
 {% trans "Priority" %}: {{ ticket.get_priority_display }}
 {% trans "Source" %}: {{ ticket.source.title }}
