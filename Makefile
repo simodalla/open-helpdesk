@@ -65,8 +65,11 @@ docs:
 	open docs/_build/html/index.html
 
 release: clean
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+#	python setup.py sdist upload
+#	python setup.py bdist_wheel upload
+	@echo "\n\nYou probably want to also tag the version now:"
+	@echo "    git tag -a VERSION_NUMBER -m 'version VERSION_NUMBER'"
+	@echo "    git push --tags"
 
 sdist: clean
 	python setup.py sdist
