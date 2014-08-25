@@ -344,8 +344,20 @@ class TicketAdmin(admin.ModelAdmin):
         super(TicketAdmin, self).save_model(request, obj, form, change)
         if not change:
             obj.initialize()
-            if obj.requester_id == obj.insert_by_id:
-                obj.send_email_to_operators_on_adding(request)
+
+    def save_related(self, request, form, formsets, change):
+        """
+        Save related is called after "save_model" method where related objects
+        aren't saved yet. Here super.save_related is called, it's save all
+        related object and only after send_email_to_operators_on_adding is
+        called on Ticket objets because in this method are used the related
+        objects (eg: ticket.tipologies.all)
+        """
+        super(TicketAdmin, self).save_related(request, form, formsets, change)
+        obj = form.instance
+        """:type : openhelpdesk.models.Ticket"""
+        if not change and obj.requester_id == obj.insert_by_id:
+            obj.send_email_to_operators_on_adding(request)
 
     # ModelsAdmin views methods customized ####################################
     def change_view(self, request, object_id, form_url='', extra_context=None):
