@@ -22,6 +22,8 @@ if sys.argv[-1] == 'publish':
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+install_requirements = open(
+    'requirements/requirements_production.txt').read().splitlines()
 
 setup(
     name='open-helpdesk',
@@ -35,8 +37,7 @@ setup(
         'openhelpdesk',
     ],
     include_package_data=True,
-    install_requires=[
-    ],
+    install_requires=install_requirements,
     license="BSD",
     zip_safe=False,
     keywords='open helpdesk',

@@ -59,7 +59,7 @@ coverage-live-html:
 docs:
 	rm -f docs/open-helpdesk.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ open-helpdesk
+#	sphinx-apidoc -o docs/ openhelpdesk
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html

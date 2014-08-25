@@ -1,12 +1,39 @@
-============
 Installation
 ============
+The easiest method is to install directly from pypi using `pip`_ by
+running the command below, which will also install the required
+dependencies mentioned above::
 
-At the command line::
+    $ pip install open-helpdesk
 
-    $ easy_install mezzanine-helpdesk
+If you prefer, you can download openhelpdesk and install it directly from
+source::
 
-Or, if you have virtualenvwrapper installed::
+    $ python setup.py install
 
-    $ mkvirtualenv mezzanine-helpdesk
-    $ pip install mezzanine-helpdesk
+If you don't have already an configurated Mezzanine projects, the command
+``mezzanine-project`` can be used to create a new Mezzanine project in similar
+fashion to ``django-admin.py``::
+
+    $ mezzanine-project project_name
+    $ cd project_name
+    $ python manage.py createdb --noinput
+
+
+Add ``openhelpdesk`` to your ``INSTALLED_APPS`` setting before all
+mezzanine apps::
+
+    INSTALLED_APPS = (
+        # ...
+        'openhelpdesk',
+        'mezzanine.boot',
+        'mezzanine.conf',
+        'mezzanine.core',
+        # ...
+    )
+
+You will then want to create the necessary tables. If you are using `South`_
+for schema migrations, you'll want to::
+
+    $ python manage.py migrate openhelpdesk
+

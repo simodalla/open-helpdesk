@@ -102,9 +102,9 @@ class Command(BaseCommand):
                                          " random %}.").render(Context({})),
                         sender=user) for ti in range(0, 3)]
 
-                print("Tickets", Ticket.objects.all(), sep=": ")
-                print("Messages", Message.objects.all(), sep=": ")
-                print("Reports", Report.objects.all(), sep=": ")
+                print("Tickets: ", Ticket.objects.all())
+                print("Messages: ", Message.objects.all())
+                print("Reports: ", Report.objects.all())
 
             if group_name == HELPDESK_OPERATORS[0]:
                 for n, ticket in enumerate(Ticket.objects.all()):
