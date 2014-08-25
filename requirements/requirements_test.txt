@@ -7,7 +7,6 @@ pytest-django
 pytest-cov
 flake8
 selenium
-six
 lxml
 cssselect
 webtest

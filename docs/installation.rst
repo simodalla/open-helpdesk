@@ -1,6 +1,6 @@
 Installation
 ============
-The easiest method is to install directly from pypi using `pip`_ by
+The easiest method is to install directly from pypi using `pip: http://www.pip-installer.org/` by
 running the command below, which will also install the required
 dependencies mentioned above::
 
@@ -32,7 +32,7 @@ mezzanine apps::
         # ...
     )
 
-You will then want to create the necessary tables. If you are using `South`_
+You will then want to create the necessary tables. If you are using `South http://south.aeracode.org/`
 for schema migrations, you'll want to::
 
     $ python manage.py migrate openhelpdesk

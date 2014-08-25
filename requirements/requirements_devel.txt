@@ -1,8 +1,4 @@
 -r requirements_test.txt
+-r requirements_production.txt
 wheel
 django-debug-toolbar
-mezzanine==3.1.9
-psycopg2==2.5.3
-django-model-utils==2.0.3
-django-braces==1.4.0
-django-autocomplete-light==2.0.0a18

@@ -9,9 +9,9 @@
 
 Created by `Simone Dalla <http://twitter.com/simodalla>`_
 
-============
-OpenHelpdesk
-============
+========
+Overview
+========
 
 Helpdesk app for Django/Mezzanine project
 
