@@ -29,7 +29,7 @@ OpenHelpdesk required:
 Documentation
 =============
 
-Please head over to `documentation <http://docs.django-cms.org/>`_ for all
+Please head over to `documentation <https://readthedocs.org/projects/openhelpdesk/>`_ for all
 the details on how to install, configurate and use the OpenHelpdesk.
 
 
