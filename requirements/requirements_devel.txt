@@ -1,4 +1,5 @@
 -r requirements_test.txt
 -r requirements_production.txt
 wheel
+sphinx-intl
 django-debug-toolbar
