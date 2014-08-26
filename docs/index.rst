@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to mezzanine-helpdesk's documentation!
-=================================================================
+==============================================
 
 Contents:
 
@@ -13,6 +13,7 @@ Contents:
 
    readme
    installation
+   getting-started
    usage
    contributing
    authors

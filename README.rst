@@ -29,7 +29,7 @@ OpenHelpdesk required:
 Documentation
 =============
 
-Please head over to `documentation <https://readthedocs.org/projects/openhelpdesk/>`_ for all
+Please head over to `Documentation`_ for all
 the details on how to install, configurate and use the OpenHelpdesk.
 
 
@@ -42,7 +42,7 @@ OpenHelpdesk is `BSD licensed`_.
 .. _`Django`: http://djangoproject.com/
 .. _`Django Code of Conduct`: https://www.djangoproject.com/conduct/
 .. _`BSD licensed`: https://github.com/simodalla/open-helpdesk/blob/master/LICENSE
-.. _`Documentation`: http://mezzanine_page_auth.readthedocs.org/
+.. _`Documentation`: https://readthedocs.org/projects/openhelpdesk/
 .. _`Official repository`: https://github.com/simodalla/mezzanine_page_auth/
 .. _`Package`: https://pypi.python.org/pypi/mezzanine-page-auth/
 .. _`Mezzanine`: http://mezzanine.jupo.org
