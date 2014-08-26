@@ -6,6 +6,10 @@
 Welcome to mezzanine-helpdesk's documentation!
 ==============================================
 
+.. note::
+
+    This project and this documentation are still under development.
+
 Contents:
 
 .. toctree::
