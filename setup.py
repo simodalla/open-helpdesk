@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-
 import openhelpdesk
 
 try:
@@ -12,14 +9,6 @@ except ImportError:
     from distutils.core import setup
 
 version = openhelpdesk.__version__
-
-if sys.argv[-1] == 'upload':
-    os.system('python setup.py sdist upload')
-    print("You probably want to also tag the version now:")
-    print("  git tag -a %s -m 'version %s'" % (version, version))
-    print("  git push --tags")
-    sys.exit()
-
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 install_requirements = open(
