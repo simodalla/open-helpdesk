@@ -201,7 +201,6 @@ class TicketAdmin(admin.ModelAdmin):
     ld_content.short_description = _('Content')
 
     def ld_status(self, obj):
-        print(_(obj.status))
         return helpdesk_tags.helpdesk_status(obj.status)
     ld_status.admin_order_field = 'status'
     ld_status.allow_tags = True
