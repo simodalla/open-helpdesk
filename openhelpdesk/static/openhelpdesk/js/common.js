@@ -21,5 +21,5 @@ if('__helpdeskStaticAppPath' in window) {
     });
 } else {
     alert('A system error is occurs. Contact the system administrator.');
-    window.location.replace('/admin/');
+    window.location.replace(ADMIN_URL);
 }

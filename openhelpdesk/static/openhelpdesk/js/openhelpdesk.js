@@ -1,5 +1,5 @@
 function helpdeskGetObjectTools($) {
-    var url = "/admin/openhelpdesk/ticket/object_tools/?view=" + location.pathname;
+    var url = ADMIN_URL + "openhelpdesk/ticket/object_tools/?view=" + location.pathname;
     $.get(url, function (data) {
         var objectToolsUl = $('ul.object-tools');
         for (var key in data) {
