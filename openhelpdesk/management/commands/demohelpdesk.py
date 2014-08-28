@@ -65,7 +65,7 @@ class Command(BaseCommand):
             except HelpdeskUser.DoesNotExist:
                 huser = HelpdeskUser.objects.create_user(
                     username, email='{}@example.com'.format(username),
-                    password=username)
+                    password='default')
                 self.stdout.write('User "{}" is created'.format(username))
             huser.is_staff = True
             huser.save()
