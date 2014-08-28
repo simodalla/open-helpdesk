@@ -64,11 +64,15 @@ def awesome_icon(name, spin=False, larger=None):
 
 @register.filter(is_safe=True)
 def helpdesk_status(status, surround=None):
+    from openhelpdesk.core import TICKET_STATUSES
     surround = surround if surround in ['b', 'i', 'em', 'strong'] else None
-    result = ("{% load helpdesk_tags %}"
+    result = ("{% load i18n helpdesk_tags %}"
               "{% awesome_status_icon status %}&nbsp;&nbsp;"
               "{% if surround %}<{{ surround }}>{% endif %}"
-              "{{ status|capfirst }}"
+              "{{ title }}"
               "{% if surround %}</{{ surround }}>{% endif %}")
     t = Template(result)
-    return t.render(Context({'status': status, 'surround': surround}))
+    title = next((title for code, title in TICKET_STATUSES if code == status),
+                 None)
+    return t.render(Context({'status': status, 'surround': surround,
+                             'title': title}))

@@ -201,6 +201,7 @@ class TicketAdmin(admin.ModelAdmin):
     ld_content.short_description = _('Content')
 
     def ld_status(self, obj):
+        print(_(obj.status))
         return helpdesk_tags.helpdesk_status(obj.status)
     ld_status.admin_order_field = 'status'
     ld_status.allow_tags = True
@@ -215,7 +216,7 @@ class TicketAdmin(admin.ModelAdmin):
         if not obj.source:
             return ''
         context = Context({'icon_name': obj.source.icon,
-                           'source': obj.source.title})
+                           'source': _(obj.source.title)})
         return Template("{% load helpdesk_tags %}"
                         "{% awesome_icon icon_name %}"
                         "&nbsp;&nbsp;{{ source }}").render(context)
