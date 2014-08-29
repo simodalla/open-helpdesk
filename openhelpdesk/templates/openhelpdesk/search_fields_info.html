@@ -1,0 +1,7 @@
+{% load i18n %}
+
+{% if search_fields_info %}
+<div id="search_fields_info" style="display: none;">
+{% blocktrans with search_fields_info=search_fields_info %}You can search for: {{ search_fields_info }}{% endblocktrans %}
+</div>
+{% endif %}

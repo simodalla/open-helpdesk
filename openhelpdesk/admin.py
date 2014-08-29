@@ -135,7 +135,7 @@ class TicketAdmin(admin.ModelAdmin):
     radio_fields = {'priority': admin.HORIZONTAL}
     search_fields = ['content', 'requester__username',
                      'requester__first_name', 'requester__last_name',
-                     'tipologies__title']
+                     'tipologies__title', 'tipologies__category__title']
 
     operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
     operator_list_display = ['requester']
@@ -144,6 +144,10 @@ class TicketAdmin(admin.ModelAdmin):
 
     def get_request_helpdeskuser(self, request):
         return HelpdeskUser.get_from_request(request)
+
+    def get_search_fields_info(self, request):
+        return _('content of ticket, title of tipology, title of category'
+                 ' ,username, last name, first name of requester')
 
     @staticmethod
     def get_object_tools(request, view_name, obj=None):
@@ -360,6 +364,10 @@ class TicketAdmin(admin.ModelAdmin):
             obj.send_email_to_operators_on_adding(request)
 
     # ModelsAdmin views methods customized ####################################
+    def changelist_view(self, request, extra_context=None):
+        return super(TicketAdmin, self).changelist_view(
+            request, extra_context=extra_context)
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         # get the ticket's messages only if is change form

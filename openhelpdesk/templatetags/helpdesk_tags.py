@@ -76,3 +76,12 @@ def helpdesk_status(status, surround=None):
                  None)
     return t.render(Context({'status': status, 'surround': surround,
                              'title': title}))
+
+
+@register.inclusion_tag('openhelpdesk/search_fields_info.html',
+                        takes_context=True)
+def search_fields_info(context, cl):
+    get_info = getattr(cl.model_admin,
+                       'get_search_fields_info',
+                       lambda request: None)
+    return {'search_fields_info': get_info(context['request'])}
