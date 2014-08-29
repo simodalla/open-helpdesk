@@ -1,9 +1,10 @@
 require(['./common'], function (common) {
     require([ "jquery", "jquery-ui/jquery-ui"], function ($) {
 
-        $("#searchbar").attr("title", "Puoi effettuare ricerche per: contenuto" +
-            "del ticket, titolo delle tipologie, nome, cognome, username del" +
-            "richiedente");
-        $("#searchbar").tooltip({track: true});
+        if ($("div#search_fields_info").length) {
+            var search_fields_info = $("div#search_fields_info").html().trim();
+            $("#searchbar").attr("title", search_fields_info);
+            $("#searchbar").tooltip({track: true});
+        }
     });
 });
