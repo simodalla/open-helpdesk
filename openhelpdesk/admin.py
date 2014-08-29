@@ -40,7 +40,7 @@ class TipologyInline(TabularDynamicInlineAdmin):
 
 class MessageInline(TabularDynamicInlineAdmin):
     model = Message
-    fields = ('content', 'recipient',)
+    fields = ('content', )
 
 
 class ReportTicketInline(TabularDynamicInlineAdmin):
