@@ -82,20 +82,15 @@ class TestManageMessagesOfTicket(WebTest):
     def test_add_message_to_new_ticket(self):
         ticket = new_ticket(self.user, get_tipologies(2), 'Foo')
         message_content = 'help'
-        recipient = operator()
-        str_recipient = str(recipient)
         url = reverse(admin_urlname(Ticket._meta, 'change'), args=(ticket.pk,))
         response = self.app.get(url, user=self.user)
         form = response.forms['ticket_form']
         form['messages-0-content'] = message_content
-        if six.PY2:
-            str_recipient = str(recipient.username)
-        form['messages-0-recipient'].select(text=str_recipient)
         form.submit('_continue').follow()
         message = ticket.messages.latest()
         self.assertEqual(message.content, message_content)
         self.assertEqual(message.sender_id, self.user.pk)
-        self.assertEqual(message.recipient_id, recipient.pk)
+        self.assertIsNone(message.recipient)
         response = self.app.get(url + '#tab_messages')
         message_div = response.lxml.get_element_by_id(
             'ticket_message_{}'.format(message.pk))

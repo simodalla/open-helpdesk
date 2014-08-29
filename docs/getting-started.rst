@@ -12,15 +12,16 @@ fashion to ``django-admin.py``::
     $ mezzanine-project project_name
     $ cd project_name
 
-Add ``openhelpdesk`` to your ``INSTALLED_APPS`` setting into ``settings.py``
-before all ``Mezzanine`` apps::
+Add ``openhelpdesk`` and ``autocomplete_light`` to your ``INSTALLED_APPS``
+setting into your ``settings.py`` before all mezzanine apps::
 
     INSTALLED_APPS = (
         # ...
-        'openhelpdesk',
-        'mezzanine.boot',
-        'mezzanine.conf',
-        'mezzanine.core',
+        "openhelpdesk",
+        "autocomplete_light",
+        "mezzanine.boot",
+        "mezzanine.conf",
+        "mezzanine.core",
         # ...
     )
 
@@ -45,15 +46,16 @@ You have already an existing Mezzanine projects
 
     $ cd existing_project_name
 
-Add ``openhelpdesk`` to your ``INSTALLED_APPS`` setting into your ``settings.py``
-before all mezzanine apps::
+Add ``openhelpdesk`` and ``autocomplete_light`` to your ``INSTALLED_APPS``
+setting into your ``settings.py`` before all mezzanine apps::
 
     INSTALLED_APPS = (
         # ...
-        'openhelpdesk',
-        'mezzanine.boot',
-        'mezzanine.conf',
-        'mezzanine.core',
+        "openhelpdesk",
+        "autocomplete_light",
+        "mezzanine.boot",
+        "mezzanine.conf",
+        "mezzanine.core",
         # ...
     )
 
@@ -66,6 +68,44 @@ otherwise you, you'll want to::
 
 
     $ python manage.py syncdb
+
+
+Configure ``autocompleting`` functionality
+------------------------------------------
+
+OpenHelpdesk use `autocomplete_light
+<https://pypi.python.org/pypi/django-autocomplete-light/>`_ to provide autocompleting.
+
+In ``urls.py``, call ``autocomplete_light.autodiscover()`` before
+``admin.autodiscover()`` **and before any import of a form with
+autocompletes**. It might look like this:
+
+.. code-block:: python
+
+    import autocomplete_light
+    autocomplete_light.autodiscover()
+
+    import admin
+    admin.autodiscover()
+
+Install the autocomplete view in ``urls.py`` using the `include function
+<https://docs.djangoproject.com/en/dev/topics/http/urls/#including-other-urlconfs>`_.
+*before* ``Mezzanine`` urls:
+
+.. code-block:: python
+
+    # MEZZANINE'S URLS
+    # ----------------
+    # ADD YOUR OWN URLPATTERNS *ABOVE* THE LINE BELOW.
+    # ``mezzanine.urls`` INCLUDES A *CATCH ALL* PATTERN
+    # FOR PAGES, SO URLPATTERNS ADDED BELOW ``mezzanine.urls``
+    # WILL NEVER BE MATCHED!
+    url(r'^autocomplete/', include('autocomplete_light.urls')),
+    # If you'd like more granular control over the patterns in
+    # ``mezzanine.urls``, go right ahead and take the parts you want
+    # from it, and use them directly below instead of using
+    # ``mezzanine.urls``.
+    ("^", include("mezzanine.urls")),
 
 Initialization
 --------------
