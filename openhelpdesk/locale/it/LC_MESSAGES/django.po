@@ -490,3 +490,16 @@ msgstr "Nuovo %(ticket_name)s creato da %(username)s"
 
 #~ msgid "Insert By"
 #~ msgstr "Inserito da"
+
+#: templates/admin/date_hierarchy.html:5
+msgid "Date Hierarchy"
+msgstr "Filtra sulla data"
+
+#: templates/admin/change_list.html:125
+msgid "Results"
+msgstr "Risultati"
+
+#: templates/admin/change_list.html:130
+#, python-format
+msgid "%(counter)s found"
+msgstr "%(counter)s trovati"
