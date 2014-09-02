@@ -1,3 +1,5 @@
+version := $(shell cat openhelpdesk/__init__.py | cut -d= -f 2 | tr -d ' ' | tr -d "'")
+
 .PHONY: clean-pyc clean-build docs
 
 help:
@@ -67,7 +69,7 @@ release: clean
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 	@echo "\n\nYou probably want to also tag the version now:"
-	@echo "    git tag -a VERSION_NUMBER -m 'version VERSION_NUMBER'"
+	@echo "    git tag -a $(version) -m 'version $(version)'"
 	@echo "    git push --tags"
 
 sdist: clean
