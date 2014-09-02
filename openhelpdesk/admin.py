@@ -7,6 +7,7 @@ from django.conf import urls as django_urls
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.generic import GenericTabularInline
 from django.core.urlresolvers import reverse
 try:
@@ -20,6 +21,7 @@ from django.template import Template, Context
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django import VERSION as DJANGO_VERSION
 
+from mezzanine.conf import settings
 from mezzanine.core.admin import TabularDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
@@ -110,9 +112,43 @@ class StatusListFilter(admin.ChoicesFieldListFilter):
 
 
 class SiteConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['site', 'email_addrs_to', 'email_addr_from']
+    list_display = ['site', 'email_addrs_to', 'email_addr_from',
+                    'ld_operators', 'ld_requesters', 'ld_admins']
     list_per_page = DEFAULT_LIST_PER_PAGE
+    search_fields = ['site__sitepermission__user__username',
+                     'site__sitepermission__user__last_name',
+                     'site__sitepermission__user__first_name', ]
 
+    def _get_user_by_permission(self, obj, helpdesk_group):
+        return ','.join(obj.site.sitepermission_set.filter(
+            user__pk__in=self.helpdesk_groups[helpdesk_group]).values_list(
+                'user__username', flat=True))
+
+    def ld_operators(self, obj):
+        return self._get_user_by_permission(obj, settings.HELPDESK_OPERATORS)
+    ld_operators.allow_tags = True
+    ld_operators.short_description = _('Operators')
+
+    def ld_requesters(self, obj):
+        return self._get_user_by_permission(obj, settings.HELPDESK_REQUESTERS)
+    ld_requesters.allow_tags = True
+    ld_requesters.short_description = _('Requesters')
+
+    def ld_admins(self, obj):
+        return self._get_user_by_permission(obj, settings.HELPDESK_ADMINS)
+    ld_admins.allow_tags = True
+    ld_admins.short_description = _('Admins')
+
+    def changelist_view(self, request, extra_context=None):
+        group_names = [settings.HELPDESK_REQUESTERS,
+                       settings.HELPDESK_OPERATORS,
+                       settings.HELPDESK_ADMINS]
+        self.helpdesk_groups = {
+            group: Group.objects.get(name=group).user_set.values_list(
+                'pk', flat=True) for group in group_names}
+        return super(SiteConfigurationAdmin, self).changelist_view(
+            request, extra_context=extra_context)
+    
 
 # noinspection PyProtectedMember
 class TicketAdmin(admin.ModelAdmin):
@@ -543,13 +579,16 @@ if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
     ReportTicketInline.queryset = ReportTicketInline.get_queryset
     TicketAdmin.queryset = TicketAdmin.get_queryset
 
+from django.contrib.auth.admin import UserAdmin
+from mezzanine.core.admin import SitePermissionUserAdmin
 
-class HeldeskUserAdmin(admin.ModelAdmin):
-    pass
+
+# class HeldeskUserAdmin(SitePermissionUserAdmin):
+
 
 
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(HelpdeskUser, HeldeskUserAdmin)
+# admin.site.register(HelpdeskUser, HeldeskUserAdmin)
 admin.site.register(Report, ReportAdmin)
 admin.site.register(SiteConfiguration, SiteConfigurationAdmin)
 admin.site.register(Source, SourceAdmin)
