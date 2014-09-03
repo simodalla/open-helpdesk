@@ -112,16 +112,14 @@ class StatusListFilter(admin.ChoicesFieldListFilter):
 
 
 class SiteConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['site', 'ld_email_addr_from', 'ld_email_addrs_to',
-                    'ld_admins', 'ld_operators', 'ld_requesters']
+    list_display = ['site', 'ld_emails', 'ld_admins', 'ld_operators',
+                    'ld_requesters']
     list_per_page = DEFAULT_LIST_PER_PAGE
-    search_fields = ['site__sitepermission__user__username',
-                     'site__sitepermission__user__last_name',
-                     'site__sitepermission__user__first_name']
+    search_fields = ['site__sitepermission__user__username']
 
     @staticmethod
     def format_usernames_by_group(obj, group):
-        return ','.join(obj.get_usernames_by_group(group))
+        return ', '.join(sorted(obj.get_usernames_by_group(group)))
 
     def ld_requesters(self, obj):
         return self.format_usernames_by_group(
@@ -139,15 +137,12 @@ class SiteConfigurationAdmin(admin.ModelAdmin):
     ld_admins.allow_tags = True
     ld_admins.short_description = _('Admins')
 
-    def ld_email_addrs_to(self, obj):
-        return '<br>'.join(obj.email_addrs_to)
-    ld_email_addrs_to.allow_tags = True
-    ld_email_addrs_to.short_description = _('Emails to')
-
-    def ld_email_addr_from(self, obj):
-        return obj.email_addr_from
-    ld_email_addr_from.allow_tags = True
-    ld_email_addr_from.short_description = _('Email from')
+    def ld_emails(self, obj):
+        result = (['(to) {}'.format(obj.email_addr_from)] +
+                  ['(from) {}'.format(email) for email in obj.email_addrs_to])
+        return '<hr>'.join(result)
+    ld_emails.allow_tags = True
+    ld_emails.short_description = _('Emails')
     
 
 # noinspection PyProtectedMember
