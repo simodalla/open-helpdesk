@@ -112,42 +112,42 @@ class StatusListFilter(admin.ChoicesFieldListFilter):
 
 
 class SiteConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['site', 'email_addrs_to', 'email_addr_from',
-                    'ld_operators', 'ld_requesters', 'ld_admins']
+    list_display = ['site', 'ld_email_addr_from', 'ld_email_addrs_to',
+                    'ld_admins', 'ld_operators', 'ld_requesters']
     list_per_page = DEFAULT_LIST_PER_PAGE
     search_fields = ['site__sitepermission__user__username',
                      'site__sitepermission__user__last_name',
-                     'site__sitepermission__user__first_name', ]
+                     'site__sitepermission__user__first_name']
 
-    def _get_user_by_permission(self, obj, helpdesk_group):
-        return ','.join(obj.site.sitepermission_set.filter(
-            user__pk__in=self.helpdesk_groups[helpdesk_group]).values_list(
-                'user__username', flat=True))
-
-    def ld_operators(self, obj):
-        return self._get_user_by_permission(obj, settings.HELPDESK_OPERATORS)
-    ld_operators.allow_tags = True
-    ld_operators.short_description = _('Operators')
+    @staticmethod
+    def format_usernames_by_group(obj, group):
+        return ','.join(obj.get_usernames_by_group(group))
 
     def ld_requesters(self, obj):
-        return self._get_user_by_permission(obj, settings.HELPDESK_REQUESTERS)
+        return self.format_usernames_by_group(
+            obj, settings.HELPDESK_REQUESTERS)
     ld_requesters.allow_tags = True
     ld_requesters.short_description = _('Requesters')
 
+    def ld_operators(self, obj):
+        return self.format_usernames_by_group(obj, settings.HELPDESK_OPERATORS)
+    ld_operators.allow_tags = True
+    ld_operators.short_description = _('Operators')
+
     def ld_admins(self, obj):
-        return self._get_user_by_permission(obj, settings.HELPDESK_ADMINS)
+        return self.format_usernames_by_group(obj, settings.HELPDESK_ADMINS)
     ld_admins.allow_tags = True
     ld_admins.short_description = _('Admins')
 
-    def changelist_view(self, request, extra_context=None):
-        group_names = [settings.HELPDESK_REQUESTERS,
-                       settings.HELPDESK_OPERATORS,
-                       settings.HELPDESK_ADMINS]
-        self.helpdesk_groups = {
-            group: Group.objects.get(name=group).user_set.values_list(
-                'pk', flat=True) for group in group_names}
-        return super(SiteConfigurationAdmin, self).changelist_view(
-            request, extra_context=extra_context)
+    def ld_email_addrs_to(self, obj):
+        return ','.join(obj.email_addrs_to)
+    ld_email_addrs_to.allow_tags = True
+    ld_email_addrs_to.short_description = _('Emails to')
+
+    def ld_email_addr_from(self, obj):
+        return obj.email_addr_from
+    ld_email_addr_from.allow_tags = True
+    ld_email_addr_from.short_description = _('Email from')
     
 
 # noinspection PyProtectedMember

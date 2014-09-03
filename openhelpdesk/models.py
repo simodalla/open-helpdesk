@@ -51,8 +51,15 @@ PRIORITIES = (
 )
 
 
+class HelpdeskUserManager(models.Manager):
+    def filter_by_group(self, group_name):
+        return self.filter(groups__name=group_name)
+
+
 @python_2_unicode_compatible
 class HelpdeskUser(User):
+    objects = HelpdeskUserManager()
+
     class Meta:
         proxy = True
 
@@ -118,11 +125,12 @@ if six.PY3:
 @python_2_unicode_compatible
 # class SiteConfiguration(TimeStamped):
 class SiteConfiguration(models.Model):
-    site = models.OneToOneField('sites.Site', primary_key=True)
-    _email_addr_from = models.EmailField(blank=True)
-    _email_addr_to_1 = models.EmailField(blank=True)
-    _email_addr_to_2 = models.EmailField(blank=True)
-    _email_addr_to_3 = models.EmailField(blank=True)
+    site = models.OneToOneField('sites.Site', primary_key=True,
+                                verbose_name=_('Site'))
+    _email_addr_from = models.EmailField(_('Email from'), blank=True)
+    _email_addr_to_1 = models.EmailField(_('Email to - 1'), blank=True)
+    _email_addr_to_2 = models.EmailField(_('Email to - 2'), blank=True)
+    _email_addr_to_3 = models.EmailField(_('Email to - 3'), blank=True)
 
     class Meta:
         verbose_name = _('Site Configuration')
@@ -150,6 +158,11 @@ class SiteConfiguration(models.Model):
     @staticmethod
     def get_no_site_email_addrs_to():
         return []
+
+    def get_usernames_by_group(self, group_name):
+        helpdesk_users = HelpdeskUser.objects.filter_by_group(group_name)
+        return self.site.sitepermission_set.filter(
+            user__in=helpdesk_users).values_list('user__username', flat=True)
 
 
 @python_2_unicode_compatible
