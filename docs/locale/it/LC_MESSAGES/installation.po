@@ -1,0 +1,48 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: mezzanine-helpdesk 0.4.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 10:44+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../installation.rst:2
+msgid "Installation"
+msgstr ""
+
+#: ../../installation.rst:3
+msgid ""
+"The easiest method is to install directly from pypi using `pip: http://www"
+".pip-installer.org/` by running the command below, which will also install "
+"the required dependencies mentioned above::"
+msgstr ""
+
+#: ../../installation.rst:9
+msgid ""
+"If you prefer, you can download openhelpdesk and install it directly from "
+"source::"
+msgstr ""
+
+#: ../../installation.rst:14
+msgid ""
+"If you don't have already an configurated Mezzanine projects, the command "
+"``mezzanine-project`` can be used to create a new Mezzanine project in "
+"similar fashion to ``django-admin.py``::"
+msgstr ""
+
+#: ../../installation.rst:23
+msgid ""
+"Add ``openhelpdesk`` to your ``INSTALLED_APPS`` setting before all mezzanine"
+" apps::"
+msgstr ""
+
+#: ../../installation.rst:35
+msgid ""
+"You will then want to create the necessary tables. If you are using `South "
+"http://south.aeracode.org/` for schema migrations, you'll want to::"
+msgstr ""

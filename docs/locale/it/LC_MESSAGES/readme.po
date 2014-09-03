@@ -1,0 +1,63 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: mezzanine-helpdesk 0.4.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 10:44+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../README.rst:10
+msgid "Created by `Simone Dalla <http://twitter.com/simodalla>`_"
+msgstr ""
+
+#: ../../../README.rst:14
+msgid "Overview"
+msgstr ""
+
+#: ../../../README.rst:16
+msgid "Helpdesk app for Django/Mezzanine project"
+msgstr ""
+
+#: ../../../README.rst:18
+msgid "This project is under development."
+msgstr ""
+
+#: ../../../README.rst:22
+msgid "Dependencies"
+msgstr ""
+
+#: ../../../README.rst:24
+msgid "OpenHelpdesk required:"
+msgstr ""
+
+#: ../../../README.rst:26
+msgid "`Django`_ 1.5+, 1.6+"
+msgstr ""
+
+#: ../../../README.rst:27
+msgid "`Mezzanine`_ 3.+"
+msgstr ""
+
+#: ../../../README.rst:30
+msgid "Documentation"
+msgstr ""
+
+#: ../../../README.rst:32
+msgid ""
+"Please head over to `documentation "
+"<https://readthedocs.org/projects/openhelpdesk/>`_ for all the details on "
+"how to install, configurate and use the OpenHelpdesk."
+msgstr ""
+
+#: ../../../README.rst:37
+msgid "License"
+msgstr ""
+
+#: ../../../README.rst:38
+msgid "OpenHelpdesk is `BSD licensed`_."
+msgstr ""
