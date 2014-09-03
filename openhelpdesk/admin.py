@@ -140,7 +140,7 @@ class SiteConfigurationAdmin(admin.ModelAdmin):
     ld_admins.short_description = _('Admins')
 
     def ld_email_addrs_to(self, obj):
-        return ','.join(obj.email_addrs_to)
+        return '<br>'.join(obj.email_addrs_to)
     ld_email_addrs_to.allow_tags = True
     ld_email_addrs_to.short_description = _('Emails to')
 
@@ -579,16 +579,8 @@ if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
     ReportTicketInline.queryset = ReportTicketInline.get_queryset
     TicketAdmin.queryset = TicketAdmin.get_queryset
 
-from django.contrib.auth.admin import UserAdmin
-from mezzanine.core.admin import SitePermissionUserAdmin
-
-
-# class HeldeskUserAdmin(SitePermissionUserAdmin):
-
-
 
 admin.site.register(Category, CategoryAdmin)
-# admin.site.register(HelpdeskUser, HeldeskUserAdmin)
 admin.site.register(Report, ReportAdmin)
 admin.site.register(SiteConfiguration, SiteConfigurationAdmin)
 admin.site.register(Source, SourceAdmin)
