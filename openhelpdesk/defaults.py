@@ -24,6 +24,8 @@ HELPDESK_ADMINS = ('helpdesk_admins', [
     'openhelpdesk.delete_category',
     'openhelpdesk.add_tipology', 'openhelpdesk.change_tipology',
     'openhelpdesk.delete_tipology',
+    'auth.add_user', 'auth.change_user',
+    'auth.add_group', 'auth.change_group',
 ])
 HELPDESK_MAX_TIPOLOGIES_FOR_TICKET = 3
 

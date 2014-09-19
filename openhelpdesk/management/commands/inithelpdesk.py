@@ -29,7 +29,6 @@ class Command(NoArgsCommand):
 
         if "conf_setting" not in connection.introspection.table_names():
             createdb.Command.execute(**{'no_data': True})
-            # print("*************************************")
 
         for group_name, permission_codenames in [HELPDESK_REQUESTERS,
                                                  HELPDESK_OPERATORS,
@@ -38,12 +37,10 @@ class Command(NoArgsCommand):
             self.stdout.write('Group {} {}.\n'.format(
                 group.name, 'created' if created else 'already exist'))
 
-            permission_codenames = [permission.split('.')[1] for permission
-                                    in permission_codenames
-                                    if permission.startswith('openhelpdesk')]
-            group.permissions.add(*Permission.objects.filter(
-                content_type__app_label=self.app_label,
-                codename__in=permission_codenames))
+            for permission in permission_codenames:
+                group.permissions.add(Permission.objects.get(
+                    content_type__app_label=permission.split('.')[0],
+                    codename=permission.split('.')[1]))
             self.stdout.write('Add permissions to {}: {}.\n\n'.format(
                 group.name, permission_codenames))
 
