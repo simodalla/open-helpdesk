@@ -24,5 +24,4 @@ def test_call_initihelpsedk_command(stringios):
         set(groups_data.keys()))
     for group in groups:
         assert (set(group.permissions.values_list('codename', flat=True)) ==
-                set([p.split('.')[1] for p in groups_data[group.name]
-                     if p.startswith('openhelpdesk')]))
+                set([p.split('.')[1] for p in groups_data[group.name]]))
