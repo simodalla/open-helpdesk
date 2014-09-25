@@ -69,7 +69,7 @@ release: clean
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 	@echo "\n\nYou probably want to also tag the version now:"
-	@echo "    git tag -a $(version) -m 'version $(version)'"
+	@echo "    git tag -a v$(version) -m 'version v$(version)'"
 	@echo "    git push --tags"
 
 sdist: clean
