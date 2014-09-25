@@ -138,8 +138,8 @@ class SiteConfigurationAdmin(admin.ModelAdmin):
     ld_admins.short_description = _('Admins')
 
     def ld_emails(self, obj):
-        result = (['(to) {}'.format(obj.email_addr_from)] +
-                  ['(from) {}'.format(email) for email in obj.email_addrs_to])
+        result = (['(from) {}'.format(obj.email_addr_from)] +
+                  ['(to) {}'.format(email) for email in obj.email_addrs_to])
         return '<hr>'.join(result)
     ld_emails.allow_tags = True
     ld_emails.short_description = _('Emails')
