@@ -58,10 +58,10 @@ class TicketAdminForm(forms.ModelForm):
         """
         Additional validation for 'tipologies' field. If the number of
         tipologies selected is greater than
-        'HELPDESK_MAX_TIPOLOGIES_FOR_TICKET' setting, raise an ValidationError
+        'OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET' setting, raise an ValidationError
         """
         settings.use_editable()
-        max_tipologies = settings.HELPDESK_MAX_TIPOLOGIES_FOR_TICKET
+        max_tipologies = settings.OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET
         tipologies = self.cleaned_data['tipologies']
         if len(tipologies) > max_tipologies:
             msg = _('Too many tipologies selected. You can select a maximum'

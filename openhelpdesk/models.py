@@ -270,9 +270,10 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
     content = models.TextField(_("Content"))
     tipologies = models.ManyToManyField(
         'Tipology', verbose_name=_('Tipologies'),
-        help_text=_("You can select a maximum of %(max)s %(tipologies)s"
-                    ".") % {'max': settings.HELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
-                            'tipologies': Tipology._meta.verbose_name_plural})
+        help_text=
+        _("You can select a maximum of %(max)s %(tipologies)s.") % {
+            'max': settings.OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
+            'tipologies': Tipology._meta.verbose_name_plural})
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
     insert_by = models.ForeignKey(user_model_name, verbose_name=_('Insert by'),

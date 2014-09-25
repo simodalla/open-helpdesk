@@ -11,7 +11,7 @@ from django.test import TestCase
 from lxml.html import fromstring
 
 from openhelpdesk.defaults import (HELPDESK_REQUESTERS,
-                                   HELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
+                                   OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
 from openhelpdesk.models import Ticket, Tipology, Category, Report
 from openhelpdesk.admin import MessageInline
 from .helpers import AdminTestMixin
@@ -34,7 +34,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
 
     def get_category(self, n_tipologies=None, site=None):
         if not n_tipologies:
-            n_tipologies = HELPDESK_MAX_TIPOLOGIES_FOR_TICKET
+            n_tipologies = OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET
         tipology_names = ['tip{}'.format(i) for i in range(0, n_tipologies)]
         category = CategoryFactory(tipologies=tipology_names)
         if site is None:
@@ -79,32 +79,32 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
             set(self.requester.requested_tickets.values_list('pk', flat=True)))
 
     def test_form_with_less_tipologies_fields_is_validate(self):
-        self.get_category(HELPDESK_MAX_TIPOLOGIES_FOR_TICKET - 1)
+        self.get_category(OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET - 1)
         assert (len(self.post_data['tipologies'])
-                < HELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
+                < OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
         response = self.client.post(self.get_url(Ticket, 'add'),
                                     data=self.post_data)
         self.assertRedirects(response, self.get_url(Ticket, 'changelist'))
 
     def test_form_with_equals_tipologies_fields_is_validate(self):
-        self.get_category(HELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
+        self.get_category(OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
         assert (len(self.post_data['tipologies'])
-                == HELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
+                == OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
         response = self.client.post(self.get_url(Ticket, 'add'),
                                     data=self.post_data)
         self.assertRedirects(response, self.get_url(Ticket, 'changelist'))
 
     def test_form_with_more_tipologies_fields_is_not_validate(self):
-        self.get_category(HELPDESK_MAX_TIPOLOGIES_FOR_TICKET + 1)
+        self.get_category(OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET + 1)
         assert (len(self.post_data['tipologies'])
-                > HELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
+                > OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET)
         response = self.client.post(self.get_url(Ticket, 'add'),
                                     data=self.post_data)
         self.assertEqual(response.status_code, 200)
         self.assertAdminFormError(response, 'tipologies',
                                   'Too many tipologies selected. You can'
                                   ' select a maximum of {}.'.format(
-                                      HELPDESK_MAX_TIPOLOGIES_FOR_TICKET))
+                                      OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET))
 
     def test_tipologies_field_is_filtered_by_current_site(self):
         category_in_site = self.get_category(2)
