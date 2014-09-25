@@ -36,7 +36,6 @@ DEFAULT_LIST_PER_PAGE = 15
 
 
 class TipologyInline(TabularDynamicInlineAdmin):
-    extra = 3
     model = Tipology
     fields = ('title', 'sites',)
 
@@ -76,7 +75,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 # noinspection PyMethodMayBeStatic
 class TipologyAdmin(admin.ModelAdmin):
-    fields = ('title', 'category', 'priority', 'sites',)
+    fields = ('title', 'category', 'sites',)
     filter_horizontal = ('sites',)
     list_display = ['title', 'ld_category', 'ld_sites']
     list_filter = ['category']
