@@ -38,6 +38,7 @@ DEFAULT_LIST_PER_PAGE = 15
 class TipologyInline(TabularDynamicInlineAdmin):
     extra = 3
     model = Tipology
+    fields = ('title', 'sites',)
 
 
 class MessageInline(TabularDynamicInlineAdmin):
