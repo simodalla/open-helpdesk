@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+from django.utils.translation import ugettext_lazy as _
+
 from mezzanine.conf import register_setting
 
 
@@ -27,7 +29,7 @@ HELPDESK_ADMINS = ('helpdesk_admins', [
     'auth.add_user', 'auth.change_user',
     'auth.add_group', 'auth.change_group',
 ])
-HELPDESK_MAX_TIPOLOGIES_FOR_TICKET = 3
+OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET = 3
 
 register_setting(
     name="HELPDESK_REQUESTERS",
@@ -51,9 +53,19 @@ register_setting(
 )
 
 register_setting(
-    name="HELPDESK_MAX_TIPOLOGIES_FOR_TICKET",
-    description="The max number of tipologies which can be related to a "
-                "single ticket",
+    name="OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET",
+    description=_("The max number of tipologies which can be related to a "
+                  "single ticket"),
     editable=True,
-    default=HELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
+    default=OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
+)
+
+register_setting(
+    name="OPENHELPDESK_EMAIL_FOOTER",
+    description="The footer of emails.",
+    editable=True,
+    default="Questa email è generata automaticamente, si prega di non"
+            " rispondere. Per qualunque informazione contattare l'ufficio"
+            " Servizi Informatici all'indirizzo"
+            " ced@example.com",
 )
