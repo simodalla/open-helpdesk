@@ -54,6 +54,7 @@ register_setting(
 
 register_setting(
     name="OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET",
+    label=_("N. max of tipologies for ticket"),
     description=_("The max number of tipologies which can be related to a "
                   "single ticket"),
     editable=True,
@@ -62,7 +63,8 @@ register_setting(
 
 register_setting(
     name="OPENHELPDESK_EMAIL_FOOTER",
-    description="The footer of emails.",
+    label=_("Footer of email notifications"),
+    description=_("The text of footer of all notification emails."),
     editable=True,
     default="Questa email è generata automaticamente, si prega di non"
             " rispondere. Per qualunque informazione contattare l'ufficio"
