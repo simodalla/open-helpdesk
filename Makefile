@@ -28,7 +28,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 postgres-db:
-	dropdb pytest_django$(UID); createdb pytest_django$(UID)
+	dropdb openhelpdesk_test$(UID); createdb openhelpdesk_test$(UID)
 
 lint:
 	flake8 --exclude=migrations,urls.py openhelpdesk tests
