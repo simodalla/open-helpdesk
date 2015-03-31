@@ -3,14 +3,16 @@ Getting Started
 
 OpenHelpdesk required an configurated ``Mezzanine`` project.
 
+.. _no_mezzanine_prj:
+
 You don't have an existing Mezzanine projects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The command ``mezzanine-project`` can be used to create a new `Mezzanine`_ project in similar
 fashion to ``django-admin.py``::
 
-    $ mezzanine-project project_name
-    $ cd project_name
+    $ mezzanine-project open-helpdesk-prj
+    $ cd open-helpdesk-prj
 
 Add ``openhelpdesk`` and ``autocomplete_light`` to your ``INSTALLED_APPS``
 setting into your ``settings.py`` before all mezzanine apps::
@@ -27,7 +29,6 @@ setting into your ``settings.py`` before all mezzanine apps::
 
 You will then want to create the necessary tables::
 
-    $ cd project_name
     $ python manage.py createdb --noinput
 
 .. note::

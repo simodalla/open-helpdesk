@@ -9,7 +9,7 @@ Subsequent commands will be launched as ``root`` user.
 Pip and setuptools
 ------------------
 
-Install last version of `Pip`_ and ``setuptools``::
+Install last version of `pip`_ and ``setuptools``::
 
     # wget https://bootstrap.pypa.io/get-pip.py
     # python get-pip.py
@@ -47,12 +47,30 @@ Install ``libpq-dev`` and ``python-dev`` packages::
 
 Virtuaenv for OpenHelpdesk
 --------------------------
-Create a virtualenv for OpenHelpdesk instance::
+Create a virtualenv named ``open-helpdesk`` for OpenHelpdesk instance::
 
-    # root@ubuntu140402:~# mkvirtualenv openhelpesk
-    New python executable in openhelpesk/bin/python
-    Installing setuptools, pip...done.
-    (openhelpesk)root@ubuntu140402:~#
+    # root@ubuntu140402:~# mkvirtualenv open-helpesk
+
+Installation
+------------
+
+Activate ``open-helpdesk`` virtualenv::
+
+    # workon openhelpdesk
+
+and install into it ``OpenHelpdesk`` from pypi using ``pip`` by
+running the command below, which will also install the required
+dependencies::
+
+    (open-helpesk)# pip install open-helpdesk
+
+Move into ``/opt/djangoprjs``::
+
+    (open-helpesk)# cd /opt/djangoprjs
+
+and follow the paragraph :ref:`You don't have an existing Mezzanine projects <no_mezzanine_prj>`
+into :doc:`Getting Started <getting-started>` section.
+
 
 .. GENERAL LINKS
 

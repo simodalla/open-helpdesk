@@ -11,7 +11,12 @@ source::
 
     $ python setup.py install
 
+.. note::
+
+    We recommend the installation of ``OpenHelpdesk`` into a  `virtualenv`_
+
 
 .. GENERAL LINKS
 
 .. _`pip`: http://www.pip-installer.org/
+.. _`virtualenv`: https://virtualenv.pypa.io/en/latest/
