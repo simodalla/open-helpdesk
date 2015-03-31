@@ -47,7 +47,7 @@ OpenHelpdesk is `BSD licensed`_.
 .. _`Django`: http://djangoproject.com/
 .. _`Django Code of Conduct`: https://www.djangoproject.com/conduct/
 .. _`BSD licensed`: https://github.com/simodalla/open-helpdesk/blob/master/LICENSE
-.. _`Documentation`: https://readthedocs.org/projects/openhelpdesk/
+.. _`Documentation`:http://openhelpdesk.readthedocs.org/
 .. _`Live demo`: https://www2.comune.zolapredosa.bo.it/demoopenhelpdesk/
 .. _`Official repository`: https://github.com/simodalla/mezzanine_page_auth/
 .. _`Package`: https://pypi.python.org/pypi/mezzanine-page-auth/

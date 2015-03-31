@@ -16,6 +16,7 @@ Contents:
    :maxdepth: 2
 
    readme
+   ubuntu1404
    installation
    getting-started
    usage
