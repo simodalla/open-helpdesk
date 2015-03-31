@@ -3,7 +3,7 @@ Configure Ubuntu 14.04 for OpenHelpdesk's installation
 ======================================================
 
 This guide will drive you to configure an ``Ubuntu 14.04`` (server) for
-afterwards install an OpenHelpdesk instance.
+afterwards installation an OpenHelpdesk instance.
 Subsequent commands will be launched as ``root`` user.
 
 Pip and setuptools
@@ -57,3 +57,4 @@ Create a virtualenv for OpenHelpdesk instance::
 .. GENERAL LINKS
 
 .. _`pip`: https://pip.pypa.io/en/latest/installing.html#install-pip
+.. _`Virtualenvwrapper Docs`: https://virtualenvwrapper.readthedocs.org/en/latest/install.html
