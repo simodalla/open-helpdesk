@@ -9,7 +9,8 @@ import autocomplete_light
 from mezzanine.conf import settings
 from mezzanine.utils.sites import current_site_id
 
-from .models import Ticket, HelpdeskUser
+from .models import Ticket
+from .core import HelpdeskUser
 
 User = get_user_model()
 
@@ -22,10 +23,11 @@ class TicketAutocomplete(autocomplete_light.AutocompleteModelBase):
     search_fields = ['id', 'content']
 
     def choices_for_request(self):
-        user = HelpdeskUser.objects.get(pk=self.request.user.pk)
-        if user.is_requester():
-            self.choices = self.choices.filter(requester=user)
-        if user.is_operator():
+        # user = HelpdeskUser(.objects.get(pk=self.request.user.pk)
+        hu = HelpdeskUser(self.request)
+        if hu.is_requester():
+            self.choices = self.choices.filter(requester=hu.user)
+        if hu.is_operator():
             self.choices = self.choices.filter(site__id=current_site_id())
         return super(TicketAutocomplete, self).choices_for_request()
 

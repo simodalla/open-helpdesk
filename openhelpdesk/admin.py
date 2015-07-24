@@ -27,8 +27,9 @@ from mezzanine.core.admin import TabularDynamicInlineAdmin
 from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
 from .templatetags import helpdesk_tags
 from .models import (
-    Category, Tipology, Attachment, Ticket, HelpdeskUser, Message,
+    Category, Tipology, Attachment, Ticket, Message,
     Report, StatusChangesLog, Source, SiteConfiguration)
+from .core import HelpdeskUser
 from .views import OpenTicketView, ObjectToolsView
 
 
@@ -51,15 +52,15 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
 
     def get_queryset(self, request):
         """If request.user is operator return queryset filterd by sender."""
-        user = HelpdeskUser.get_from_request(request)
+        hu = HelpdeskUser(request)
         # re-compatibility for django 1.5 where "get_queryset" method is
         # called "queryset" instead
         _super = super(ReportTicketInline, self)
         qs = (getattr(_super, 'get_queryset', None)
               or getattr(_super, 'queryset'))(request)
-        if user.is_admin():
+        if hu.is_admin():
             return qs
-        return qs.filter(sender=user)
+        return qs.filter(sender=hu.user)
 
 
 class AttachmentInline(TabularDynamicInlineAdmin, GenericTabularInline):
@@ -174,7 +175,8 @@ class TicketAdmin(admin.ModelAdmin):
     operator_actions = ['requester', 'assignee']
 
     def get_request_helpdeskuser(self, request):
-        return HelpdeskUser.get_from_request(request)
+        # return HelpdeskUser.get_from_request(request)
+        return HelpdeskUser(request)
 
     def get_search_fields_info(self, request):
         return _('content of ticket, title of tipology, title of category'
@@ -190,13 +192,12 @@ class TicketAdmin(admin.ModelAdmin):
         :type obj: Ticket
         :return: :rtype: list
         """
-        user = HelpdeskUser.get_from_request(request)
+        user = HelpdeskUser(request).user
         object_tools = {'change': []}
         admin_prefix_url = 'admin:'
         if obj:
             admin_prefix_url += '%s_%s' % (obj._meta.app_label,
-                                           getattr(obj._meta, 'model_name',
-                                                   obj._meta.module_name))
+                                           obj._meta.model_name)
         if user.is_operator() or user.is_admin():
             if view_name == 'change' and obj:
                 if obj.is_new():
@@ -272,10 +273,10 @@ class TicketAdmin(admin.ModelAdmin):
         Otherwise request.user is a operator, an admin or superuser, append
         'requester' field to fieldsets.
         """
-        user = self.get_request_helpdeskuser(request)
+        hu = self.get_request_helpdeskuser(request)
         fieldset = tuple() if obj else deepcopy(
             super(TicketAdmin, self).get_fieldsets(request, obj=obj))
-        if not obj and user.is_requester():
+        if not obj and hu.is_requester():
             [fieldset[0][1]['fields'].remove(field)
              for field in ['requester', 'source']
              if field in fieldset[0][1]['fields']]
@@ -287,8 +288,8 @@ class TicketAdmin(admin.ModelAdmin):
         default_inlines_instances = [inline(self.model, self.admin_site)
                                      for inline in self.inlines]
         if obj:
-            user = self.get_request_helpdeskuser(request)
-            if user.is_requester():
+            hu = self.get_request_helpdeskuser(request)
+            if hu.is_requester():
                 return ([MessageInline(self.model, self.admin_site)]
                         + default_inlines_instances)
         return default_inlines_instances
@@ -299,9 +300,9 @@ class TicketAdmin(admin.ModelAdmin):
         if request.user is a operator or an admin return default list_display
         with operator_list_display.
         """
-        user = HelpdeskUser.get_from_request(request)
+        hu = HelpdeskUser(request)
         list_display = list(super(TicketAdmin, self).get_list_display(request))
-        if user.is_operator() or user.is_admin():
+        if hu.is_operator() or hu.is_admin():
             list_display = (list_display[:1] + self.operator_list_display +
                             list_display[1:])
         return list_display
@@ -312,9 +313,9 @@ class TicketAdmin(admin.ModelAdmin):
         if request.user is a operator, an admin or return default
         list_filter with append more fields.
         """
-        user = self.get_request_helpdeskuser(request)
+        hu = self.get_request_helpdeskuser(request)
         list_filter = list(super(TicketAdmin, self).get_list_filter(request))
-        if user.is_operator() or user.is_admin():
+        if hu.is_operator() or hu.is_admin():
             list_filter += self.operator_list_filter
         return list_filter
 
@@ -324,21 +325,20 @@ class TicketAdmin(admin.ModelAdmin):
         request.user is a requester. Otherwise if request.user is a operator,
         an admin or superuser, queryset returned is not filtered.
         """
-        user = self.get_request_helpdeskuser(request)
+        hu = self.get_request_helpdeskuser(request)
         # re-compatibility for django 1.5 where "get_queryset" method is
         # called "queryset" instead
         _super = super(TicketAdmin, self)
         qs = (getattr(_super, 'get_queryset', None)
               or getattr(_super, 'queryset'))(request)
-        if user.is_superuser or user.is_operator() or user.is_admin():
+        if hu.user.is_superuser or hu.is_operator() or hu.is_admin():
             return qs
-        return qs.filter(requester=user)
+        return qs.filter(requester=hu.user)
 
     def get_urls(self):
         # getattr is for re-compatibility django 1.5
         admin_prefix_url = '%s_%s' % (self.opts.app_label,
-                                      getattr(self.opts, 'model_name',
-                                              self.opts.module_name))
+                                      self.opts.model_name)
         urls = super(TicketAdmin, self).get_urls()
         my_urls = django_urls.patterns(
             '',
@@ -402,20 +402,20 @@ class TicketAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         # get the ticket's messages only if is change form
-        user = self.get_request_helpdeskuser(request)
-        msgs = user.get_messages_by_ticket(object_id)
+        hu = self.get_request_helpdeskuser(request)
+        msgs = hu.get_messages_by_ticket(object_id)
         changelogs = StatusChangesLog.objects.filter(
             ticket_id=object_id).order_by('created')
         extra_context.update({'ticket_messages': msgs,
                               'ticket_changelogs': changelogs,
-                              'helpdesk_user': user})
+                              'helpdesk_user': hu.user})
         return super(TicketAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
     # ModelsAdmin actions #####################################################
     def get_actions(self, request):
-        user = self.get_request_helpdeskuser(request)
-        if user.is_requester():
+        hu = self.get_request_helpdeskuser(request)
+        if hu.is_requester():
             return list()
         return super(TicketAdmin, self).get_actions(request)
 
@@ -425,11 +425,11 @@ class TicketAdmin(admin.ModelAdmin):
         error_msg = _('Errors occours: \n%(errors)s.')
         success_ids = []
         error_data = []
-        user = self.get_request_helpdeskuser(request)
-        if user.is_operator() or user.is_admin():
+        hu = self.get_request_helpdeskuser(request)
+        if hu.is_operator() or hu.is_admin():
             for ticket in queryset.filter(status=Ticket.STATUS.new):
                 try:
-                    ticket.opening(user)
+                    ticket.opening(hu.user)
                     success_ids.append(str(ticket.pk))
                 except Exception as e:
                     error_data.append((ticket.pk, str(e)))

@@ -4,7 +4,7 @@ from future.builtins import str
 
 import six
 
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
@@ -31,10 +31,11 @@ from model_utils import Choices
 from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
                    TicketIsClosedError,
                    TicketIsNotPendingError,
-                   ACTIONS_ON_TICKET, DEFAULT_ACTIONS, TicketIsNewError)
+                   ACTIONS_ON_TICKET, DEFAULT_ACTIONS, TicketIsNewError,
+                   HelpdeskUser)
 
 
-User = get_user_model()
+# User = get_user_model()
 user_model_name = settings.AUTH_USER_MODEL
 
 
@@ -51,75 +52,75 @@ PRIORITIES = (
 )
 
 
-class HelpdeskUserManager(models.Manager):
-    def filter_by_group(self, group_name):
-        return self.filter(groups__name=group_name)
+# class HelpdeskUserManager(models.Manager):
+#     def filter_by_group(self, group_name):
+#         return self.filter(groups__name=group_name)
+#
+#
+# @python_2_unicode_compatible
+# class HelpdeskUser(User):
+#     objects = HelpdeskUserManager()
+#
+#     class Meta:
+#         proxy = True
+#
+#     def __str__(self):
+#         return ('{} {}'.format(self.last_name.capitalize(),
+#                                self.first_name.capitalize())
+#                 if (self.last_name and self.first_name) else self.username)
+#
+#     @property
+#     def group_names(self):
+#         return self.groups.values_list('name', flat=True)
+#
+#     @classmethod
+#     def get_from_request(cls, request):
+#         return cls.objects.get(pk=request.user.pk)
+#
+#     def is_requester(self):
+#         """Test if user belong to settings.HELPDESK_REQUESTERS group."""
+#         if settings.HELPDESK_REQUESTERS in self.group_names:
+#             return True
+#         return False
+#
+#     def is_operator(self):
+#         """Test if user belong to settings.HELPDESK_OPERATORS group."""
+#         if settings.HELPDESK_OPERATORS in self.group_names:
+#             return True
+#         return False
+#
+#     def is_admin(self):
+#         """Test if user belong to settings.HELPDESK_ADMINS group."""
+#         if settings.HELPDESK_ADMINS in self.group_names:
+#             return True
+#         return False
+#
+#     def get_messages_by_ticket(self, ticket_id):
+#         """
+#         Returns Messages' queryset filterd by 'ticket_id' parameter and
+#         ordered by createion date. If user (self) is a requester queryset
+#         is filtered on Report is only visible by requester and where sender
+#         or recipient is user (self).
+#
+#         :param ticket_id: ticket id
+#         :return: recordset of Message objects
+#         """
+#         messages = Message.objects.select_related(
+#             'sender', 'recipient').filter(ticket_id=ticket_id)
+#         if self.is_requester():
+#             messages = messages.exclude(
+#                 report__visible_from_requester=False).filter(
+#                     Q(sender__id=self.id) | Q(recipient__id=self.id))
+#         return messages.order_by('created')
 
 
-@python_2_unicode_compatible
-class HelpdeskUser(User):
-    objects = HelpdeskUserManager()
-
-    class Meta:
-        proxy = True
-
-    def __str__(self):
-        return ('{} {}'.format(self.last_name.capitalize(),
-                               self.first_name.capitalize())
-                if (self.last_name and self.first_name) else self.username)
-
-    @property
-    def group_names(self):
-        return self.groups.values_list('name', flat=True)
-
-    @classmethod
-    def get_from_request(cls, request):
-        return cls.objects.get(pk=request.user.pk)
-
-    def is_requester(self):
-        """Test if user belong to settings.HELPDESK_REQUESTERS group."""
-        if settings.HELPDESK_REQUESTERS in self.group_names:
-            return True
-        return False
-
-    def is_operator(self):
-        """Test if user belong to settings.HELPDESK_OPERATORS group."""
-        if settings.HELPDESK_OPERATORS in self.group_names:
-            return True
-        return False
-
-    def is_admin(self):
-        """Test if user belong to settings.HELPDESK_ADMINS group."""
-        if settings.HELPDESK_ADMINS in self.group_names:
-            return True
-        return False
-
-    def get_messages_by_ticket(self, ticket_id):
-        """
-        Returns Messages' queryset filterd by 'ticket_id' parameter and
-        ordered by createion date. If user (self) is a requester queryset
-        is filtered on Report is only visible by requester and where sender
-        or recipient is user (self).
-
-        :param ticket_id: ticket id
-        :return: recordset of Message objects
-        """
-        messages = Message.objects.select_related(
-            'sender', 'recipient').filter(ticket_id=ticket_id)
-        if self.is_requester():
-            messages = messages.exclude(
-                report__visible_from_requester=False).filter(
-                    Q(sender__id=self.id) | Q(recipient__id=self.id))
-        return messages.order_by('created')
-
-
-# monkey-patch for add __str__ method of HelpdeskUser to system User model
-if six.PY3:
-    for method_to_patch in ['__str__', '__unicode__']:
-        if (hasattr(User, method_to_patch)
-                and hasattr(HelpdeskUser, method_to_patch)):
-            setattr(User, method_to_patch, getattr(HelpdeskUser,
-                                                   method_to_patch))
+# # monkey-patch for add __str__ method of HelpdeskUser to system User model
+# if six.PY3:
+#     for method_to_patch in ['__str__', '__unicode__']:
+#         if (hasattr(User, method_to_patch)
+#                 and hasattr(HelpdeskUser, method_to_patch)):
+#             setattr(User, method_to_patch, getattr(HelpdeskUser,
+#                                                    method_to_patch))
 
 
 @python_2_unicode_compatible
@@ -160,7 +161,7 @@ class SiteConfiguration(models.Model):
         return []
 
     def get_usernames_by_group(self, group_name):
-        helpdesk_users = HelpdeskUser.objects.filter_by_group(group_name)
+        helpdesk_users = HelpdeskUser.filter_by_group(group_name)
         return self.site.sitepermission_set.filter(
             user__in=helpdesk_users).values_list('user__username', flat=True)
 
@@ -272,7 +273,8 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
         'Tipology', verbose_name=_('Tipologies'),
         help_text=
         _("You can select a maximum of %(max)s %(tipologies)s.") % {
-            'max': settings.OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
+            # 'max': settings.OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET,
+            'max': 3,
             'tipologies': Tipology._meta.verbose_name_plural})
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)

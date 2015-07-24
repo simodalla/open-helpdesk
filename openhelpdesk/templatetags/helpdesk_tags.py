@@ -21,8 +21,7 @@ def format_ticket_message(context, message, **kwargs):
         raise TypeError("{} isn't subclass object of".format(message, Message))
     tag_context = {'css_style': '', 'message': message,
                    'css_class': 'form-row',
-                   'model': getattr(message._meta, 'model_name',
-                                    message._meta.module_name),
+                   'model': message._meta.model_name,
                    'can_view_report': False}
     if 'helpdesk_user' in context:
         user = context['helpdesk_user']
@@ -34,8 +33,7 @@ def format_ticket_message(context, message, **kwargs):
     try:
         if message.report:
             opts = message.report._meta
-            tag_context.update({'model': getattr(
-                opts, 'model_name', opts.module_name),
+            tag_context.update({'model': opts.model_name,
                 'css_style': 'text-align: right;',
                 'view_url': '{}?id={}'.format(
                     reverse(admin_urlname(opts, 'changelist')),
