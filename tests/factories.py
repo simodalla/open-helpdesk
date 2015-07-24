@@ -6,9 +6,10 @@ from django.contrib.sites.models import Site
 
 from mezzanine.core.models import SitePermission
 
+from django.contrib.auth.models import User
 from openhelpdesk.core import get_perm
-from openhelpdesk.models import (Category, Tipology, HelpdeskUser as User,
-                                 Ticket)
+from openhelpdesk.models import (Category, Tipology, Ticket)
+
 
 
 class GroupFactory(factory.DjangoModelFactory):
@@ -47,6 +48,12 @@ class UserFactory(factory.DjangoModelFactory):
         if create and extracted:
             # We have a saved object and a list of permission names
             self.user_permissions.add(*[get_perm(pn) for pn in extracted])
+
+    # @factory.post_generation
+    # def sitepermissions(self, create, extracted, **kwargs):
+    #     if create and extracted:
+    #         # We have a saved object and a list of permission names
+    #         self.sitepermissions.add(*[get_perm(pn) for pn in extracted])
 
 
 class SiteFactory(factory.DjangoModelFactory):

@@ -44,5 +44,5 @@ msgstr ""
 #: ../../installation.rst:35
 msgid ""
 "You will then want to create the necessary tables. If you are using `South "
-"http://south.aeracode.org/` for schema migrations, you'll want to::"
+"http://south.aeracode.org/` for schema _migrations, you'll want to::"
 msgstr ""

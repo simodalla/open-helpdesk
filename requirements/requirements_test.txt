@@ -11,4 +11,3 @@ lxml
 cssselect
 webtest
 django_webtest
-south

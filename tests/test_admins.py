@@ -170,7 +170,7 @@ class TestTicketAdmin(object):
             self, helpdeskuser, expected, ticket_admin_util):
         ticket_admin_util.user = helpdeskuser
         request = ticket_admin_util.request
-        with patch('openhelpdesk.models.HelpdeskUser.get_from_request',
+        with patch('openhelpdesk.core.HelpdeskUser.get_from_request',
                    return_value=ticket_admin_util.user):
             result = ticket_admin_util.model_admin.get_list_filter(request)
         assert result == expected
@@ -268,7 +268,8 @@ class TestTicketAdmin(object):
 
 @pytest.fixture
 def report_util(model_admin_util):
-    from openhelpdesk.models import HelpdeskUser
+    # from openhelpdesk.models import HelpdeskUser
+    from django.contrib.auth.models import User
 
     class FakeDbField(object):
         name = None
@@ -280,7 +281,7 @@ def report_util(model_admin_util):
                                    recipient_id=None,
                                    action_on_ticket='close',
                                    ticket=Mock(spec_set=Ticket,
-                                               requester=HelpdeskUser()))
+                                               requester=User()))
     model_admin_util.db_field = FakeDbField()
     return model_admin_util
 
