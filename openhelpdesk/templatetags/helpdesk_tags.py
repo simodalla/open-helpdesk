@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.template import Template, Context
 
 from openhelpdesk.models import Message
-from openhelpdesk.core import TICKET_STATUES_AWESOME_ICONS
+from openhelpdesk.core import TICKET_STATUES_AWESOME_ICONS, HelpdeskUser
 
 
 register = template.Library()
@@ -24,8 +24,9 @@ def format_ticket_message(context, message, **kwargs):
                    'model': message._meta.model_name,
                    'can_view_report': False}
     if 'helpdesk_user' in context:
-        user = context['helpdesk_user']
-        if user.is_operator() or user.is_admin():
+        # user = context['helpdesk_user']
+        hu = HelpdeskUser(context['helpdesk_user'])
+        if hu.is_operator() or hu.is_admin():
             tag_context['can_view_report'] = True
 
     if 'css_class' in kwargs:
