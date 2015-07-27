@@ -45,11 +45,11 @@ class UserFactory(factory.DjangoModelFactory):
             # We have a saved object and a list of permission names
             self.user_permissions.add(*[get_perm(pn) for pn in extracted])
 
-    # @factory.post_generation
-    # def sitepermissions(self, create, extracted, **kwargs):
-    #     if create and extracted:
-    #         # We have a saved object and a list of permission names
-    #         self.sitepermissions.add(*[get_perm(pn) for pn in extracted])
+    @factory.post_generation
+    def sitepermissions(self, create, extracted, **kwargs):
+        if create and extracted:
+            # We have a saved object and a list of permission names
+            self.sitepermissions.add(*[get_perm(pn) for pn in extracted])
 
 
 class SiteFactory(factory.DjangoModelFactory):

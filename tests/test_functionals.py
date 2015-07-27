@@ -4,6 +4,7 @@ from __future__ import unicode_literals, absolute_import
 import pytest
 
 from django import VERSION as DJANGO_VERSION
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse
@@ -17,20 +18,20 @@ from openhelpdesk.admin import MessageInline
 from .helpers import AdminTestMixin
 from .factories import (
     UserFactory, CategoryFactory, GroupFactory, SiteFactory, TicketFactory,
-    TipologyFactory)
+    TipologyFactory, HelpdeskerF)
 
 
 class RequesterMakeTicketTest(AdminTestMixin, TestCase):
     def setUp(self):
-        self.requester = UserFactory(
+        self.default_site = Site.objects.get(pk=1)
+        self.requester = HelpdeskerF(
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
-        self.client.login(username=self.requester.username, password='default')
+        self.requester.sitepermissions.sites.add(self.default_site)
         self.post_data = self.get_formset_post_data(
             data={'content': 'helpdesk_content', 'tipologies': None,
                   'priority': 1},
             formset='openhelpdesk-attachment-content_type-object_id')
-        self.default_site = Site.objects.get(pk=1)
 
     def get_category(self, n_tipologies=None, site=None):
         if not n_tipologies:

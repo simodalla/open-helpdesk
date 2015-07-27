@@ -97,8 +97,6 @@ class HelpdeskUser(object):
     def user(self, value):
         from django.http import HttpRequest
         from django.contrib.auth.models import AbstractBaseUser
-        # import pdb
-        # pdb.set_trace()
         if isinstance(value, HttpRequest):
             self._user = value.user
         elif issubclass(value.__class__, AbstractBaseUser):

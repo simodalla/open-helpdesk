@@ -53,11 +53,7 @@ class ReportTicketInline(TabularDynamicInlineAdmin):
     def get_queryset(self, request):
         """If request.user is operator return queryset filterd by sender."""
         hu = HelpdeskUser(request)
-        # re-compatibility for django 1.5 where "get_queryset" method is
-        # called "queryset" instead
-        _super = super(ReportTicketInline, self)
-        qs = (getattr(_super, 'get_queryset', None)
-              or getattr(_super, 'queryset'))(request)
+        qs = super(ReportTicketInline, self).get_queryset(request)
         if hu.is_admin():
             return qs
         return qs.filter(sender=hu.user)
@@ -192,13 +188,13 @@ class TicketAdmin(admin.ModelAdmin):
         :type obj: Ticket
         :return: :rtype: list
         """
-        user = HelpdeskUser(request).user
+        hu = HelpdeskUser(request)
         object_tools = {'change': []}
         admin_prefix_url = 'admin:'
         if obj:
             admin_prefix_url += '%s_%s' % (obj._meta.app_label,
                                            obj._meta.model_name)
-        if user.is_operator() or user.is_admin():
+        if hu.is_operator() or hu.is_admin():
             if view_name == 'change' and obj:
                 if obj.is_new():
                     object_tools[view_name].append(
@@ -326,11 +322,9 @@ class TicketAdmin(admin.ModelAdmin):
         an admin or superuser, queryset returned is not filtered.
         """
         hu = self.get_request_helpdeskuser(request)
-        # re-compatibility for django 1.5 where "get_queryset" method is
-        # called "queryset" instead
-        _super = super(TicketAdmin, self)
-        qs = (getattr(_super, 'get_queryset', None)
-              or getattr(_super, 'queryset'))(request)
+        qs = super(TicketAdmin, self).get_queryset(request)
+        # import pdb
+        # pdb.set_trace()
         if hu.user.is_superuser or hu.is_operator() or hu.is_admin():
             return qs
         return qs.filter(requester=hu.user)
