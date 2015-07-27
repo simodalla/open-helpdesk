@@ -5,7 +5,8 @@ require(['./common'], function (common) {
         var contentField = "#id_content";
         var estimatedEndPendingDate = "#id_estimated_end_pending_date";
 
-        ['a.add-another', '.autocomplete-light-widget .remove'].forEach(
+        ['a.add-another', '.autocomplete-light-widget .remove',
+            '.related-widget-wrapper-link'].forEach(
             function (elem) {
                 $(elem).remove();
             }
