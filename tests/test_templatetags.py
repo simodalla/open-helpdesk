@@ -41,12 +41,12 @@ class TestFormatTicketTag(object):
                 set(format_ticket_message(Context({}), Message()).keys()))
 
     def test_message_item_in_dict_returned(self, message):
-        context = format_ticket_message(Context({}), Message())
+        context = format_ticket_message(Context({}), message)
         assert 'message' in context.keys()
-        assert context['message'] == message
+        assert context['message'] is message
 
     def test_model_item_in_dict_returned(self, message):
-        context = format_ticket_message(Context({}), Message())
+        context = format_ticket_message(Context({}), message)
         assert 'model' in context.keys()
         assert context['model'] == message._meta.model_name
 

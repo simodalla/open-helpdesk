@@ -323,8 +323,6 @@ class TicketAdmin(admin.ModelAdmin):
         """
         hu = self.get_request_helpdeskuser(request)
         qs = super(TicketAdmin, self).get_queryset(request)
-        # import pdb
-        # pdb.set_trace()
         if hu.user.is_superuser or hu.is_operator() or hu.is_admin():
             return qs
         return qs.filter(requester=hu.user)
@@ -525,6 +523,8 @@ class ReportAdmin(admin.ModelAdmin):
 
     @atomic
     def save_model(self, request, obj, form, change):
+        if change:
+            cache_obj = self.model.objects.get(pk=obj.pk)
         if obj.sender_id is None:
             obj.sender = request.user
         if obj.recipient_id is None:
@@ -539,6 +539,11 @@ class ReportAdmin(admin.ModelAdmin):
                                       estimated_end_date=estimated_end_date)
         elif obj.action_on_ticket == 'remove_from_pending':
             obj.ticket.remove_from_pending(request.user)
+        if ((not change and obj.visible_from_requester)
+                or (change and (
+                        cache_obj.visible_from_requester
+                        != obj.visible_from_requester))):
+            obj.send_email_to_requester(request)
 
 
 class SourceAdmin(admin.ModelAdmin):

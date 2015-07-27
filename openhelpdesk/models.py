@@ -487,7 +487,6 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
                              args=(self.pk,))
         context = {'ticket_name': self._meta.verbose_name, 'ticket': self,
                    'request': request, 'change_url': change_url}
-        # print(subject, template, addr_from, addr_to, context)
         send_mail_template(subject, template, addr_from, addr_to,
                            context=context, attachments=None)
 
@@ -535,6 +534,23 @@ class Report(Message):
 
     def __str__(self):
         return self.content
+
+    def send_email_to_requester(self, request):
+        template = "openhelpdesk/email/report/info_to_request"
+        context = {'report_name': self._meta.verbose_name.lower(),
+                   'operator': request.user.username,
+                   'ticket_id': self.ticket_id}
+
+        subject = subject_template("{}_subject.html".format(template), context)
+        addr_from = request.user.email
+        addr_to = [self.ticket.requester.email]
+        change_ticket_url = '{}#tab_messages'.format(
+            reverse(admin_urlname(self.ticket._meta, 'change'),
+                    args=(self.ticket_id,)))
+        context.update({'report': self, 'request': request,
+                        'change_ticket_url': change_ticket_url})
+        send_mail_template(subject, template, addr_from, addr_to,
+                           context=context, attachments=None)
 
 
 @python_2_unicode_compatible

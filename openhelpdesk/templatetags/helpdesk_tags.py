@@ -24,7 +24,6 @@ def format_ticket_message(context, message, **kwargs):
                    'model': message._meta.model_name,
                    'can_view_report': False}
     if 'helpdesk_user' in context:
-        # user = context['helpdesk_user']
         hu = HelpdeskUser(context['helpdesk_user'])
         if hu.is_operator() or hu.is_admin():
             tag_context['can_view_report'] = True

@@ -28,6 +28,7 @@ class RequesterMakeTicketTest(AdminTestMixin, TestCase):
             groups=[GroupFactory(name=HELPDESK_REQUESTERS[0],
                                  permissions=list(HELPDESK_REQUESTERS[1]))])
         self.requester.sitepermissions.sites.add(self.default_site)
+        self.client.login(username=self.requester.username, password='default')
         self.post_data = self.get_formset_post_data(
             data={'content': 'helpdesk_content', 'tipologies': None,
                   'priority': 1},
