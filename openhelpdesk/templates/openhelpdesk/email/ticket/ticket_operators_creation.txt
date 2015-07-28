@@ -7,8 +7,8 @@
 {% trans "Tipologies" %}: {{ ticket.tipologies.all|join:", " }}
 {% trans "Priority" %}: {{ ticket.get_priority_display }}
 {% trans "Source" %}: {{ ticket.source.title }}
-{% trans "Created at" %}: {{ ticket.created|date:"DATETIME_FORMAT" }}</p>
-{% trans "Created by" %}: {{ ticket.requester }}</p>
+{% trans "Created at" %}: {{ ticket.created|date:"DATETIME_FORMAT" }}
+{% trans "Created by" %}: {{ ticket.requester }}
 {% trans "Content" %}: {{ ticket.content|striptags }}
 
 {% trans "Use the link below to view the ticket" %}:

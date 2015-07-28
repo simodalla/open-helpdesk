@@ -1,14 +1,14 @@
 coverage
 coveralls
-factory_boy==2.3.1
+factory_boy==2.5.2
 mock
 pytest
 pytest-django
 pytest-cov
+pytest-xdist
 flake8
 selenium
 lxml
 cssselect
 webtest
 django_webtest
-south

@@ -8,19 +8,17 @@ services:
   - rabbitmq
 
 addons:
-  postgresql: "9.3"
+  postgresql: "9.4"
 
 cache:
   directories:
     - $HOME/.pip-cache/
 
 env:
-  - TESTENV=py27-django15
-  - TESTENV=py27-django16
-  - TESTENV=py33-django15
-  - TESTENV=py33-django16
-  - TESTENV=py34-django15
-  - TESTENV=py34-django16
+  - TESTENV=py33-django17-mezzanine4
+  - TESTENV=py33-django18-mezzanine4
+  - TESTENV=py34-django17-mezzanine4
+  - TESTENV=py34-django18-mezzanine4
 
 
 before_install:
@@ -34,3 +32,5 @@ script: tox -e $TESTENV
 
 after_success:
   - coveralls
+
+sudo: false

@@ -41,15 +41,14 @@ class TestFormatTicketTag(object):
                 set(format_ticket_message(Context({}), Message()).keys()))
 
     def test_message_item_in_dict_returned(self, message):
-        context = format_ticket_message(Context({}), Message())
+        context = format_ticket_message(Context({}), message)
         assert 'message' in context.keys()
-        assert context['message'] == message
+        assert context['message'] is message
 
     def test_model_item_in_dict_returned(self, message):
-        context = format_ticket_message(Context({}), Message())
+        context = format_ticket_message(Context({}), message)
         assert 'model' in context.keys()
-        assert context['model'] == getattr(
-            message._meta, 'model_name', message._meta.module_name)
+        assert context['model'] == message._meta.model_name
 
     def test_css_style_item_in_dict_returned(self, message):
         context = format_ticket_message(Context({}), message)
@@ -67,8 +66,7 @@ class TestFormatTicketTag(object):
     def test_report_model_item_in_dict_returned(self, report):
         context = format_ticket_message(Context({}), report)
         assert 'model' in context.keys()
-        assert context['model'] == getattr(
-            Report._meta, 'model_name', Report._meta.module_name)
+        assert context['model'] == Report._meta.model_name
 
     def test_css_class_item_in_dict_returned_and_default_value(self, message):
         context = format_ticket_message(Context({}), message)

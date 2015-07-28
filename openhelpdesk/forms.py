@@ -74,9 +74,11 @@ class TicketAdminAutocompleteForm(AutocompleteModelForm, TicketAdminForm):
     class Meta:
         model = Ticket
         autocomplete_fields = ('related_tickets', 'requester',)
+        exclude = []
 
 
 class ReportAdminAutocompleteForm(AutocompleteModelForm):
     class Meta:
         model = Report
         autocomplete_fields = ('ticket',)
+        exclude = []

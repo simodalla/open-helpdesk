@@ -29,6 +29,8 @@ from openhelpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
                         SiteFactory, TipologyFactory, TicketFactory)
 
+from openhelpdesk.core import HelpdeskUser
+
 
 TEMPLATES_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), '../openhelpdesk/templates/')
@@ -52,7 +54,8 @@ class CategoryTest(TestCase):
 class TipologyTest(TestCase):
 
     def test_str_method(self):
-        tipology = Tipology(title="foo", category=Category(title="bar"))
+        tipology = TipologyFactory(title="foo",
+                                   category=CategoryFactory(title="bar"))
         self.assertEqual("{}".format(tipology), "[bar] foo")
 
     # TODO: move this test to test_admins
@@ -83,44 +86,47 @@ class TipologyTest(TestCase):
 
 class HelpdeskUserTest(TestCase):
 
-    @patch('openhelpdesk.models.HelpdeskUser.groups')
+    @patch('django.contrib.auth.models.User.groups')
     def test_group_names_property(self, mock_groups):
         user = UserFactory()
         mock_groups.values_list.return_value = ['g1', 'g2']
-        group_names = user.group_names
+        hu = HelpdeskUser(user)
+        group_names = hu.group_names
         self.assertEqual(group_names, ['g1', 'g2'])
-        mock_groups.values_list.assert_is_called_once_with('name', flat=True)
+        mock_groups.values_list.assert_called_once_with('name', flat=True)
 
     def test_is_requester_return_false(self):
-        user = UserFactory()
-        self.assertFalse(user.is_requester())
+        hu = HelpdeskUser(UserFactory())
+        self.assertFalse(hu.is_requester())
 
     def test_is_operator_return_false(self):
-        user = UserFactory()
-        self.assertFalse(user.is_operator())
+        hu = HelpdeskUser(UserFactory())
+        self.assertFalse(hu.is_operator())
 
     def test_is_admin_return_false(self):
-        user = UserFactory()
-        self.assertFalse(user.is_admin())
+        hu = HelpdeskUser(UserFactory())
+        self.assertFalse(hu.is_admin())
 
     @patch('openhelpdesk.models.settings')
     def test_is_requester_return_true(self, mock_settings):
         mock_settings.HELPDESK_REQUESTERS = HELPDESK_REQUESTERS[0]
-        user = UserFactory(groups=[GroupFactory(name=HELPDESK_REQUESTERS[0])])
-        self.assertTrue(user.is_requester())
+        hu = HelpdeskUser(
+            UserFactory(groups=[GroupFactory(name=HELPDESK_REQUESTERS[0])]))
+        self.assertTrue(hu.is_requester())
 
     @patch('openhelpdesk.models.settings')
     def test_is_operator_return_true(self, mock_settings):
         mock_settings.HELPDESK_OPERATORS = HELPDESK_OPERATORS[0]
-        user = UserFactory(groups=[GroupFactory(name=HELPDESK_OPERATORS[0])])
-        self.assertTrue(user.is_operator())
+        hu = HelpdeskUser(
+            UserFactory(groups=[GroupFactory(name=HELPDESK_OPERATORS[0])]))
+        self.assertTrue(hu.is_operator())
 
     @patch('openhelpdesk.models.settings')
     def test_is_admins_return_true(self, mock_settings):
         mock_settings.HELPDESK_ADMINS = HELPDESK_ADMINS[0]
-        user = UserFactory(
-            groups=[GroupFactory(name=HELPDESK_ADMINS[0])])
-        self.assertTrue(user.is_admin())
+        hu = HelpdeskUser(UserFactory(
+            groups=[GroupFactory(name=HELPDESK_ADMINS[0])]))
+        self.assertTrue(hu.is_admin())
 
 
 class OpenTicketTest(TestCase):

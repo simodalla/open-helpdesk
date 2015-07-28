@@ -28,19 +28,22 @@ def app(request):
 
 def helpdesker(helpdesker_conf):
     import openhelpdesk.defaults
-    from tests.factories import UserFactory, GroupFactory
+    from tests.factories import HelpdeskerF, GroupFactory
     from mezzanine.utils.sites import current_site_id
 
     helpdesker_conf = getattr(openhelpdesk.defaults, helpdesker_conf, None)
     if not helpdesker_conf:
         return None
-    user = UserFactory(
+    user = HelpdeskerF(
         username=helpdesker_conf[0].rstrip('s'),
         groups=[GroupFactory(name=helpdesker_conf[0],
                              permissions=list(helpdesker_conf[1]))])
-    site_perm, created = user.sitepermissions.get_or_create(user=user)
-    if created or site_perm.sites.count() < 1:
-        site_perm.sites.add(current_site_id())
+
+    # import pdb
+    # pdb.set_trace()
+    if user.sitepermissions.sites.count() == 0:
+        user.sitepermissions.sites.add(current_site_id())
+    # site_perm, created = user.sitepermissions.get_or_create(user=user)
     return user
 
 
@@ -88,7 +91,7 @@ class ModelAdminUtil(object):
 
 @pytest.fixture
 def model_admin_util(rf):
-    from openhelpdesk.models import HelpdeskUser
+    from openhelpdesk.core import HelpdeskUser
     from django.db.models.query import QuerySet
 
     mau = ModelAdminUtil()

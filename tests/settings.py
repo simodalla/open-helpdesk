@@ -1,25 +1,23 @@
+
 from __future__ import absolute_import, unicode_literals
-
-USE_SOUTH = True
-
+import os
+from django.utils.translation import ugettext_lazy as _
 
 ########################
 # MAIN DJANGO SETTINGS #
 ########################
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-MANAGERS = ADMINS
+SECRET_KEY = "1234567890"
+NEVERCACHE_KEY = "0987654321"
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
-TIME_ZONE = "Europe/Rome"
+TIME_ZONE = 'Europe/Rome'
 
 USE_TZ = True
 
 LANGUAGE_CODE = "en"
-_ = lambda s: s
+
 LANGUAGES = (
     ('en', _('English')),
 )
@@ -31,52 +29,40 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SITE_ID = 1
 
 USE_I18N = True
+USE_L10N = True
 
-
-TEMPLATE_LOADERS = (
-    "django.template.loaders.filesystem.Loader",
-    "django.template.loaders.app_directories.Loader",
-)
 
 AUTHENTICATION_BACKENDS = ("mezzanine.core.auth_backends.MezzanineBackend",)
 
-STATICFILES_FINDERS = (
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-)
-
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-SECRET_KEY = "1234567890"
-NEVERCACHE_KEY = "0987654321"
 
 #############
 # DATABASES #
 #############
+uid = os.getenv('UID', 0)
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "open-helpdesk",
+        'NAME': 'test_openhelpdesk_{}'.format(uid),
         "USER": "postgres",
         "PASSWORD": "",
         "HOST": "127.0.0.1",
+        "PORT": "",
     }
 }
+
 
 #########
 # PATHS #
 #########
 
-import os
+PROJECT_APP_PATH = os.path.dirname(os.path.abspath(__file__))
+PROJECT_APP = os.path.basename(PROJECT_APP_PATH)
+PROJECT_ROOT = BASE_DIR = os.path.dirname(PROJECT_APP_PATH)
 
-# Full filesystem path to the project.
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-# Name of the directory for the project.
-PROJECT_DIRNAME = PROJECT_ROOT.split(os.sep)[-1]
-
-CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_DIRNAME
+CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_APP
 
 STATIC_URL = "/static/"
 
@@ -86,10 +72,10 @@ MEDIA_URL = STATIC_URL + "media/"
 
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 
-ROOT_URLCONF = 'tests.urls'
+ROOT_URLCONF = "%s.urls" % PROJECT_APP
 
-TEMPLATE_DIRS = (os.path.join(PROJECT_ROOT, "templates"),
-                 os.path.join(PROJECT_ROOT, "../openhelpdesk", "templates"))
+TEMPLATE_DIRS = (
+    os.path.join(PROJECT_ROOT, "templates"),)
 
 
 ################
@@ -103,18 +89,15 @@ INSTALLED_APPS = (
     "django.contrib.redirects",
     "django.contrib.sessions",
     "django.contrib.sites",
-    # "django.contrib.sitemaps",
+    "django.contrib.sitemaps",
     "django.contrib.staticfiles",
     "autocomplete_light",
     "openhelpdesk",
-    # "mezzanine.boot",
+    "mezzanine.boot",
     "mezzanine.conf",
     "mezzanine.core",
     "mezzanine.generic",
-    # "mezzanine.blog",
-    # "mezzanine.forms",
     "mezzanine.pages",
-    # "mezzanine.galleries",
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -132,22 +115,24 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 MIDDLEWARE_CLASSES = (
     "mezzanine.core.middleware.UpdateCacheMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "mezzanine.core.request.CurrentRequestMiddleware",
     "mezzanine.core.middleware.RedirectFallbackMiddleware",
-    "mezzanine.core.middleware.TemplateForDeviceMiddleware",
-    "mezzanine.core.middleware.TemplateForHostMiddleware",
-    "mezzanine.core.middleware.AdminLoginInterfaceSelectorMiddleware",
+    # "mezzanine.core.middleware.TemplateForDeviceMiddleware",
+    # "mezzanine.core.middleware.TemplateForHostMiddleware",
+    # "mezzanine.core.middleware.AdminLoginInterfaceSelectorMiddleware",
     "mezzanine.core.middleware.SitePermissionMiddleware",
     # Uncomment the following if using any of the SSL settings:
     # "mezzanine.core.middleware.SSLRedirectMiddleware",
     "mezzanine.pages.middleware.PageMiddleware",
-    "mezzanine.core.middleware.FetchFromCacheMiddleware",
+    # "mezzanine.core.middleware.FetchFromCacheMiddleware",
 )
 
 PACKAGE_NAME_FILEBROWSER = "filebrowser_safe"
@@ -159,37 +144,25 @@ PACKAGE_NAME_GRAPPELLI = "grappelli_safe"
 
 OPTIONAL_APPS = (
     "debug_toolbar",
-    # "django_extensions",
-    # "compressor",
-    # PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
 
-###############################
-# OVERRIDE MEZZANINE SETTINGS #
-###############################
-SEARCH_MODEL_CHOICES = tuple()
+##################
+# LOCAL SETTINGS #
+##################
+
+# f = os.path.join(PROJECT_APP_PATH, "local_settings.py")
+# if os.path.exists(f):
+#     exec(open(f, "rb").read())
+
 
 ####################
 # DYNAMIC SETTINGS #
 ####################
 
-# set_dynamic_settings() will rewrite globals based on what has been
-# defined so far, in order to provide some better defaults where
-# applicable. We also allow this settings module to be imported
-# without Mezzanine installed, as the case may be when using the
-# fabfile, where setting the dynamic settings below isn't strictly
-# required.
 try:
     from mezzanine.utils.conf import set_dynamic_settings
 except ImportError:
     pass
 else:
     set_dynamic_settings(globals())
-
-uid = os.getenv('UID', '')
-
-if uid:
-    db_suffix = '_%s' % uid
-else:
-    db_suffix = ''

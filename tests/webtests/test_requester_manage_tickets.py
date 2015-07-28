@@ -34,7 +34,9 @@ class TestAddingTicket(WebTest):
         self.tipologies = get_tipologies(2)
         self.add_form_data = AddFormData(self.content, self.tipologies)
         response = self.app.get(self.url, user=self.user)
-        self.form = response.forms['ticket_form']
+        # support django 1.8 and previus version
+        form_id = '_form' if '_form' in response.forms else 'ticket_form'
+        self.form = response.forms[form_id]
         self.form['content'] = self.add_form_data.content
         self.form['priority'] = self.add_form_data.priority
         self.form['tipologies'] = self.add_form_data.tipologies
@@ -84,7 +86,9 @@ class TestManageMessagesOfTicket(WebTest):
         message_content = 'help'
         url = reverse(admin_urlname(Ticket._meta, 'change'), args=(ticket.pk,))
         response = self.app.get(url, user=self.user)
-        form = response.forms['ticket_form']
+        # support django 1.8 and previus version
+        form_id = '_form' if '_form' in response.forms else 'ticket_form'
+        form = response.forms[form_id]
         form['messages-0-content'] = message_content
         form.submit('_continue').follow()
         message = ticket.messages.latest()

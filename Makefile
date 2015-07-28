@@ -1,5 +1,5 @@
 version := $(shell cat openhelpdesk/__init__.py | cut -d= -f 2 | tr -d ' ' | tr -d "'")
-
+db_name := test_openhelpdesk_$(UID)
 .PHONY: clean-pyc clean-build docs
 
 help:
@@ -28,7 +28,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 postgres-db:
-	dropdb openhelpdesk_test$(UID); createdb openhelpdesk_test$(UID)
+	dropdb $(db_name); createdb $(db_name)
 
 lint:
 	flake8 --exclude=migrations,urls.py openhelpdesk tests
@@ -44,7 +44,7 @@ test-all:
 
 coverage:
 	which py.test
-	py.test --cov-report term-missing --cov openhelpdesk
+	py.test --cov-report term-missing --cov openhelpdesk -n 2
 
 coverage-live:
 	which py.test

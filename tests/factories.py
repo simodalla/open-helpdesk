@@ -1,19 +1,14 @@
 from __future__ import absolute_import
 
 import factory
-from django.contrib.auth.models import Group
-from django.contrib.sites.models import Site
-
-from mezzanine.core.models import SitePermission
-
 from openhelpdesk.core import get_perm
-from openhelpdesk.models import (Category, Tipology, HelpdeskUser as User,
-                                 Ticket)
 
 
 class GroupFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Group
-    FACTORY_DJANGO_GET_OR_CREATE = ('name',)
+
+    class Meta:
+        model = 'auth.Group'
+        django_get_or_create = ('name',)
 
     name = factory.Sequence(lambda n: 'group{0}'.format(n))
 
@@ -25,8 +20,10 @@ class GroupFactory(factory.DjangoModelFactory):
 
 
 class UserFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = User
-    FACTORY_DJANGO_GET_OR_CREATE = ('username',)
+
+    class Meta:
+        model = 'auth.User'
+        django_get_or_create = ('username',)
 
     username = factory.Sequence(lambda n: 'user{0}'.format(n))
     first_name = factory.Sequence(lambda n: 'John {0}'.format(n))
@@ -48,16 +45,26 @@ class UserFactory(factory.DjangoModelFactory):
             # We have a saved object and a list of permission names
             self.user_permissions.add(*[get_perm(pn) for pn in extracted])
 
+    @factory.post_generation
+    def sitepermissions(self, create, extracted, **kwargs):
+        if create and extracted:
+            # We have a saved object and a list of permission names
+            self.sitepermissions.add(*[get_perm(pn) for pn in extracted])
+
 
 class SiteFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Site
+
+    class Meta:
+        model = 'sites.Site'
 
     domain = factory.Sequence(lambda n: 'example{0}.com'.format(n))
     name = factory.Sequence(lambda n: 'example{0}'.format(n))
 
 
 class SitePermissionF(factory.DjangoModelFactory):
-    FACTORY_FOR = SitePermission
+
+    class Meta:
+        model = 'core.SitePermission'
 
 
 class HelpdeskerF(UserFactory):
@@ -65,7 +72,10 @@ class HelpdeskerF(UserFactory):
 
 
 class CategoryFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Category
+
+    class Meta:
+        model = 'openhelpdesk.Category'
+        django_get_or_create = ('title',)
 
     title = factory.Sequence(lambda n: 'category{0}'.format(n))
 
@@ -76,7 +86,10 @@ class CategoryFactory(factory.DjangoModelFactory):
 
 
 class TipologyFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Tipology
+
+    class Meta:
+        model = 'openhelpdesk.Tipology'
+        django_get_or_create = ('title',)
 
     title = factory.Sequence(lambda n: 'tipology{0}'.format(n))
 
@@ -87,7 +100,9 @@ class TipologyFactory(factory.DjangoModelFactory):
 
 
 class TicketFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Ticket
+
+    class Meta:
+        model = 'openhelpdesk.Ticket'
 
     content = factory.Sequence(lambda n: 'content of ticket {0}'.format(n))
 
