@@ -539,11 +539,11 @@ class ReportAdmin(admin.ModelAdmin):
                                       estimated_end_date=estimated_end_date)
         elif obj.action_on_ticket == 'remove_from_pending':
             obj.ticket.remove_from_pending(request.user)
-        if ((not change and obj.visible_from_requester)
-                or (change and (
-                        cache_obj.visible_from_requester
-                        != obj.visible_from_requester))):
-            obj.send_email_to_requester(request)
+        # if ((not change and obj.visible_from_requester)
+        #         or (change and (
+        #                 cache_obj.visible_from_requester
+        #                 != obj.visible_from_requester))):
+        #     obj.send_email_to_requester(request)
 
 
 class SourceAdmin(admin.ModelAdmin):

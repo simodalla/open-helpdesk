@@ -5,6 +5,7 @@ mock
 pytest
 pytest-django
 pytest-cov
+pytest-xdist
 flake8
 selenium
 lxml

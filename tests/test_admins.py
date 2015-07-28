@@ -282,8 +282,9 @@ def report_util(model_admin_util):
                                    sender_id=None,
                                    recipient_id=None,
                                    action_on_ticket='close',
+                                   visible_from_requester=True,
                                    ticket=Mock(spec_set=Ticket,
-                                               requester=User()))
+                                               requester=Mock(spec=User)))
     model_admin_util.db_field = FakeDbField()
     return model_admin_util
 

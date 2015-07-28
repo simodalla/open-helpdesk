@@ -93,7 +93,7 @@ class HelpdeskUserTest(TestCase):
         hu = HelpdeskUser(user)
         group_names = hu.group_names
         self.assertEqual(group_names, ['g1', 'g2'])
-        mock_groups.values_list.assert_is_called_once_with('name', flat=True)
+        mock_groups.values_list.assert_called_once_with('name', flat=True)
 
     def test_is_requester_return_false(self):
         hu = HelpdeskUser(UserFactory())

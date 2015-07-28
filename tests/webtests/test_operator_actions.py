@@ -85,7 +85,10 @@ def test_add_report_to_open_ticket_without_action(app, opened_ticket):
                        user=opened_ticket.assignee)
     action = 'no_action'
 
-    form = response.forms['_form']
+    # support django 1.8 and previus version
+    form_id = '_form' if '_form' in response.forms else 'report_form'
+    # self.form = response.forms[form_id]
+    form = response.forms[form_id]
     form['content'] = 'foo'
     form['visible_from_requester'] = False
     form['action_on_ticket'] = action
@@ -106,7 +109,9 @@ def test_add_report_to_open_ticket_with_close_action(app, opened_ticket):
     response = app.get(get_add_report_url(opened_ticket),
                        user=opened_ticket.assignee)
     action = 'close'
-    form = response.forms['_form']
+    # support django 1.8 and previus version
+    form_id = '_form' if '_form' in response.forms else 'report_form'
+    form = response.forms[form_id]
     form['content'] = 'foo'
     form['visible_from_requester'] = False
     form['action_on_ticket'] = action
@@ -131,7 +136,9 @@ def test_add_report_to_peding_ticket_without_action(app, pending_ticket):
     response = app.get(get_add_report_url(pending_ticket),
                        user=pending_ticket.assignee)
     action = 'no_action'
-    form = response.forms['_form']
+    # support django 1.8 and previus version
+    form_id = '_form' if '_form' in response.forms else 'report_form'
+    form = response.forms[form_id]
     form['content'] = 'foo'
     form['visible_from_requester'] = True
     form['action_on_ticket'] = action

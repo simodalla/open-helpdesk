@@ -44,7 +44,7 @@ test-all:
 
 coverage:
 	which py.test
-	py.test --cov-report term-missing --cov openhelpdesk
+	py.test --cov-report term-missing --cov openhelpdesk -n 2
 
 coverage-live:
 	which py.test

@@ -61,13 +61,12 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 #############
 # DATABASES #
 #############
-uid = os.getenv('UID', '')
-db_suffix = '_%s' % uid if uid else ''
+uid = os.getenv('UID', 0)
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        'NAME': 'openhelpdesk_test' + db_suffix,
+        'NAME': 'test_openhelpdesk_{}'.format(uid),
         "USER": "simo",
         "PASSWORD": "",
         "HOST": "127.0.0.1",
