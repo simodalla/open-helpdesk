@@ -13,9 +13,7 @@ Created by `Simone Dalla <http://twitter.com/simodalla>`_
 Overview
 ========
 
-OpenHelpdesk is an helpdesk ticket management system for Django/Mezzanine project
-
-This project is under development.
+OpenHelpdesk is an helpdesk ticket management system for Django/Mezzanine project.
 
 
 Dependencies
@@ -23,8 +21,8 @@ Dependencies
 
 OpenHelpdesk required:
 
-* `Django`_ 1.5+, 1.6+
-* `Mezzanine`_ 3.+
+* `Django`_ 1.7+, 1.8+
+* `Mezzanine`_ 4.+
 
 Documentation
 =============
@@ -40,13 +38,13 @@ Live Demo
 
 License
 =======
-OpenHelpdesk is `BSD licensed`_.
+OpenHelpdesk is `GPLv3 licensed`_.
 
 .. GENERAL LINKS
 
 .. _`Django`: http://djangoproject.com/
 .. _`Django Code of Conduct`: https://www.djangoproject.com/conduct/
-.. _`BSD licensed`: https://github.com/simodalla/open-helpdesk/blob/master/LICENSE
+.. _`GPLv3 licensed`: https://github.com/simodalla/open-helpdesk/blob/master/LICENSE
 .. _`Documentation`:http://openhelpdesk.readthedocs.org/
 .. _`Live demo`: https://www2.comune.zolapredosa.bo.it/demoopenhelpdesk/
 .. _`Official repository`: https://github.com/simodalla/mezzanine_page_auth/
