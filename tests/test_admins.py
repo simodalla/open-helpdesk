@@ -269,28 +269,67 @@ class TestTicketAdmin(object):
 
 
 @pytest.fixture
-def report_util(model_admin_util):
-    # from openhelpdesk.models import HelpdeskUser
+def report_admin():
+    model_admin = admin.ReportAdmin(Report, AdminSite())
+    model_admin.message_user = Mock(name='message_user')
+    return model_admin
+
+
+@pytest.fixture
+def report_util(report_admin, model_admin_util):
     from django.contrib.auth.models import User
 
     class FakeDbField(object):
         name = None
+    model_admin_util.model_admin = report_admin
+    report_admin.report = Mock(spec=Report,
+                               sender_id=None,
+                               recipient_id=None,
+                               action_on_ticket='close',
+                               visible_from_requester=True,
+                               ticket=Mock(spec_set=Ticket,
+                                           requester=Mock(spec=User)))
 
-    model_admin_util.model_admin = admin.ReportAdmin(Report, AdminSite())
-    model_admin_util.model_admin.message_user = Mock(name='message_user')
-    model_admin_util.report = Mock(spec=Report,
-                                   sender_id=None,
-                                   recipient_id=None,
-                                   action_on_ticket='close',
-                                   visible_from_requester=True,
-                                   ticket=Mock(spec_set=Ticket,
-                                               requester=Mock(spec=User)))
-    model_admin_util.db_field = FakeDbField()
-    return model_admin_util
+    report_admin.db_field = FakeDbField()
+    return report_admin
 
 
 # noinspection PyShadowingNames
 class TestReportAdmin(object):
+
+    @patch('openhelpdesk.models.Report.send_email_to_requester')
+    def test_notify_to_requester_return_false_with_method_unknown(
+            self, mock_send, report_admin):
+        method = 'fake'
+        with pytest.raises(TypeError) as excinfo:
+            report_admin.notify_to_requester(HttpRequest(), Report(), method=method)
+        assert '"{}" not available'.format(method) in str(excinfo.value)
+        assert mock_send.called is False
+
+    @patch('openhelpdesk.models.Report.send_email_to_requester', return_value=True)
+    def test_notify_to_requester_send_notification_if_new_report_and_is_visible(
+            self, mock_send, report_admin):
+        request = HttpRequest()
+        report = Report(visible_from_requester=True)
+        report_admin.notify_to_requester(request, report, change=False)
+        mock_send.assert_called_once_with(request)
+
+    @patch('openhelpdesk.models.Report.send_email_to_requester', return_value=True)
+    def test_notify_to_requester_not_send_notification_if_new_report_and_not_is_visible(
+            self, mock_send, report_admin):
+        report = Report(visible_from_requester=False)
+        report_admin.notify_to_requester(HttpRequest(), report, change=False)
+        assert mock_send.called is False
+
+    @patch('openhelpdesk.models.Report.send_email_to_requester', return_value=True)
+    def test_notify_to_requester_not_send_notification_if_report_is_now_visible(
+            self, mock_send, report_admin):
+        request = HttpRequest()
+        cache_report = Report(id=1, visible_from_requester=False)
+        report = Report(id=1, visible_from_requester=True)
+        report_admin.notify_to_requester(request, report, cached_obj=cache_report, change=True)
+        mock_send.assert_called_once_with(request)
+
     @patch('django.contrib.admin.ModelAdmin.save_model')
     def test_save_model_set_sender_field(self, mock_save_model, report_util):
         report_util.model_admin.save_model(
