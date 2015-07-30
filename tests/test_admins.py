@@ -281,8 +281,9 @@ def report_util(report_admin, model_admin_util):
 
     class FakeDbField(object):
         name = None
+
     model_admin_util.model_admin = report_admin
-    report_admin.report = Mock(spec=Report,
+    model_admin_util.report = Mock(spec=Report,
                                sender_id=None,
                                recipient_id=None,
                                action_on_ticket='close',
@@ -290,8 +291,8 @@ def report_util(report_admin, model_admin_util):
                                ticket=Mock(spec_set=Ticket,
                                            requester=Mock(spec=User)))
 
-    report_admin.db_field = FakeDbField()
-    return report_admin
+    model_admin_util.db_field = FakeDbField()
+    return model_admin_util
 
 
 # noinspection PyShadowingNames
