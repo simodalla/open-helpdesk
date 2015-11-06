@@ -578,7 +578,7 @@ class Activity(TimeStamped, RichText):
                               related_name='maker_of_activities')
     co_maker = models.ManyToManyField(user_model_name,
                                       verbose_name=_('Co Makers'),
-                                      blank=True, null=True,
+                                      blank=True,
                                       related_name='co_maker_of_activities')
     ticket = models.ForeignKey('Ticket', related_name='activities',
                                blank=True, null=True)

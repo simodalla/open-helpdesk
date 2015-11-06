@@ -539,21 +539,25 @@ class ReportAdmin(admin.ModelAdmin):
         elif obj.action_on_ticket == 'remove_from_pending':
             obj.ticket.remove_from_pending(request.user)
         # send notification
-        self.notify_to_requester(request, obj, cached_obj=cached_obj, change=cached_obj)
+        self.notify_to_requester(request, obj, cached_obj=cached_obj,
+                                 change=cached_obj)
 
     def notify_to_requester(self, request, obj, cached_obj=None,
                             change=False, method='email'):
         if method not in ['email']:
-            raise TypeError('Method for notification "{}" not available'.format(method))
+            raise TypeError('Method for notification "{}" not'
+                            ' available'.format(method))
         notify = False
         if obj.visible_from_requester:
             if not change:
-                # notify if report is added and field visible_from_requester is True
+                # notify if report is added and field visible_from_requester
+                # is True
                 notify = True
             else:
                 if cached_obj and not cached_obj.visible_from_requester:
-                    # notify if report before the saving are not visible_from_requester and after
-                    # saving is visible_from_requester
+                    # notify if report before the saving are not
+                    # visible_from_requester and after saving is
+                    # visible_from_requester
                     notify = True
         if notify and method == 'email':
             obj.send_email_to_requester(request)
