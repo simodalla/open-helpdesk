@@ -1,22 +1,30 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import json
+import operator
+
+from functools import reduce
 from importlib import import_module
 
-import json
-
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse, resolve
+from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, View
 
 from braces.views import GroupRequiredMixin
 
+from dal import autocomplete
+
 from mezzanine.conf import settings
+from mezzanine.utils.sites import current_site_id
 
 from .models import Ticket
+from .core import HelpdeskUser
 
 
 settings.use_editable()
@@ -90,3 +98,54 @@ class ObjectToolsView(GroupRequiredMixin, View):
 
         return HttpResponse(json.dumps(object_tools),
                             content_type='application/json')
+
+
+class RequesterAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        User = get_user_model()
+        from django.contrib.auth.models import User
+
+        if not self.request.user.is_authenticated():
+            return User.objects.none()
+
+        qs = User.objects.filter(groups__name=settings.HELPDESK_REQUESTERS)
+        if self.q:
+            # qs = qs.filter(username__istartswith=self.q)
+            qs = qs.filter(Q(username__icontains=self.q) |
+                           Q(first_name__icontains=self.q) |
+                           Q(last_name__icontains=self.q) |
+                           Q(email__icontains=self.q))
+        return qs
+
+    def get_result_label(self, result):
+        label = result.username
+        if result.first_name:
+            label += ' {}'.format(result.first_name)
+        if result.last_name:
+            label += ' {}'.format(result.last_name)
+        return label
+
+
+class TicketAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return Ticket.objects.none()
+
+        hu = HelpdeskUser(self.request)
+        qs = Ticket.objects.all()
+        if hu.is_requester():
+            qs = qs.filter(requester=hu.user)
+        if hu.is_operator():
+            qs = qs.filter(site__id=current_site_id())
+        if self.q:
+            ors = [Q(content__contains=self.q)]
+            try:
+                ticket_id = int(self.q)
+                ors.append(Q(pk=ticket_id))
+            except ValueError:
+                pass
+            qs = qs.filter(reduce(operator.or_, ors))
+        return qs
+
+    def get_result_label(self, result):
+        return "n.{} [{}]".format(result.id, result.get_clean_content(10))

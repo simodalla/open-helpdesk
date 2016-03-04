@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import waffle
+
 from copy import deepcopy
 
 from django.conf import urls as django_urls
@@ -8,7 +10,10 @@ from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.auth.models import Group
-from django.contrib.contenttypes.generic import GenericTabularInline
+try:
+    from django.contrib.contenttypes.generic import GenericTabularInline
+except ImportError:
+    from django.contrib.contenttypes.admin import GenericTabularInline
 from django.core.urlresolvers import reverse
 try:
     from django.db.transaction import atomic
@@ -539,8 +544,9 @@ class ReportAdmin(admin.ModelAdmin):
         elif obj.action_on_ticket == 'remove_from_pending':
             obj.ticket.remove_from_pending(request.user)
         # send notification
-        self.notify_to_requester(request, obj, cached_obj=cached_obj,
-                                 change=cached_obj)
+        if waffle.switch_is_active('notify_to_requester'):
+            self.notify_to_requester(request, obj, cached_obj=cached_obj,
+                                     change=cached_obj)
 
     def notify_to_requester(self, request, obj, cached_obj=None,
                             change=False, method='email'):

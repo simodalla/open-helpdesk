@@ -6,7 +6,10 @@ import six
 
 # from django.contrib.auth import get_user_model
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
-from django.contrib.contenttypes import generic
+try:
+    from django.contrib.contenttypes import generic
+except ImportError:
+    from django.contrib.contenttypes import fields as generic
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q

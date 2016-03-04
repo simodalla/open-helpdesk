@@ -6,9 +6,11 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django import VERSION as DJANGO_VERSION
+
 from mezzanine.conf import settings
 from mezzanine.utils.sites import current_site_id
-from autocomplete_light import ModelForm as AutocompleteModelForm
+
+from dal import autocomplete
 
 from .models import Ticket, Report, Source
 
@@ -70,14 +72,23 @@ class TicketAdminForm(forms.ModelForm):
         return self.cleaned_data['tipologies']
 
 
-class TicketAdminAutocompleteForm(AutocompleteModelForm, TicketAdminForm):
+class TicketAdminAutocompleteForm(TicketAdminForm):
+
     class Meta:
         model = Ticket
-        autocomplete_fields = ('related_tickets', 'requester',)
+        # autocomplete_fields = ('related_tickets', 'requester',)
+        # fields = ('__all__')
+        widgets = {
+            'requester': autocomplete.ModelSelect2(
+                url='requester-autocomplete'),
+            'related_tickets': autocomplete.ModelSelect2Multiple(
+                url='ticket-autocomplete')
+        }
         exclude = []
 
 
-class ReportAdminAutocompleteForm(AutocompleteModelForm):
+# class ReportAdminAutocompleteForm(AutocompleteModelForm):
+class ReportAdminAutocompleteForm(forms.ModelForm):
     class Meta:
         model = Report
         autocomplete_fields = ('ticket',)
