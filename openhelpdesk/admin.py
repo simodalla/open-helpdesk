@@ -337,8 +337,8 @@ class TicketAdmin(admin.ModelAdmin):
         admin_prefix_url = '%s_%s' % (self.opts.app_label,
                                       self.opts.model_name)
         urls = super(TicketAdmin, self).get_urls()
-        my_urls = django_urls.patterns(
-            '',
+        # my_urls = django_urls.patterns(
+        my_urls = [
             django_urls.url(
                 r'^open/(?P<pk>\d+)/$',
                 self.admin_site.admin_view(OpenTicketView.as_view()),
@@ -347,7 +347,7 @@ class TicketAdmin(admin.ModelAdmin):
                 r'^object_tools/$',
                 self.admin_site.admin_view(ObjectToolsView.as_view()),
                 name='{}_object_tools'.format(admin_prefix_url)),
-        )
+        ]
         return my_urls + urls
 
     def save_formset(self, request, form, formset, change):
