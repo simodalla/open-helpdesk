@@ -30,6 +30,8 @@ HELPDESK_ADMINS = ('helpdesk_admins', [
     'auth.add_group', 'auth.change_group',
 ])
 OPENHELPDESK_MAX_TIPOLOGIES_FOR_TICKET = 3
+OPENHELPDESK_LDAP_OPERATOR_GROUPS = 'Domain Admins'
+OPENHELPDESK_LDAP_REQUESTER_GROUPS = ''
 
 register_setting(
     name="HELPDESK_REQUESTERS",
@@ -70,4 +72,32 @@ register_setting(
             " rispondere. Per qualunque informazione contattare l'ufficio"
             " Servizi Informatici all'indirizzo"
             " ced@example.com",
+)
+
+register_setting(
+    name="OPENHELPDESK_EMAIL_FOOTER",
+    label=_("Footer of email notifications"),
+    description=_("The text of footer of all notification emails."),
+    editable=True,
+    default="Questa email è generata automaticamente, si prega di non"
+            " rispondere. Per qualunque informazione contattare l'ufficio"
+            " Servizi Informatici all'indirizzo"
+            " ced@example.com",
+)
+
+register_setting(
+    name="OPENHELPDESK_LDAP_OPERATOR_GROUPS",
+    label=_("Ldap group mapping for openhelpdek operators"),
+    description=_("Ldap group mapping for openhelpdek operators."),
+    editable=True,
+    default=OPENHELPDESK_LDAP_OPERATOR_GROUPS,
+)
+
+register_setting(
+    name="OPENHELPDESK_LDAP_REQUESTER_GROUPS",
+    label=_("Ldap group mapping for openhelpdek requesters"),
+    description=_("Gruppi ldap (separati da virgola!) i cui utenti"
+                  " diventeranno requester per openhelpdesk"),
+    editable=True,
+    default=OPENHELPDESK_LDAP_REQUESTER_GROUPS,
 )

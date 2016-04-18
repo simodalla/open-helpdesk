@@ -1,6 +1,7 @@
 django>=1.8
-mezzanine>=4.0.0
+mezzanine>=4.1.0
 psycopg2>=2.6
 django-model-utils>=2.3.1
 django-braces==1.8.0
-django-autocomplete-light==2.2.4
+django-autocomplete-light==3.0.4
+django_waffle==0.11
