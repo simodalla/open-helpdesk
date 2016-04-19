@@ -99,6 +99,7 @@ INSTALLED_APPS = (
     "mezzanine.core",
     "mezzanine.generic",
     "mezzanine.pages",
+    'waffle',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -127,6 +128,7 @@ MIDDLEWARE_CLASSES = (
     "mezzanine.core.middleware.RedirectFallbackMiddleware",
     "mezzanine.core.middleware.SitePermissionMiddleware",
     "mezzanine.pages.middleware.PageMiddleware",
+    'waffle.middleware.WaffleMiddleware',
 )
 
 PACKAGE_NAME_FILEBROWSER = "filebrowser_safe"

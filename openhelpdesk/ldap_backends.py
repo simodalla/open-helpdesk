@@ -2,8 +2,12 @@ import logging
 
 from django.contrib.auth.models import Group
 from django.core.mail import mail_managers
+from django.template import loader, Context
 
 from mezzanine.conf import settings
+from mezzanine.utils.email import subject_template
+
+from waffle import switch_is_active
 
 from pautils.ldap_backends import MezzanineLDAPBackend
 
@@ -33,7 +37,22 @@ class OpenHelpdeskLDAPBackend(MezzanineLDAPBackend):
 
     @staticmethod
     def send_email_report(user, ldap_user):
-        pass
+        template = "openhelpdesk/email/report/ldap_backend/on_creation"
+        context = {'user': user}
+        subject = subject_template("{}_subject.txt".format(template), context)
+        context.update(
+            {'ldap_user': ldap_user,
+             'groups': user.groups.order_by('name').values_list(
+                 'name', flat=True),
+             'domains': user.sitepermissions.sites.order_by('pk').values_list(
+                 'domain', flat=True),
+             'user_opts': user._meta},)
+        # import pytest
+        # pytest.set_trace()
+        message = loader.get_template("{}.txt".format(template)).render(
+            Context(context))
+        mail_managers(subject, message, True)
+        return True
 
     def get_or_create_user(self, username, ldap_user):
         user, create = super(OpenHelpdeskLDAPBackend, self).get_or_create_user(
@@ -51,6 +70,6 @@ class OpenHelpdeskLDAPBackend(MezzanineLDAPBackend):
         except:
             logger.exception("Generic error into {}".format(
                 self.__class__.__name__), exc_info=True)
-        if create:
+        if create and switch_is_active('enable_send_email_report'):
             self.send_email_report(user, ldap_user)
         return user, create

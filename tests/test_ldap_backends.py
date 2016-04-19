@@ -1,12 +1,11 @@
 from unittest.mock import patch
 import pytest
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
 
 from openhelpdesk.ldap_backends import OpenHelpdeskLDAPBackend
 
-from .factories import UserFactory, GroupFactory
+from .factories import UserFactory, GroupFactory, SiteFactory, HelpdeskerF
 
 
 backend_module = 'openhelpdesk.ldap_backends.'
@@ -204,6 +203,7 @@ def test_ldap_new_login_with_a_group_added_send_a_report_by_mail(
     monkeypatch.setattr(
         '%sOpenHelpdeskLDAPBackend.check_validity_requester' % backend_module,
         lambda s, lu: True)
+    monkeypatch.setattr('%sswitch_is_active' % backend_module, lambda s: True)
     with patch('%sOpenHelpdeskLDAPBackend.send_email_report' % backend_module
                ) as mock_ser:
         user, create = ohldapbackend.get_or_create_user('foo', ldap_user)
@@ -211,6 +211,11 @@ def test_ldap_new_login_with_a_group_added_send_a_report_by_mail(
     assert user.pk == fuser.pk
 
 
+@patch('%smail_managers' % backend_module)
 @pytest.mark.django_db
-def test_send_email_report():
-    assert pytest.xfail()
+def test_send_email_report(mock_mail, monkeypatch, ohldapbackend, ldap_user):
+    fsite = SiteFactory()
+    fuser = HelpdeskerF()
+    fuser.sitepermissions.sites.add(fsite)
+    ohldapbackend.send_email_report(fuser, ldap_user)
+    assert mock_mail.call_count == 1

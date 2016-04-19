@@ -4,10 +4,8 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-import autocomplete_light
 from mezzanine.core.views import direct_to_template
 
-autocomplete_light.autodiscover()
 admin.autodiscover()
 
 
@@ -60,7 +58,6 @@ urlpatterns += patterns('',
     # ``mezzanine.urls`` INCLUDES A *CATCH ALL* PATTERN
     # FOR PAGES, SO URLPATTERNS ADDED BELOW ``mezzanine.urls``
     # WILL NEVER BE MATCHED!
-    url(r'^autocomplete/', include('autocomplete_light.urls')),
 
     # If you'd like more granular control over the patterns in
     # ``mezzanine.urls``, go right ahead and take the parts you want
