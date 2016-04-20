@@ -17,7 +17,7 @@ try:
     from django.db.transaction import atomic
 except ImportError:  # pragma: no cover
     from django.db.transaction import commit_on_success as atomic
-from django.template.defaultfilters import truncatewords
+from django.template.defaultfilters import truncatewords, truncatechars, safe, mark_safe
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import python_2_unicode_compatible
@@ -316,15 +316,18 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
             self.insert_by_id = self.requester_id
         super(Ticket, self).save(update_site, *args, **kwargs)
 
-    def get_clean_content(self, words=10):
+    def get_clean_content(self, words=10, max_word_length=30):
         """
         Return self.content with html tags stripped and truncate after a
         "words" number of words with use of django template filter
         'truncatewords'.
 
         :param words: Number of words to truncate after
+        :param max_word_length: Max number of chars to truncate the single word
         """
-        return truncatewords(strip_tags(self.content), words)
+        return safe(' '.join(
+            [truncatechars(w, max_word_length) for w in truncatewords(
+                strip_tags(self.content), words).split(' ')]))
 
     def _is_in_status(self, status):
         return True if self.status == status else False

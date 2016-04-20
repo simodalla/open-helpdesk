@@ -166,7 +166,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
-    search_fields = ['content', 'requester__username',
+    search_fields = ['content', 'requester__username', 'requester__email',
                      'requester__first_name', 'requester__last_name',
                      'tipologies__title', 'tipologies__category__title']
 
@@ -181,7 +181,7 @@ class TicketAdmin(admin.ModelAdmin):
 
     def get_search_fields_info(self, request):
         return _('content of ticket, title of tipology, title of category'
-                 ' ,username, last name, first name of requester')
+                 ' ,username, last name, first name, email of requester')
 
     @staticmethod
     def get_object_tools(request, view_name, obj=None):
@@ -234,7 +234,7 @@ class TicketAdmin(admin.ModelAdmin):
     ld_id.short_description = _('Id')
 
     def ld_content(self, obj):
-        return obj.get_clean_content(words=12)
+        return obj.get_clean_content(words=18)
     ld_content.short_description = _('Content')
 
     def ld_status(self, obj):

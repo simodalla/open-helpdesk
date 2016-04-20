@@ -47,8 +47,6 @@ class OpenHelpdeskLDAPBackend(MezzanineLDAPBackend):
              'domains': user.sitepermissions.sites.order_by('pk').values_list(
                  'domain', flat=True),
              'user_opts': user._meta},)
-        # import pytest
-        # pytest.set_trace()
         message = loader.get_template("{}.txt".format(template)).render(
             Context(context))
         mail_managers(subject, message, True)
