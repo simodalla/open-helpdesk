@@ -70,6 +70,7 @@ class OpenHelpdeskLDAPBackend(MezzanineLDAPBackend):
         except:
             logger.exception("Generic error into {}".format(
                 self.__class__.__name__), exc_info=True)
-        if create and switch_is_active('enable_send_email_report'):
+        if create and switch_is_active(
+                'openhelpdesk_ldapbackend_send_email_report'):
             self.send_email_report(user, ldap_user)
         return user, create
