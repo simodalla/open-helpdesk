@@ -544,7 +544,7 @@ class ReportAdmin(admin.ModelAdmin):
         elif obj.action_on_ticket == 'remove_from_pending':
             obj.ticket.remove_from_pending(request.user)
         # send notification
-        if waffle.switch_is_active('notify_to_requester'):
+        if waffle.switch_is_active('openhelpdesk_notify_to_requester'):
             self.notify_to_requester(request, obj, cached_obj=cached_obj,
                                      change=cached_obj)
 
