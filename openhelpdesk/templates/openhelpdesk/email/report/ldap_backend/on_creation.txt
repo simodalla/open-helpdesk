@@ -4,17 +4,21 @@
 {% blocktrans %}New user {{ user }} added at {{ added_at }}.{% endblocktrans %}
 
 {% block body %}
-{% trans "Name" %}: {{ user.last_name }} {{ user.first_name }}
-{% trans "Email" %}: {{ user.email }}
-{% trans "Is staff" %}: {{ user.is_staff }}
-{% trans "PyUnione Groups" %}: {{ groups|join:"," }}
+{% autoescape off %}
+{% trans "Name" %}: {{ ldap_user.attrs.givenname|first }} {{ ldap_user.attrs.sn|first }}
+{% trans "Email" %}: {{ ldap_user.attrs.mail|first|default:"NESSUNA MAIL ASSEGNATA"}}
+{% trans "PyUnione Groups" %}: {{ groups|join:", " }}
 {% trans "Ldap dn" %}: {{ ldap_user.dn }}
-{% trans "Ldap attrs" %}: {{ ldap_user.attrs }}
-{% trans "Ldap groups" %}: {{ ldap_user.group_names|join:"," }}
-{% trans "Ldap group dns" %}: {{ ldap_user.group_dns|join:"," }}
+{% trans "Ldap groups" %}: {{ ldap_user.group_names|join:", " }}
+{% trans "Ldap group dns" %}: [{{ ldap_user.group_dns|join:"\n" }}]
+{% endautoescape %}
 
 {% trans "Use the links below to view the user" %}:
 {% for domain in domains %}
     http://{{ domain }}{% url user_opts|admin_urlname:'change' user.pk %}
 {% endfor %}
+
+{% autoescape off %}
+{% trans "All ldap attrs" %}: {{ ldap_user.attrs|pprint }}
+{% endautoescape %}
 {% endblock %}
