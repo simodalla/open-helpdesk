@@ -33,9 +33,10 @@ from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
 from .templatetags import helpdesk_tags
 from .models import (
     Category, Tipology, Attachment, Ticket, Message,
-    Report, StatusChangesLog, Source, SiteConfiguration)
+    Report, StatusChangesLog, Source, SiteConfiguration, OrganizationSetting)
 from .core import HelpdeskUser
 from .views import OpenTicketView, ObjectToolsView
+from .filters import EmailDomainFilter, StatusListFilter
 
 
 DEFAULT_LIST_PER_PAGE = 15
@@ -105,12 +106,8 @@ class TipologyAdmin(admin.ModelAdmin):
     ld_sites.short_description = _('Enabled on Sites')
 
 
-class StatusListFilter(admin.ChoicesFieldListFilter):
-    title = _('Status')
-
-    def __init__(self, *args, **kwargs):
-        super(StatusListFilter, self).__init__(*args, **kwargs)
-        self.title = StatusListFilter.title
+class OrganizationSettingAdmin(admin.ModelAdmin):
+    list_display = ['title', 'email_domain', 'active', 'filter_label']
 
 
 class SiteConfigurationAdmin(admin.ModelAdmin):
@@ -171,8 +168,8 @@ class TicketAdmin(admin.ModelAdmin):
                      'tipologies__title', 'tipologies__category__title']
 
     operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
-    operator_list_display = ['requester']
-    operator_list_filter = ['requester', 'assignee', 'source']
+    operator_list_display = ['ld_requester']
+    operator_list_filter = [EmailDomainFilter, 'assignee', 'source']
     operator_actions = ['requester', 'assignee']
 
     def get_request_helpdeskuser(self, request):
@@ -232,6 +229,15 @@ class TicketAdmin(admin.ModelAdmin):
         return obj.pk
     ld_id.admin_order_field = 'id'
     ld_id.short_description = _('Id')
+
+    def ld_requester(self, obj):
+        result = obj.requester.username
+        if obj.requester.email:
+            result += '<br />{}'.format(obj.requester.email)
+        return result
+    ld_requester.admin_order_field = 'requester'
+    ld_requester.allow_tags = True
+    ld_requester.short_description = _('Requester')
 
     def ld_content(self, obj):
         return obj.get_clean_content(words=18)
@@ -604,3 +610,5 @@ admin.site.register(SiteConfiguration, SiteConfigurationAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(Tipology, TipologyAdmin)
+admin.site.register(OrganizationSetting, OrganizationSettingAdmin)
+

@@ -170,6 +170,27 @@ class SiteConfiguration(models.Model):
 
 
 @python_2_unicode_compatible
+class OrganizationSetting(TimeStamped):
+    """
+    """
+    title = models.CharField(_('Title'), max_length=500, unique=True)
+    email_domain = models.CharField(_('Email Domain'), max_length=100,
+                                    unique=True)
+    active = models.BooleanField(_('Active'), default=True)
+    filter_label = models.CharField(_('Filter label'), max_length=20)
+    # helpdesk_operators = models.ManyToManyField(
+    #     user_model_name, verbose_name=_('Helpdesk Operators'),
+    #     # related_name="",
+    #     blank=True, null=True)
+
+    class Meta:
+        get_latest_by = 'created'
+        ordering = ('title',)
+        verbose_name = _('Organization Setting')
+        verbose_name_plural = _('Organization Settings')
+
+
+@python_2_unicode_compatible
 class Category(TimeStamped):
     title = models.CharField(_('Title'), max_length=500, unique=True)
 
