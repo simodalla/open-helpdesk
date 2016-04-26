@@ -14,7 +14,8 @@
 <p><b>{% trans "Priority" %}</b>: {{ ticket.get_priority_display }}</p>
 <p><b>{% trans "Source" %}</b>: {{ ticket.source.title }}</p>
 <p><b>{% trans "Created at" %}</b>: {{ ticket.created|date:"DATETIME_FORMAT" }}</p>
-<p><b>{% trans "Created by" %}</b>: {{ ticket.requester }}</p>
+<p><b>{% trans "Created by" %}</b>: {{ requester_name }} - {{ requester_username }}</p>
+<p><b>{% trans "Email" %}</b>: {{ requester_email }}</p>
 </div>
 <div style="clear: left; border-top: 1px solid lightblue; padding-top: 5px;">
     <div style="float: left;"><b>{% trans "Content" %}</b>:</div>

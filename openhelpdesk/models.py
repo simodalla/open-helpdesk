@@ -178,6 +178,8 @@ class OrganizationSetting(TimeStamped):
                                     unique=True)
     active = models.BooleanField(_('Active'), default=True)
     filter_label = models.CharField(_('Filter label'), max_length=20)
+    email_background_color = models.CharField(max_length=20,
+                                              default='lightskyblue')
     # helpdesk_operators = models.ManyToManyField(
     #     user_model_name, verbose_name=_('Helpdesk Operators'),
     #     # related_name="",
@@ -188,6 +190,8 @@ class OrganizationSetting(TimeStamped):
         ordering = ('title',)
         verbose_name = _('Organization Setting')
         verbose_name_plural = _('Organization Settings')
+
+    # def get_color_from
 
 
 @python_2_unicode_compatible
@@ -499,6 +503,10 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
 
     def send_email_to_operators_on_adding(self, request):
         template = "openhelpdesk/email/ticket/ticket_operators_creation"
+        requester_name = _('no personal info assigned')
+        if self.requester.last_name and self.requester.first_name:
+            requester_name = '{} {}'.format(self.requester.first_name,
+                                            self.requester.last_name)
         subject = subject_template(
             "{}_subject.html".format(template),
             {'ticket_name': self._meta.verbose_name.lower(),
@@ -512,8 +520,14 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
             addr_to = SiteConfiguration.get_no_site_email_addrs_to()
         change_url = reverse(admin_urlname(self._meta, 'change'),
                              args=(self.pk,))
+
         context = {'ticket_name': self._meta.verbose_name, 'ticket': self,
-                   'request': request, 'change_url': change_url}
+                   'request': request, 'change_url': change_url,
+                   'requester_username': self.requester.username,
+                   'requester_email': self.requester.email or _(
+                       'no email assigned'),
+                   'requester_name': requester_name,
+                   'email_background_color': 'red'}
         send_mail_template(subject, template, addr_from, addr_to,
                            context=context, attachments=None)
 

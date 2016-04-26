@@ -8,11 +8,12 @@
 {% trans "Priority" %}: {{ ticket.get_priority_display }}
 {% trans "Source" %}: {{ ticket.source.title }}
 {% trans "Created at" %}: {{ ticket.created|date:"DATETIME_FORMAT" }}
-{% trans "Created by" %}: {{ ticket.requester }}
+{% trans "Created by" %}: {{ requester_name }} - {{ requester_username }}
+{% trans "Email" %}: {{ requester_email }}
 {% trans "Content" %}: {{ ticket.content|striptags }}
 
 {% trans "Use the link below to view the ticket" %}:
 http://{{ request.get_host }}{{ change_url }}"
 
-{% trans "Questa email è generata automaticamente, si prega di non rispondere. Per qualunque informazione contattare l'ufficio Servizi Informatici all'indirizzo ced@comune.zolapredosa.bo.it" %}
+{% trans "Questa email è generata automaticamente, si prega di non rispondere. Per qualunque informazione contattare il Servizio Informatico Associato all'indirizzo ced@unionerenolavinosamoggia.bo.it" %}
 {% endblock %}
