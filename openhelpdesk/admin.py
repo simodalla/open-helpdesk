@@ -107,7 +107,9 @@ class TipologyAdmin(admin.ModelAdmin):
 
 
 class OrganizationSettingAdmin(admin.ModelAdmin):
-    list_display = ['title', 'email_domain', 'active', 'filter_label']
+    list_display = ['title', 'email_domain', 'active',
+                    'filter_label', 'email_background_color']
+    list_editable = ['active', 'filter_label', 'email_background_color']
 
 
 class SiteConfigurationAdmin(admin.ModelAdmin):
