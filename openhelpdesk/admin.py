@@ -14,6 +14,7 @@ try:
     from django.contrib.contenttypes.generic import GenericTabularInline
 except ImportError:
     from django.contrib.contenttypes.admin import GenericTabularInline
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 try:
     from django.db.transaction import atomic
@@ -170,7 +171,7 @@ class TicketAdmin(admin.ModelAdmin):
                      'tipologies__title', 'tipologies__category__title']
 
     operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
-    operator_list_display = ['ld_requester']
+    operator_list_display = ['ld_requester', 'ld_organization']
     operator_list_filter = [EmailDomainFilter, 'assignee', 'source']
     operator_actions = ['requester', 'assignee']
 
@@ -233,13 +234,21 @@ class TicketAdmin(admin.ModelAdmin):
     ld_id.short_description = _('Id')
 
     def ld_requester(self, obj):
-        result = obj.requester.username
-        if obj.requester.email:
-            result += '<br />{}'.format(obj.requester.email)
-        return result
+        return obj.requester.username
     ld_requester.admin_order_field = 'requester'
     ld_requester.allow_tags = True
     ld_requester.short_description = _('Requester')
+
+    def ld_organization(self, obj):
+        try:
+            return OrganizationSetting.objects.get_fied_from_email(
+                obj.requester.email, 'title').strip()
+        except (ValidationError, OrganizationSetting.DoesNotExist):
+            return '<a href="{}">{}</a>'.format(
+                reverse('admin:auth_user_change', args=(obj.requester.pk,)),
+                _("Please, verify email address"))
+    ld_organization.allow_tags = True
+    ld_organization.short_description = _('Organization')
 
     def ld_content(self, obj):
         return obj.get_clean_content(words=18)
