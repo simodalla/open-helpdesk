@@ -36,6 +36,7 @@ from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
                    TicketIsNotPendingError,
                    ACTIONS_ON_TICKET, DEFAULT_ACTIONS, TicketIsNewError,
                    HelpdeskUser)
+from .managers import OrganizationSettingManager
 
 
 # User = get_user_model()
@@ -177,9 +178,13 @@ class OrganizationSetting(TimeStamped):
     email_domain = models.CharField(_('Email Domain'), max_length=100,
                                     unique=True)
     active = models.BooleanField(_('Active'), default=True)
-    filter_label = models.CharField(_('Filter label'), max_length=20)
+    filter_label = models.CharField(_('Filter label'), max_length=20,
+                                    blank=True)
     email_background_color = models.CharField(max_length=20,
-                                              default='lightskyblue')
+                                              default='lightskyblue',
+                                              blank=True)
+
+    objects = OrganizationSettingManager()
     # helpdesk_operators = models.ManyToManyField(
     #     user_model_name, verbose_name=_('Helpdesk Operators'),
     #     # related_name="",
@@ -521,13 +526,16 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
         change_url = reverse(admin_urlname(self._meta, 'change'),
                              args=(self.pk,))
 
+        email_background_color = (
+            OrganizationSetting.objects.get_color_from_email(
+                self.requester.email))
         context = {'ticket_name': self._meta.verbose_name, 'ticket': self,
                    'request': request, 'change_url': change_url,
                    'requester_username': self.requester.username,
                    'requester_email': self.requester.email or _(
                        'no email assigned'),
                    'requester_name': requester_name,
-                   'email_background_color': 'red'}
+                   'email_background_color': email_background_color}
         send_mail_template(subject, template, addr_from, addr_to,
                            context=context, attachments=None)
 

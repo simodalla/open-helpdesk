@@ -33,7 +33,7 @@ class OpenHelpdeskLDAPBackend(MezzanineLDAPBackend):
         return self._check_validity_group(self.ldap_requester_groups, ldap_user)
 
     def check_validity_operator(self, ldap_user):
-        return self._check_validity_group(self.ldap_requester_groups, ldap_user)
+        return self._check_validity_group(self.ldap_operator_groups, ldap_user)
 
     @staticmethod
     def send_email_report(user, ldap_user):
@@ -59,7 +59,7 @@ class OpenHelpdeskLDAPBackend(MezzanineLDAPBackend):
             if create and self.check_validity_operator(ldap_user):
                 user.groups.add(
                     Group.objects.get(name=settings.HELPDESK_OPERATORS))
-            if create and self.check_validity_requester(ldap_user):
+            elif create and self.check_validity_requester(ldap_user):
                 user.groups.add(
                     Group.objects.get(name=settings.HELPDESK_REQUESTERS))
         except Group.DoesNotExist as dne:
