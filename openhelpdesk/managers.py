@@ -26,4 +26,4 @@ class OrganizationSettingManager(models.Manager):
         except Exception:
             # TODO fare il logging
             return ''
-        return obj.email_background_color
+        return obj.email_background_color.lower().strip()
