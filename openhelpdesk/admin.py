@@ -172,7 +172,9 @@ class TicketAdmin(admin.ModelAdmin):
 
     operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
     operator_list_display = ['ld_requester', 'ld_organization']
-    operator_list_filter = [EmailDomainFilter, 'assignee', 'source']
+    operator_list_filter = [EmailDomainFilter,
+                            ('assignee', admin.RelatedOnlyFieldListFilter),
+                            'source']
     operator_actions = ['requester', 'assignee']
 
     def get_request_helpdeskuser(self, request):
