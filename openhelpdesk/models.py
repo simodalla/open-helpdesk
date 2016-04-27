@@ -36,7 +36,7 @@ from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
                    TicketIsNotPendingError,
                    ACTIONS_ON_TICKET, DEFAULT_ACTIONS, TicketIsNewError,
                    HelpdeskUser)
-from .managers import OrganizationSettingManager
+from .managers import EmailOrganizationSettingManager
 
 
 # User = get_user_model()
@@ -184,7 +184,8 @@ class OrganizationSetting(TimeStamped):
                                               default='lightskyblue',
                                               blank=True)
 
-    objects = OrganizationSettingManager()
+    objects = models.Manager()
+    email_objects = EmailOrganizationSettingManager()
     # helpdesk_operators = models.ManyToManyField(
     #     user_model_name, verbose_name=_('Helpdesk Operators'),
     #     # related_name="",
@@ -196,12 +197,16 @@ class OrganizationSetting(TimeStamped):
         verbose_name = _('Organization Setting')
         verbose_name_plural = _('Organization Settings')
 
-    # def get_color_from
+    def __str__(self):
+        return self.title
 
 
 @python_2_unicode_compatible
 class Category(TimeStamped):
     title = models.CharField(_('Title'), max_length=500, unique=True)
+    organizations = models.ManyToManyField(OrganizationSetting,
+                                           blank=True,
+                                           related_name='categories')
 
     class Meta:
         verbose_name = _('Category')
@@ -222,6 +227,16 @@ class Category(TimeStamped):
              for t in self.tipologies.all()])
     admin_tipologies.allow_tags = True
     admin_tipologies.short_description = _('Tipologies')
+
+    def admin_organizations(self):
+        return '<br>'.join(
+            ['<a href="{}?id={}" class="view_tipology">{}</a>'.format(
+                reverse(admin_urlname(obj._meta, 'changelist')),
+                obj.pk,
+                obj.title)
+             for obj in self.organizations.all()])
+    admin_organizations.allow_tags = True
+    admin_organizations.short_description = _('Organizations')
 
 
 @python_2_unicode_compatible
@@ -527,7 +542,7 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
                              args=(self.pk,))
 
         email_background_color = (
-            OrganizationSetting.objects.get_color_from_email(
+            OrganizationSetting.email_objects.get_color(
                 self.requester.email))
         context = {'ticket_name': self._meta.verbose_name, 'ticket': self,
                    'request': request, 'change_url': change_url,

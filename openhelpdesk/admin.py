@@ -72,9 +72,11 @@ class AttachmentInline(TabularDynamicInlineAdmin, GenericTabularInline):
 
 class CategoryAdmin(admin.ModelAdmin):
     inlines = [TipologyInline]
-    list_display = ['title', 'admin_tipologies']
+    list_display = ['title', 'admin_tipologies', 'admin_organizations']
+    filter_horizontal = ('organizations',)
     list_per_page = DEFAULT_LIST_PER_PAGE
-    search_fields = ['title']
+    list_select_related = True
+    search_fields = ['title', 'organizations']
 
 
 # noinspection PyMethodMayBeStatic
@@ -178,7 +180,6 @@ class TicketAdmin(admin.ModelAdmin):
     operator_actions = ['requester', 'assignee']
 
     def get_request_helpdeskuser(self, request):
-        # return HelpdeskUser.get_from_request(request)
         return HelpdeskUser(request)
 
     def get_search_fields_info(self, request):
@@ -243,7 +244,7 @@ class TicketAdmin(admin.ModelAdmin):
 
     def ld_organization(self, obj):
         try:
-            return OrganizationSetting.objects.get_fied_from_email(
+            return OrganizationSetting.email_objects.get_field(
                 obj.requester.email, 'title').strip()
         except (ValidationError, OrganizationSetting.DoesNotExist):
             return '<a href="{}">{}</a>'.format(
@@ -350,6 +351,21 @@ class TicketAdmin(admin.ModelAdmin):
         if hu.user.is_superuser or hu.is_operator() or hu.is_admin():
             return qs
         return qs.filter(requester=hu.user)
+
+    def get_changeform_initial_data(self, request):
+        """
+        This method is an hook for filter the tipologies for an requester user.
+        """
+        hu = HelpdeskUser(request)
+        initial = super(TicketAdmin, self).get_changeform_initial_data(request)
+        if hu.is_requester():
+            try:
+                tipology_pks = OrganizationSetting.email_objects.get_tipologies(
+                    request.user.email).values_list('pk', flat=True)
+                initial.update({'__tipology_pks': tipology_pks})
+            except Exception as e:
+                raise e
+        return initial
 
     def get_urls(self):
         # getattr is for re-compatibility django 1.5
@@ -586,7 +602,6 @@ class ReportAdmin(admin.ModelAdmin):
                     notify = True
         if notify and method == 'email':
             obj.send_email_to_requester(request)
-
 
 
 class SourceAdmin(admin.ModelAdmin):
