@@ -186,10 +186,6 @@ class OrganizationSetting(TimeStamped):
 
     objects = models.Manager()
     email_objects = EmailOrganizationSettingManager()
-    # helpdesk_operators = models.ManyToManyField(
-    #     user_model_name, verbose_name=_('Helpdesk Operators'),
-    #     # related_name="",
-    #     blank=True, null=True)
 
     class Meta:
         get_latest_by = 'created'
