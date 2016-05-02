@@ -3,7 +3,7 @@ import itertools
 from django.db import models
 from django.core.validators import validate_email
 
-from . import models
+from . import models as op_models
 
 
 class EmailOrganizationSettingManager(models.Manager):
@@ -48,7 +48,7 @@ class EmailOrganizationSettingManager(models.Manager):
             # differenze with pks of disabled
             tipology_pks = tipology_pks.difference(
                     set(obj.tipologies_disabled.values_list('pk', flat=True)))
-            return models.Tipology.objects.filter(pk__in=tipology_pks)
+            return op_models.Tipology.objects.filter(pk__in=tipology_pks)
         except Exception as e:
             raise e
 
