@@ -21,7 +21,7 @@ from django.template.defaultfilters import truncatewords, truncatechars, safe, m
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.html import strip_tags
+from django.utils.html import strip_tags, format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
@@ -200,9 +200,8 @@ class OrganizationSetting(TimeStamped):
 @python_2_unicode_compatible
 class Category(TimeStamped):
     title = models.CharField(_('Title'), max_length=500, unique=True)
-    organizations = models.ManyToManyField(OrganizationSetting,
-                                           blank=True,
-                                           related_name='categories')
+    enable_on_organizations = models.ManyToManyField(
+        OrganizationSetting, blank=True, related_name='categories_enabled')
 
     class Meta:
         verbose_name = _('Category')
@@ -224,15 +223,16 @@ class Category(TimeStamped):
     admin_tipologies.allow_tags = True
     admin_tipologies.short_description = _('Tipologies')
 
-    def admin_organizations(self):
-        return '<br>'.join(
-            ['<a href="{}?id={}" class="view_tipology">{}</a>'.format(
-                reverse(admin_urlname(obj._meta, 'changelist')),
-                obj.pk,
-                obj.title)
-             for obj in self.organizations.all()])
-    admin_organizations.allow_tags = True
-    admin_organizations.short_description = _('Organizations')
+    def admin_enable_on_organizations(self):
+        return format_html_join(
+            mark_safe('<br>'),
+            '<a href="{}?id={}" class="view_tipology">{}</a>',
+            ((reverse(admin_urlname(obj._meta, 'changelist')),
+              obj.pk,
+              obj.title)
+             for obj in self.enable_on_organizations.all()))
+    admin_enable_on_organizations.short_description = _(
+        'Enable on organizations')
 
 
 @python_2_unicode_compatible
@@ -250,6 +250,10 @@ class Tipology(TimeStamped):
                                    related_name='helpdesk_tipologies')
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
+    enable_on_organizations = models.ManyToManyField(
+        OrganizationSetting, blank=True, related_name='tipologies_enabled')
+    disable_on_organizations = models.ManyToManyField(
+        OrganizationSetting, blank=True, related_name='tipologies_disabled')
 
     class Meta:
         verbose_name = _('Tipology')
@@ -259,6 +263,28 @@ class Tipology(TimeStamped):
 
     def __str__(self):
         return '[{self.category.title}] {self.title}'.format(self=self)
+
+    def admin_enable_on_organizations(self):
+        return format_html_join(
+            mark_safe('<br>'),
+            '<a href="{}?id={}" class="view_tipology">{}</a>',
+            ((reverse(admin_urlname(obj._meta, 'changelist')),
+              obj.pk,
+              obj.title)
+             for obj in self.enable_on_organizations.all()))
+    admin_enable_on_organizations.short_description = _(
+        'Enable on organizations')
+
+    def admin_disable_on_organizations(self):
+        return format_html_join(
+            mark_safe('<br>'),
+            '<a href="{}?id={}" class="view_tipology">{}</a>',
+            ((reverse(admin_urlname(obj._meta, 'changelist')),
+              obj.pk,
+              obj.title)
+             for obj in self.disable_on_organizations.all()))
+    admin_disable_on_organizations.short_description = _(
+        'Disable on organizations')
 
 
 class Attachment(TimeStamped):

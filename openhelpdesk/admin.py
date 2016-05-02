@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django import VERSION as DJANGO_VERSION
 
 from mezzanine.conf import settings
-from mezzanine.core.admin import TabularDynamicInlineAdmin
+from mezzanine.core.admin import TabularDynamicInlineAdmin, StackedDynamicInlineAdmin
 
 from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
 from .templatetags import helpdesk_tags
@@ -43,9 +43,12 @@ from .filters import EmailDomainFilter, StatusListFilter
 DEFAULT_LIST_PER_PAGE = 15
 
 
-class TipologyInline(TabularDynamicInlineAdmin):
+class TipologyInline(StackedDynamicInlineAdmin):
     model = Tipology
-    fields = ('title', 'sites',)
+    fields = ('title', 'sites', 'enable_on_organizations',
+              'disable_on_organizations')
+    filter_horizontal = ('sites', 'enable_on_organizations',
+                         'disable_on_organizations')
 
 
 class MessageInline(TabularDynamicInlineAdmin):
@@ -72,8 +75,10 @@ class AttachmentInline(TabularDynamicInlineAdmin, GenericTabularInline):
 
 class CategoryAdmin(admin.ModelAdmin):
     inlines = [TipologyInline]
-    list_display = ['title', 'admin_tipologies', 'admin_organizations']
-    filter_horizontal = ('organizations',)
+    list_display = ['title',
+                    'admin_tipologies',
+                    'admin_enable_on_organizations']
+    filter_horizontal = ('enable_on_organizations',)
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     search_fields = ['title', 'organizations']
@@ -81,9 +86,14 @@ class CategoryAdmin(admin.ModelAdmin):
 
 # noinspection PyMethodMayBeStatic
 class TipologyAdmin(admin.ModelAdmin):
-    fields = ('title', 'category', 'sites',)
-    filter_horizontal = ('sites',)
-    list_display = ['title', 'ld_category', 'ld_sites']
+    fields = ('title', 'category', 'sites', 'enable_on_organizations',
+              'disable_on_organizations')
+    filter_horizontal = ('enable_on_organizations',
+                         'disable_on_organizations',
+                         'sites',)
+    list_display = ['title', 'ld_category', 'ld_sites',
+                    'admin_enable_on_organizations',
+                    'admin_disable_on_organizations']
     list_filter = ['category']
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True

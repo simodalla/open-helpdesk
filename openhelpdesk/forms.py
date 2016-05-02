@@ -47,7 +47,6 @@ class TicketAdminForm(forms.ModelForm):
                                 relate_manager.filter(pk__in=tipology_pks))
                         else:
                             self.fields[field].queryset = relate_manager.all()
-                        print(self.fields[field].queryset)
 
         # The next code is tricky for ensure compatibility with django 1.5
         if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:  # django 1.5

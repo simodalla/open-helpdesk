@@ -1,5 +1,9 @@
+import itertools
+
 from django.db import models
 from django.core.validators import validate_email
+
+from . import models
 
 
 class EmailOrganizationSettingManager(models.Manager):
@@ -30,11 +34,21 @@ class EmailOrganizationSettingManager(models.Manager):
             return ''
 
     def get_tipologies(self, email):
-        from .models import Tipology
         try:
             obj = self.get(email)
-            return Tipology.objects.filter(
-                category__in=obj.categories.values_list('pk', flat=True))
+            # get pks of enabled tipologies of enabled categories of this obj
+            # organization
+            tipology_pks = set(
+                itertools.chain(*[c.tipologies.values_list('pk', flat=True)
+                                  for c in obj.categories_enabled.all()]))
+            # union whit get pks of direct enabled tipologies of this obj
+            # organizations
+            tipology_pks = tipology_pks.union(
+                set(obj.tipologies_enabled.values_list('pk', flat=True)))
+            # differenze with pks of disabled
+            tipology_pks = tipology_pks.difference(
+                    set(obj.tipologies_disabled.values_list('pk', flat=True)))
+            return models.Tipology.objects.filter(pk__in=tipology_pks)
         except Exception as e:
             raise e
 
