@@ -40,7 +40,8 @@ class TicketAdminForm(forms.ModelForm):
                 if field in self.fields:
                     relate_manager = getattr(site, related_name, None)
                     if relate_manager:
-                        if (field == 'tipologies' and
+                        if ('initial' in kwargs and
+                                field == 'tipologies' and
                                 '__tipology_pks' in kwargs['initial']):
                             tipology_pks = kwargs['initial']['__tipology_pks']
                             self.fields[field].queryset = (
