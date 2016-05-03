@@ -24,7 +24,10 @@ class EmailDomainFilter(admin.SimpleListFilter):
                       for os in OrganizationSetting.objects.iterator()])
 
     def queryset(self, request, queryset):
+        # print(self.value)
+
         if self.value():
             queryset = queryset.filter(
                 requester__email__icontains=self.value())
+
         return queryset

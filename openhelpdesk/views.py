@@ -149,3 +149,23 @@ class TicketAutocomplete(autocomplete.Select2QuerySetView):
 
     def get_result_label(self, result):
         return "n.{} [{}]".format(result.id, result.get_clean_content(10))
+
+
+class ManagersAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        User = get_user_model()
+        from django.contrib.auth.models import User
+
+        if not self.request.user.is_authenticated():
+            return User.objects.none()
+
+        qs = User.objects.filter(groups__name__in=[
+            settings.HELPDESK_OPERATORS, settings.HELPDESK_ADMINS])
+        if self.q:
+            qs = qs.filter(Q(username__icontains=self.q) |
+                           Q(first_name__icontains=self.q) |
+                           Q(last_name__icontains=self.q))
+        return qs
+
+    # def get_result_label(self, result):
+    #     return "{} [{}]".format(result.id, result.get_clean_content(10))

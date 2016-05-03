@@ -28,13 +28,16 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django import VERSION as DJANGO_VERSION
 
 from mezzanine.conf import settings
-from mezzanine.core.admin import TabularDynamicInlineAdmin, StackedDynamicInlineAdmin
+from mezzanine.core.admin import (TabularDynamicInlineAdmin,
+                                  StackedDynamicInlineAdmin)
 
-from .forms import TicketAdminAutocompleteForm, ReportAdminAutocompleteForm
+from .forms import (TicketAdminAutocompleteForm, ReportAdminAutocompleteForm,
+                    SubteamAdminAutocompleteForm)
 from .templatetags import helpdesk_tags
 from .models import (
     Category, Tipology, Attachment, Ticket, Message,
-    Report, StatusChangesLog, Source, SiteConfiguration, OrganizationSetting)
+    Report, StatusChangesLog, Source, SiteConfiguration, OrganizationSetting,
+    Subteam, TeammateSetting)
 from .core import HelpdeskUser
 from .views import OpenTicketView, ObjectToolsView
 from .filters import EmailDomainFilter, StatusListFilter
@@ -437,6 +440,23 @@ class TicketAdmin(admin.ModelAdmin):
             obj.send_email_to_operators_on_adding(request)
 
     # ModelsAdmin views methods customized ####################################
+
+    def changelist_view(self, request, extra_context=None):
+        # request.session.get('has_commented', False):
+        # import ipdb
+        # ipdb.set_trace()
+        # return redirect(admin_urlname(self.model._meta, 'changelist'))
+        session_query_string = request.session.get('oh_query_string', '')
+        actual_query_string = request.META.get('QUERY_STRING', '')
+        print(session_query_string, actual_query_string, request.get_full_path())
+        #if not session_query_string:
+        #
+        #query_string =
+
+        result = super(TicketAdmin, self).changelist_view(
+            request, extra_context=extra_context)
+        return result
+
     def add_view(self, request, form_url='', extra_context=None):
         try:
             os = OrganizationSetting.email_objects.get(request.user.email)
@@ -646,10 +666,16 @@ class SourceAdmin(admin.ModelAdmin):
     ld_icon.short_description = _('Icon')
 
 
-# statements for supporting django version < 1.6
-if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:
-    ReportTicketInline.queryset = ReportTicketInline.get_queryset
-    TicketAdmin.queryset = TicketAdmin.get_queryset
+class SubteamAdmin(admin.ModelAdmin):
+    # filter_horizontal = ('organizations_managed', 'teammates',)
+    list_display = ['title', ]
+    list_per_page = DEFAULT_LIST_PER_PAGE
+    form = SubteamAdminAutocompleteForm
+
+
+class TeammateSettingAdmin(admin.ModelAdmin):
+    list_display = ['user', 'default_subteam']
+    list_per_page = DEFAULT_LIST_PER_PAGE
 
 
 admin.site.register(Category, CategoryAdmin)
@@ -659,4 +685,6 @@ admin.site.register(Source, SourceAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(Tipology, TipologyAdmin)
 admin.site.register(OrganizationSetting, OrganizationSettingAdmin)
+admin.site.register(Subteam, SubteamAdmin)
+admin.site.register(TeammateSetting, TeammateSettingAdmin)
 

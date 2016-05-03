@@ -46,7 +46,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         'NAME': 'test_openhelpdesk_{}'.format(uid),
-        "USER": "postgres",
+        "USER": "simo",
         "PASSWORD": "",
         "HOST": "127.0.0.1",
         "PORT": "",

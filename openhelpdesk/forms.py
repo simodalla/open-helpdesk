@@ -12,7 +12,7 @@ from mezzanine.utils.sites import current_site_id
 
 from dal import autocomplete
 
-from .models import Ticket, Report, Source
+from .models import Ticket, Report, Source, TeammateSetting, Subteam
 
 
 class TicketAdminForm(forms.ModelForm):
@@ -83,13 +83,23 @@ class TicketAdminAutocompleteForm(TicketAdminForm):
 
     class Meta:
         model = Ticket
-        # autocomplete_fields = ('related_tickets', 'requester',)
-        # fields = ('__all__')
         widgets = {
             'requester': autocomplete.ModelSelect2(
                 url='requester-autocomplete'),
             'related_tickets': autocomplete.ModelSelect2Multiple(
                 url='ticket-autocomplete')
+        }
+        exclude = []
+
+
+class SubteamAdminAutocompleteForm(forms.ModelForm):
+    class Meta:
+        model = Subteam
+        widgets = {
+            # 'requester': autocomplete.ModelSelect2(
+            #     url='requester-autocomplete'),
+            'teammates': autocomplete.ModelSelect2Multiple(
+                url='managers-autocomplete')
         }
         exclude = []
 
