@@ -6,8 +6,9 @@ from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.template import Template, Context
+from django.utils.translation import ugettext_lazy as _
 
-from openhelpdesk.models import Message
+from openhelpdesk.models import Message, OrganizationSetting
 from openhelpdesk.core import TICKET_STATUES_AWESOME_ICONS, HelpdeskUser
 
 
@@ -83,3 +84,28 @@ def search_fields_info(context, cl):
                        'get_search_fields_info',
                        lambda request: None)
     return {'search_fields_info': get_info(context['request'])}
+
+
+@register.simple_tag
+def format_oh_user(user):
+    result = user.username
+    if user.first_name and user.last_name:
+        result = '{} {}'.format(user.first_name.capitalize(),
+                                user.last_name.capitalize())
+    return result
+
+
+@register.inclusion_tag('openhelpdesk/header_oh_organization.html')
+def header_oh_organization(email):
+    # print(awesome_icon('exclamation-triangle'))
+    context = {}
+    try:
+        os = OrganizationSetting.email_objects.get(email)
+        context['title'] = os.title
+    except Exception as e:
+        context['title'] = None
+    return context
+
+
+
+

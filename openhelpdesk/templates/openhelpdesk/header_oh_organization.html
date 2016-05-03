@@ -1,0 +1,6 @@
+{% load i18n helpdesk_tags %}
+{% if title %}
+    {% awesome_icon "university" larger="lg" %}&nbsp;&nbsp;{{ title }}
+{% else %}
+    {% awesome_icon "exclamation-triangle" larger="lg" %}&nbsp;&nbsp;{% trans "No organization" %}
+{% endif %}
