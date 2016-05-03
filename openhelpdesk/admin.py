@@ -437,9 +437,19 @@ class TicketAdmin(admin.ModelAdmin):
             obj.send_email_to_operators_on_adding(request)
 
     # ModelsAdmin views methods customized ####################################
-    def changelist_view(self, request, extra_context=None):
-        return super(TicketAdmin, self).changelist_view(
-            request, extra_context=extra_context)
+    def add_view(self, request, form_url='', extra_context=None):
+        try:
+            os = OrganizationSetting.email_objects.get(request.user.email)
+            extra_context = extra_context or {}
+            extra_context['organization_setting'] = os
+        except (ValidationError, OrganizationSetting.DoesNotExist) as e:
+            msg = _('Sorry! Your email address is invalid. '
+                    'Contact the support service for fix this.')
+            messages.error(request, _(msg))
+            # TODO inserire un ticket in maniera automatica
+            return redirect(admin_urlname(self.model._meta, 'changelist'))
+        return super(TicketAdmin, self).add_view(request, form_url=form_url,
+                                                 extra_context=extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
