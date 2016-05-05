@@ -31,8 +31,10 @@ from mezzanine.conf import settings
 from mezzanine.core.admin import (TabularDynamicInlineAdmin,
                                   StackedDynamicInlineAdmin)
 
-from .forms import (TicketAdminAutocompleteForm, ReportAdminAutocompleteForm,
-                    SubteamAdminAutocompleteForm)
+# from .forms import (TicketAdminAutocompleteForm, ReportAdminAutocompleteForm,
+#                     SubteamAdminAutocompleteForm)
+from . import forms
+from . import filters
 from .templatetags import helpdesk_tags
 from .models import (
     Category, Tipology, Attachment, Ticket, Message,
@@ -40,7 +42,7 @@ from .models import (
     Subteam, TeammateSetting)
 from .core import HelpdeskUser
 from .views import OpenTicketView, ObjectToolsView
-from .filters import EmailDomainFilter, StatusListFilter
+# from .filters import EmailDomainFilter, StatusListFilter
 
 
 DEFAULT_LIST_PER_PAGE = 15
@@ -77,11 +79,11 @@ class AttachmentInline(TabularDynamicInlineAdmin, GenericTabularInline):
 
 
 class CategoryAdmin(admin.ModelAdmin):
+    form = forms.CategoryAdminAutocompleteForm
     inlines = [TipologyInline]
     list_display = ['title',
                     'admin_tipologies',
                     'admin_enable_on_organizations']
-    filter_horizontal = ('enable_on_organizations',)
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     search_fields = ['title', 'organizations']
@@ -91,9 +93,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class TipologyAdmin(admin.ModelAdmin):
     fields = ('title', 'category', 'sites', 'enable_on_organizations',
               'disable_on_organizations')
-    filter_horizontal = ('enable_on_organizations',
-                         'disable_on_organizations',
-                         'sites',)
+    form = forms.TipologyAdminAutocompleteForm
     list_display = ['title', 'ld_category', 'ld_sites',
                     'admin_enable_on_organizations',
                     'admin_disable_on_organizations']
@@ -173,11 +173,13 @@ class TicketAdmin(admin.ModelAdmin):
         }),
     )
     filter_vertical = ('tipologies',)
-    form = TicketAdminAutocompleteForm
+    form = forms.TicketAdminAutocompleteForm
     inlines = [AttachmentInline]
     list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
                     'ld_source', 'ld_assegnee']
-    list_filter = ['priority', ('status', StatusListFilter), 'tipologies']
+    list_filter = ['priority',
+                   ('status', filters.StatusListFilter),
+                   'tipologies']
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
@@ -187,7 +189,8 @@ class TicketAdmin(admin.ModelAdmin):
 
     operator_read_only_fields = ['content', 'tipologies', 'priority', 'status']
     operator_list_display = ['ld_requester', 'ld_organization']
-    operator_list_filter = [EmailDomainFilter,
+    operator_list_filter = [filters.SubteamFilter,
+                            filters.EmailDomainFilter,
                             ('assignee', admin.RelatedOnlyFieldListFilter),
                             'source']
     operator_actions = ['requester', 'assignee']
@@ -523,7 +526,7 @@ class TicketAdmin(admin.ModelAdmin):
 class ReportAdmin(admin.ModelAdmin):
     fields = ('ticket', 'content', 'visible_from_requester',
               'action_on_ticket')
-    form = ReportAdminAutocompleteForm
+    form = forms.ReportAdminAutocompleteForm
     list_display = ['id', 'ticket', 'created', 'content',
                     'visible_from_requester', 'action_on_ticket', 'sender',
                     'recipient']
@@ -667,13 +670,13 @@ class SourceAdmin(admin.ModelAdmin):
 
 
 class SubteamAdmin(admin.ModelAdmin):
-    # filter_horizontal = ('organizations_managed', 'teammates',)
+    form = forms.SubteamAdminAutocompleteForm
     list_display = ['title', ]
     list_per_page = DEFAULT_LIST_PER_PAGE
-    form = SubteamAdminAutocompleteForm
 
 
 class TeammateSettingAdmin(admin.ModelAdmin):
+    form = forms.TeammateSettingAdminAutocompleteForm
     list_display = ['user', 'default_subteam']
     list_per_page = DEFAULT_LIST_PER_PAGE
 

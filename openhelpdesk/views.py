@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.core.urlresolvers import reverse, resolve
+from django.contrib.sites.models import Site
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -23,7 +24,7 @@ from dal import autocomplete
 from mezzanine.conf import settings
 from mezzanine.utils.sites import current_site_id
 
-from .models import Ticket
+from . import models
 from .core import HelpdeskUser
 
 
@@ -37,14 +38,14 @@ class OpenTicketView(GroupRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         ticket_pk = kwargs.get('pk')
-        url_on_error = reverse(admin_urlname(Ticket._meta, 'changelist'))
+        url_on_error = reverse(admin_urlname(models.Ticket._meta, 'changelist'))
         error_msg_prefix = _('An error occurs.')
         try:
-            ticket = Ticket.objects.get(pk=ticket_pk)
+            ticket = models.Ticket.objects.get(pk=ticket_pk)
             ticket.opening(self.request.user)
             msg = _('Ticket n.%(pk)s is opened and assigned.') % {
                 'pk': ticket_pk}
-        except Ticket.DoesNotExist:
+        except models.Ticket.DoesNotExist:
             msg = _('Ticket n.%(pk)s does not exist.') % {'pk': ticket_pk}
             messages.error(self.request, '{} {}'.format(error_msg_prefix, msg))
             return url_on_error
@@ -54,7 +55,8 @@ class OpenTicketView(GroupRequiredMixin, RedirectView):
             return url_on_error
         messages.success(self.request, msg)
         return '{}#tab_changestatuslog'.format(
-            reverse(admin_urlname(Ticket._meta, 'change'), args=(ticket_pk,)))
+            reverse(admin_urlname(models.Ticket._meta, 'change'),
+                    args=(ticket_pk,)))
 
 
 class ObjectToolsView(GroupRequiredMixin, View):
@@ -129,10 +131,10 @@ class RequesterAutocomplete(autocomplete.Select2QuerySetView):
 class TicketAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         if not self.request.user.is_authenticated():
-            return Ticket.objects.none()
+            return models.Ticket.objects.none()
 
         hu = HelpdeskUser(self.request)
-        qs = Ticket.objects.all()
+        qs = models.Ticket.objects.all()
         if hu.is_requester():
             qs = qs.filter(requester=hu.user)
         if hu.is_operator():
@@ -169,3 +171,49 @@ class ManagersAutocomplete(autocomplete.Select2QuerySetView):
 
     # def get_result_label(self, result):
     #     return "{} [{}]".format(result.id, result.get_clean_content(10))
+
+
+class OrganizationSettingAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return models.OrganizationSetting.objects.none()
+
+        qs = models.OrganizationSetting.objects.all()
+        if self.q:
+            qs = qs.filter(Q(title__icontains=self.q) |
+                           Q(email_domain__icontains=self.q))
+        return qs
+
+
+class SitesSettingAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return Site.objects.none()
+
+        qs = Site.objects.all()
+        if self.q:
+            qs = qs.filter(Q(name__icontains=self.q) |
+                           Q(domain__icontains=self.q))
+        return qs
+
+
+class CategoryAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return models.Category.objects.none()
+
+        qs = models.Category.objects.all()
+        if self.q:
+            qs = qs.filter(title__icontains=self.q)
+        return qs
+
+
+class SubteamAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return models.Subteam.objects.none()
+
+        qs = models.Subteam.objects.all()
+        if self.q:
+            qs = qs.filter(title__icontains=self.q)
+        return qs

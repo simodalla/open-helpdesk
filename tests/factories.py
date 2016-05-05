@@ -110,3 +110,19 @@ class TicketFactory(factory.DjangoModelFactory):
     def tipologies(self, create, extracted, **kwargs):
         if create and extracted:
             [self.tipologies.add(tipology) for tipology in extracted]
+
+
+class SubteamF(factory.DjangoModelFactory):
+
+    class Meta:
+        model = 'openhelpdesk.Subteam'
+
+    title = factory.Sequence(lambda n: 'subteam{0}'.format(n))
+
+
+class TeammateSettingF(factory.DjangoModelFactory):
+    user = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = 'openhelpdesk.TeammateSetting'
+

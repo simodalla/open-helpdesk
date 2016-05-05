@@ -31,6 +31,8 @@ from .factories import (CategoryFactory, UserFactory, GroupFactory,
 
 from openhelpdesk.core import HelpdeskUser
 
+from . import factories
+
 
 TEMPLATES_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), '../openhelpdesk/templates/')
@@ -620,3 +622,24 @@ class TestSiteConfigurationModel(object):
                    SERVER_EMAIL='bar@example.com'):
             assert (SiteConfiguration.get_no_site_email_addr_from()
                     == 'bar@example.com')
+
+
+# noinspection PyUnresolvedReferences
+@pytest.mark.django_db
+class TestTeammateSettingModels:
+
+    def test_add_to_subteam_on_default_subteam_saving(self):
+        """
+        Test that on saving a teammatesetting with defauaul subteam add succrent
+        teaamate to teammates of subteam selected
+        """
+        subteam = factories.SubteamF()
+        assert subteam.teammates.count() == 0
+        teammate = factories.TeammateSettingF()
+        teammate.default_subteam = subteam
+        teammate.save()
+        assert subteam.teammates.count() == 1, "Subteam don'n have teammates"
+        assert teammate.user in subteam.teammates.all()
+        # import ipdb
+        # ipdb.set_trace()
+

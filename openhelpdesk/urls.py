@@ -15,8 +15,28 @@ urlpatterns = [
         name='ticket-autocomplete',
     ),
     url(
-        'managers-autocomplete/$',
+        'manager-autocomplete/$',
         views.ManagersAutocomplete.as_view(),
-        name='managers-autocomplete',
+        name='manager-autocomplete',
+    ),
+    url(
+        'organization-autocomplete/$',
+        views.OrganizationSettingAutocomplete.as_view(),
+        name='organization-autocomplete',
+    ),
+    url(
+        'site-autocomplete/$',
+        views.SitesSettingAutocomplete.as_view(),
+        name='site-autocomplete',
+    ),
+    url(
+        'category-autocomplete/$',
+        views.CategoryAutocomplete.as_view(),
+        name='category-autocomplete',
+    ),
+    url(
+        'subteam-autocomplete/$',
+        views.SubteamAutocomplete.as_view(),
+        name='subteam-autocomplete',
     ),
 ]

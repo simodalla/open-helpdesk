@@ -12,7 +12,8 @@ from mezzanine.utils.sites import current_site_id
 
 from dal import autocomplete
 
-from .models import Ticket, Report, Source, TeammateSetting, Subteam
+# from .models import Ticket, Report, Source, TeammateSetting, Subteam
+from . import models
 
 
 class TicketAdminForm(forms.ModelForm):
@@ -30,8 +31,8 @@ class TicketAdminForm(forms.ModelForm):
         if 'source' in self.fields:
             self.fields['source'].required = True
             try:
-                self.fields['source'].initial = Source.get_default_obj()
-            except Source.DoesNotExist:
+                self.fields['source'].initial = models.Source.get_default_obj()
+            except models.Source.DoesNotExist:
                 pass
         if not self.instance.pk:
             site = Site.objects.get(pk=current_site_id())
@@ -82,31 +83,68 @@ class TicketAdminForm(forms.ModelForm):
 class TicketAdminAutocompleteForm(TicketAdminForm):
 
     class Meta:
-        model = Ticket
+        fields = '__all__'
+        model = models.Ticket
         widgets = {
             'requester': autocomplete.ModelSelect2(
                 url='requester-autocomplete'),
             'related_tickets': autocomplete.ModelSelect2Multiple(
                 url='ticket-autocomplete')
         }
-        exclude = []
 
 
 class SubteamAdminAutocompleteForm(forms.ModelForm):
     class Meta:
-        model = Subteam
+        fields = '__all__'
+        model = models.Subteam
         widgets = {
-            # 'requester': autocomplete.ModelSelect2(
-            #     url='requester-autocomplete'),
+            'organizations_managed': autocomplete.ModelSelect2Multiple(
+                url='organization-autocomplete'),
             'teammates': autocomplete.ModelSelect2Multiple(
-                url='managers-autocomplete')
+                url='manager-autocomplete')
         }
-        exclude = []
 
 
 # class ReportAdminAutocompleteForm(AutocompleteModelForm):
 class ReportAdminAutocompleteForm(forms.ModelForm):
     class Meta:
-        model = Report
+        model = models.Report
         autocomplete_fields = ('ticket',)
-        exclude = []
+        fields = '__all__'
+
+
+class CategoryAdminAutocompleteForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        model = models.Category
+        widgets = {
+            'enable_on_organizations': autocomplete.ModelSelect2Multiple(
+                url='organization-autocomplete'),
+        }
+
+
+class TipologyAdminAutocompleteForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        model = models.Tipology
+        widgets = {
+            'enable_on_organizations': autocomplete.ModelSelect2Multiple(
+                url='organization-autocomplete'),
+            'disable_on_organizations': autocomplete.ModelSelect2Multiple(
+                url='organization-autocomplete'),
+            'sites': autocomplete.ModelSelect2Multiple(
+                url='site-autocomplete'),
+        }
+
+
+class TeammateSettingAdminAutocompleteForm(TicketAdminForm):
+
+    class Meta:
+        fields = '__all__'
+        model = models.TeammateSetting
+        widgets = {
+            'user': autocomplete.ModelSelect2(
+                url='manager-autocomplete'),
+            'default_subteam': autocomplete.ModelSelect2(
+                url='subteam-autocomplete')
+        }

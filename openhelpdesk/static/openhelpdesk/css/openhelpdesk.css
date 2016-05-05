@@ -17,3 +17,9 @@ div.result-list table td hr { background-color: #A7A8AA; margin: 2px 0;}
 
 div.result-list th.column-ld_content { min-width:250px;  max-width:300px;}
 div.result-list td.field-ld_content { min-width:250px;  max-width:300px;}
+
+
+/*
+ #_form > div > fieldset > div.form-row.field-enable_on_organizations > div > div > span
+<span class="select2 select2-container select2-container--default select2-container--focus" dir="ltr" style="width: 400px;"><span class="selection"><span class="select2-selection select2-selection--multiple" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="-1"><ul class="select2-selection__rendered"><span class="select2-selection__clear">×</span><li class="select2-selection__choice" title="Unione UCRLS"><span class="select2-selection__choice__remove" role="presentation">×</span>Unione UCRLS</li><li class="select2-selection__choice" title="Zola Predosa"><span class="select2-selection__choice__remove" role="presentation">×</span>Zola Predosa</li><li class="select2-search select2-search--inline"><input class="select2-search__field" type="search" tabindex="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="textbox" aria-autocomplete="list" placeholder="" style="width: 0.75em;"></li></ul></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+ */

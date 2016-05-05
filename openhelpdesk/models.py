@@ -706,17 +706,20 @@ class StatusChangesLog(TimeStamped):
 
 
 class Subteam(TimeStamped):
-    title = models.CharField(_('Title'), max_length=500, unique=True)
+    title = models.CharField(
+        _('Title'),
+        max_length=500,
+        unique=True)
     organizations_managed = models.ManyToManyField(
-        OrganizationSetting, blank=True, related_name='managed_from',
+        OrganizationSetting,
+        blank=True,
+        null=True,
+        related_name='managed_from',
         verbose_name=_('organizations managed'))
     teammates = models.ManyToManyField(
         user_model_name,
-        blank=True,
+        blank=True, null=True,
         related_name='subteams',
-        # limit_choices_to=Q(groups__name__in=['helpdesk_operators',
-        #                                      'helpdesk_admins']),
-        # limit_choices_to=call_groups,
         verbose_name=_('teammate'))
 
     class Meta:
@@ -727,15 +730,16 @@ class Subteam(TimeStamped):
     def __str__(self):
         return self.title
 
-    def call_groups(self):
-        return Q(groups__name__in=['helpdesk_operators', 'helpdesk_admins'])
 
 class TeammateSetting(TimeStamped):
-    user = models.OneToOneField(user_model_name, related_name='ohteammate')
-    default_subteam = models.ForeignKey(Subteam,
-                                        verbose_name=_('default subteam'),
-                                        # limit_choices_to={'is_staff': True},
-                                        )
+    user = models.OneToOneField(
+        user_model_name,
+        related_name='ohteammate')
+    default_subteam = models.ForeignKey(
+        Subteam,
+        blank=True,
+        null=True,
+        verbose_name=_('default subteam'))
 
     class Meta:
         verbose_name = _('Teammate Setting')
@@ -744,3 +748,8 @@ class TeammateSetting(TimeStamped):
 
     def __str__(self):
         return self.user.username
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.default_subteam:
+            self.default_subteam.teammates.add(self.user)
