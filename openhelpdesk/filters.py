@@ -46,7 +46,9 @@ class SubteamFilter(admin.SimpleListFilter):
         q_title = self.value()
         if q_title:
             subteam = Subteam.objects.get(title=q_title)
-            ors = [Q(requester__email__icontains=o.email_domain)
-                   for o in subteam.organizations_managed.all()]
-            queryset = queryset.filter(functools.reduce(operator.or_, ors))
+            organizations_managed = subteam.organizations_managed.all()
+            if organizations_managed.count():
+                ors = [Q(requester__email__icontains=o.email_domain)
+                       for o in subteam.organizations_managed.all()]
+                queryset = queryset.filter(functools.reduce(operator.or_, ors))
         return queryset

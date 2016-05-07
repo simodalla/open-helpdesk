@@ -4,11 +4,18 @@ function helpdeskGetObjectTools($) {
         var objectToolsUl = $('ul.object-tools');
         for (var key in data) {
             if ("url" in data[key] && "id" in data[key]){
+                var link_content = data[key].text;
                 var li = '<li><a href="'+ data[key].url + '"';
                 if (data[key].id) {
                     li += ' id="' + data[key].id  + '"';
                 }
-                objectToolsUl.append(li + '>' + data[key].text+ '</a></li>');
+                if ("awesome_image" in data[key] && data[key].awesome_image) {
+                    link_content =
+                        '<i class="fa fa-' + data[key].awesome_image +
+                        '" aria-hidden="true"></i>&nbsp;&nbsp;' + link_content;
+                }
+
+                objectToolsUl.append(li + '>' + link_content + '</a></li>');
             }
         }
     }, "json");

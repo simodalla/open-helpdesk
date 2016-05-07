@@ -121,7 +121,6 @@ class SubteamF(factory.DjangoModelFactory):
 
 
 class TeammateSettingF(factory.DjangoModelFactory):
-    user = factory.SubFactory(UserFactory)
 
     class Meta:
         model = 'openhelpdesk.TeammateSetting'

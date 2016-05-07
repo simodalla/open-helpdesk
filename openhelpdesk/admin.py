@@ -176,7 +176,8 @@ class TicketAdmin(admin.ModelAdmin):
     form = forms.TicketAdminAutocompleteForm
     inlines = [AttachmentInline]
     list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
-                    'ld_source', 'ld_assegnee']
+                    # 'ld_source', 'ld_assegnee']
+                    'priority', 'ld_assegnee']
     list_filter = ['priority',
                    ('status', filters.StatusListFilter),
                    'tipologies']
@@ -225,14 +226,16 @@ class TicketAdmin(admin.ModelAdmin):
                         {'url': reverse('{}_open'.format(admin_prefix_url),
                                         kwargs={'pk': obj.pk}),
                          'text': ugettext('Open and assign to me'),
-                         'id': 'open_and_assign_ticket'})
+                         'id': 'open_and_assign_ticket',
+                         'awesome_image': 'hand-o-up'})
                 elif obj.is_open() or obj.is_pending():
                     url = '{}?ticket={}'.format(
                         reverse(admin_urlname(Report._meta, 'add')), obj.pk)
                     object_tools[view_name].append({
                         'url': url,
                         'text': ugettext('Add Report'),
-                        'id': 'add_report_to_ticket'})
+                        'id': 'add_report_to_ticket',
+                        'awesome_image': 'cogs'})
                     if obj.is_pending():
                         default_content = _('The range of pending is over.')
                         url += ('&action_on_ticket=remove_from_pending&'
@@ -240,7 +243,8 @@ class TicketAdmin(admin.ModelAdmin):
                         object_tools[view_name].append({
                             'url': url,
                             'text': ugettext('Remove from pending'),
-                            'id': 'add_report_for_remove_from_pending'})
+                            'id': 'add_report_for_remove_from_pending',
+                            'awesome_image': 'clock-o'})
         try:
             return object_tools[view_name]
         except KeyError:
@@ -388,7 +392,6 @@ class TicketAdmin(admin.ModelAdmin):
         admin_prefix_url = '%s_%s' % (self.opts.app_label,
                                       self.opts.model_name)
         urls = super(TicketAdmin, self).get_urls()
-        # my_urls = django_urls.patterns(
         my_urls = [
             django_urls.url(
                 r'^open/(?P<pk>\d+)/$',
@@ -445,20 +448,62 @@ class TicketAdmin(admin.ModelAdmin):
     # ModelsAdmin views methods customized ####################################
 
     def changelist_view(self, request, extra_context=None):
-        # request.session.get('has_commented', False):
-        # import ipdb
-        # ipdb.set_trace()
-        # return redirect(admin_urlname(self.model._meta, 'changelist'))
-        session_query_string = request.session.get('oh_query_string', '')
-        actual_query_string = request.META.get('QUERY_STRING', '')
-        print(session_query_string, actual_query_string, request.get_full_path())
-        #if not session_query_string:
-        #
-        #query_string =
+        hp = HelpdeskUser(request)
 
-        result = super(TicketAdmin, self).changelist_view(
+        if hp.is_requester():
+            try:
+                del request.session['oh_query_string']
+                del request.session['oh_proxied']
+            except KeyError:
+                pass
+            return super(TicketAdmin, self).changelist_view(
+                request, extra_context=extra_context)
+
+        filter_clean = False
+        if 'filter_clean' in request.GET:
+            request.GET = request.GET.copy()
+            filter_clean = True
+            del request.GET['filter_clean']
+
+        proxied = request.session.get('oh_proxied', False)
+
+        if not proxied:
+            if hp.is_operator() or hp.is_admin():
+                session_query_string = request.session.get(
+                    'oh_query_string', '')
+                if not session_query_string:
+                    try:
+                        subteam = hp.user.oh_teammate.default_subteam
+                    except TeammateSetting.DoesNotExist:
+                        subteam = None
+                    if subteam:
+                        query_string = 'subteam={}'.format(subteam)
+                        request.session['oh_query_string'] = query_string
+                        request.session['oh_proxied'] = True
+                        url = '{}?{}'.format(
+                            reverse(admin_urlname(self.model._meta,
+                                                  'changelist')),
+                            query_string)
+                        return redirect(url)
+                else:
+                    query_string = request.META.get('QUERY_STRING', '')
+                    if query_string:
+                        request.session['oh_query_string'] = query_string
+                    else:
+                        request.session['oh_proxied'] = True
+                        url = '{}?{}'.format(
+                            reverse(admin_urlname(self.model._meta,
+                                                  'changelist')),
+                            session_query_string)
+                        return redirect(url)
+            else:
+                try:
+                    del request.session['oh_query_string']
+                except KeyError:
+                    pass
+        request.session['oh_proxied'] = False
+        return super(TicketAdmin, self).changelist_view(
             request, extra_context=extra_context)
-        return result
 
     def add_view(self, request, form_url='', extra_context=None):
         try:

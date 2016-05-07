@@ -13,13 +13,15 @@ except ImportError:
 from django.contrib.admin import AdminSite, TabularInline
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.http import HttpResponseRedirect, HttpResponse, HttpRequest
+from django.test import TestCase
 
 from openhelpdesk import admin
-from openhelpdesk.models import Ticket, StatusChangesLog, Report, Source
+from openhelpdesk.models import (Ticket, StatusChangesLog, Report, Source,
+                                 TeammateSetting)
 from openhelpdesk.core import HelpdeskUser
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
-
+from . import factories
 
 class TicketTest(unittest.TestCase):
     def setUp(self):
@@ -697,3 +699,93 @@ class TestSourceAdmin(object):
         source_admin_util.obj.icon = 'foo'
         assert (source_admin_util.model_admin.ld_icon(source_admin_util.obj)
                 == 'foo')
+
+
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from .conftest import operator
+
+
+class TestSessionQuesryStringTicketAdmin(TestCase):
+    def setUp(self):
+        self.user = operator()
+        """:type : django.contrib.auth.models.User"""
+        self.client.login(username=self.user.username, password='default')
+        self.tickets_changelist_url = reverse(
+            'admin:openhelpdesk_ticket_changelist')
+        self.subteam = factories.SubteamF(title='foosub')
+        # self.teammate = factories.TeammateSettingF()
+        self.session = self.client.session
+
+    def tearDown(self):
+        try:
+            # print("\n\n\n111", self.session.items())
+            del self.session['oh_query_string']
+            self.session.save()
+            # print("222", self.session.items())
+        except KeyError:
+            pass
+        self.client.logout()
+
+    def test_first_go_to_tickets_post_login_without_default_subteam(self):
+        with self.assertRaises(TeammateSetting.DoesNotExist):
+            subteam = self.user.oh_teammate.default_subteam
+        result = self.client.get(self.tickets_changelist_url)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn('oh_query_string', self.client.session)
+        self.assertEqual(self.client.session['oh_query_string'], '')
+
+    def test_first_go_to_tickets_post_login_with_default_subteam(self):
+        teammate = factories.TeammateSettingF(user=self.user,
+                                              default_subteam=self.subteam)
+        response = self.client.get(self.tickets_changelist_url)
+        expected_qs = 'subteam={}'.format(self.subteam.title)
+        expected_url = '{}?{}'.format(self.tickets_changelist_url, expected_qs)
+        self.assertRedirects(response,
+                             expected_url=expected_url,
+                             status_code=302)
+        self.assertIn('oh_query_string', self.client.session)
+        self.assertIn(self.client.session['oh_query_string'], expected_qs)
+        self.assertIn('oh_proxied', self.client.session)
+        self.assertFalse(self.client.session['oh_proxied'])
+
+    def test_go_to_tickets_with_alredy_query_into_session(self):
+        teammate = factories.TeammateSettingF(user=self.user,
+                                              default_subteam=self.subteam)
+        barsubteam = factories.SubteamF(title='barsubteam')
+        self.session['oh_query_string'] = 'subteam={}'.format(
+            self.subteam.title)
+        self.session.save()
+        new_qs = 'subteam={}&status__exact=new'.format(barsubteam.title)
+        response = self.client.get('{}?{}'.format(
+            self.tickets_changelist_url, new_qs))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('oh_query_string', self.client.session)
+        self.assertEqual(self.client.session['oh_query_string'], new_qs)
+        self.assertIn('oh_proxied', self.client.session)
+        self.assertFalse(self.client.session['oh_proxied'])
+
+    def test_go_to_tickets_with_alredy_query_into_session_and_no_query(self):
+        qs = 'subteam={}&status__exact=new'.format(self.subteam.title)
+        self.session['oh_query_string'] = qs
+        self.session.save()
+
+        response = self.client.get(self.tickets_changelist_url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('oh_query_string', self.client.session)
+        self.assertIn(self.client.session['oh_query_string'], qs)
+    #
+    # def test_go_to_tickets_with_alredy_query_into_session_and_fclean_in_query(self):
+    #     qs = 'subteam={}&status__exact=new'.format(self.subteam.title)
+    #     self.client.session['oh_query_string'] = qs
+    #     self.client.session.save()
+    #     expected_url = '{}?{}'.format(self.tickets_changelist_url, qs)
+    #
+    #     response = self.client.get(self.tickets_changelist_url)
+    #
+    #     self.assertRedirects(response,
+    #                          expected_url=expected_url,
+    #                          status_code=302)
+    #     self.assertIn('oh_query_string', self.client.session)
+    #     self.assertIn(self.client.session['oh_query_string'], qs)

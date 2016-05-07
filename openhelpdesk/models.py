@@ -734,7 +734,7 @@ class Subteam(TimeStamped):
 class TeammateSetting(TimeStamped):
     user = models.OneToOneField(
         user_model_name,
-        related_name='ohteammate')
+        related_name='oh_teammate')
     default_subteam = models.ForeignKey(
         Subteam,
         blank=True,
