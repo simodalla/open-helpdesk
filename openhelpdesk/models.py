@@ -623,9 +623,18 @@ class Report(Message):
 
     def send_email_to_requester(self, request):
         template = "openhelpdesk/email/report/info_to_request"
+        operator = request.user
+        operator_name = operator.username
+        if operator.last_name and operator.first_name:
+            operator_name = '{} {}'.format(operator.first_name,
+                                           operator.last_name)
         context = {'report_name': self._meta.verbose_name.lower(),
-                   'operator': request.user.username,
-                   'ticket_id': self.ticket_id}
+                   'operator': operator,
+                   'operator_name': operator_name,
+                   'ticket_id': self.ticket_id,
+                   'email_background_color': (
+                       OrganizationSetting.email_objects.get_color(
+                           self.ticket.requester.email))}
 
         subject = subject_template("{}_subject.html".format(template), context)
         addr_from = request.user.email

@@ -12,7 +12,8 @@ A new {{ report_name }} for ticket n.{{ ticket_id }} has been created
 {% block body %}
 <div>
 <p><b>{% trans "Created at" %}</b>: {{ report.created|date:"DATETIME_FORMAT" }}</p>
-<p><b>{% trans "Created by" %}</b>: {{ operator }}</p>
+<p><b>{% trans "Created by" %}</b>: {{ operator_name }}</p>
+<p><b>{% trans "Email" %}</b>: {{ operator.email }}</p>
 <p><b>{% trans "Ticket Id" %}</b>: {{ report.ticket_id }}</p>
 </div>
 <div style="clear: left; border-top: 1px solid orange; padding-top: 5px;">

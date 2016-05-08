@@ -31,8 +31,6 @@ from mezzanine.conf import settings
 from mezzanine.core.admin import (TabularDynamicInlineAdmin,
                                   StackedDynamicInlineAdmin)
 
-# from .forms import (TicketAdminAutocompleteForm, ReportAdminAutocompleteForm,
-#                     SubteamAdminAutocompleteForm)
 from . import forms
 from . import filters
 from .templatetags import helpdesk_tags
@@ -42,7 +40,6 @@ from .models import (
     Subteam, TeammateSetting)
 from .core import HelpdeskUser
 from .views import OpenTicketView, ObjectToolsView
-# from .filters import EmailDomainFilter, StatusListFilter
 
 
 DEFAULT_LIST_PER_PAGE = 15

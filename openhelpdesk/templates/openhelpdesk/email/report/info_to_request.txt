@@ -6,7 +6,8 @@ A new {{ report_name }} for ticket n.{{ ticket_id }} has been created
 
 {% block body %}
 {% trans "Created at" %}: {{ report.created|date:"DATETIME_FORMAT" }}
-{% trans "Created by" %}: {{ operator }}
+{% trans "Created by" %}: {{ operator_name }}
+{% trans "Email" %}: {{ operator.email }}
 {% trans "Ticket Id" %}: {{ report.ticket_id }}
 {% trans "Content" %}: {{ report.content|striptags }}
 
