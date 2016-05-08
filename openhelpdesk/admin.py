@@ -181,6 +181,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ['priority',
                    ('status', filters.StatusListFilter),
                    'tipologies']
+    list_max_show_all = 50
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
@@ -571,7 +572,7 @@ class TicketAdmin(admin.ModelAdmin):
 class ReportAdmin(admin.ModelAdmin):
     fields = ('ticket', 'content', 'visible_from_requester',
               'action_on_ticket')
-    form = forms.ReportAdminAutocompleteForm
+    form = forms.ReportAdminForm
     list_display = ['id', 'ticket', 'created', 'content',
                     'visible_from_requester', 'action_on_ticket', 'sender',
                     'recipient']

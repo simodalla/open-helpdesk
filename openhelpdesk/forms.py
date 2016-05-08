@@ -4,8 +4,8 @@ from __future__ import unicode_literals, absolute_import
 from django import forms
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
+# from django.forms import widgets
 from django.utils.translation import ugettext_lazy as _
-from django import VERSION as DJANGO_VERSION
 
 from mezzanine.conf import settings
 from mezzanine.utils.sites import current_site_id
@@ -49,20 +49,6 @@ class TicketAdminForm(forms.ModelForm):
                                 relate_manager.filter(pk__in=tipology_pks))
                         else:
                             self.fields[field].queryset = relate_manager.all()
-
-        # The next code is tricky for ensure compatibility with django 1.5
-        if DJANGO_VERSION[0] == 1 and DJANGO_VERSION[1] < 6:  # django 1.5
-            if self.instance.pk:  # change form
-                for field in ['tipologies', 'priority', 'content']:
-                    del self.fields[field]
-            if len(args) > 0:  # the form is bound
-                form_data = args[0]
-                for field in self._ohp_only_operators_fields:
-                    # if current field is not in buond data whereas is in
-                    # self.fields therefore user is an "requester". We then
-                    # remove field from form fields (self.fields)
-                    if field not in form_data and field in self.fields:
-                        del self.fields[field]
 
     def clean_tipologies(self):
         """
@@ -109,8 +95,19 @@ class SubteamAdminAutocompleteForm(forms.ModelForm):
 class ReportAdminAutocompleteForm(forms.ModelForm):
     class Meta:
         model = models.Report
-        autocomplete_fields = ('ticket',)
         fields = '__all__'
+
+
+class ReportAdminForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ReportAdminForm, self).__init__(*args, **kwargs)
+        try:
+            initial = kwargs['initial']
+            if 'ticket' in initial:
+                self.fields['ticket'].widget = forms.widgets.HiddenInput()
+        except KeyError:
+            pass
 
 
 class CategoryAdminAutocompleteForm(forms.ModelForm):

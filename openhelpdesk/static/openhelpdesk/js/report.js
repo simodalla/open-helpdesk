@@ -17,7 +17,6 @@ require(['./common'], function (common) {
             }
         );
 
-        //
         if ($(inputActionOnTicket + ':checked').val() == pendingAction) {
             $("#fieldset_pending_range_data").show();
         }
@@ -51,6 +50,15 @@ require(['./common'], function (common) {
                 $(contentField).focus();
             }
         });
+
+        var ticket_id = $('input#id_ticket').attr('value');
+        var new_title = $('div#content > h1').html()
+            + ' al Ticket <a href="../../ticket/' + ticket_id +'/change/"'
+            + ' title="Torna al ticket ' + ticket_id + '">'
+            + ticket_id + '</a>';
+        $('div#content > h1').html(new_title);
+
+
 
         helpdeskFinalize($);
 

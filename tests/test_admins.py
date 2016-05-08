@@ -19,6 +19,7 @@ from openhelpdesk import admin
 from openhelpdesk.models import (Ticket, StatusChangesLog, Report, Source,
                                  TeammateSetting)
 from openhelpdesk.core import HelpdeskUser
+from openhelpdesk import forms
 
 from .helpers import get_mock_request, get_mock_helpdeskuser
 from . import factories
@@ -424,6 +425,18 @@ class TestReportAdmin(object):
         assert (
             report_util.model_admin.get_readonly_fields(report_util.request)
             == list())
+
+    def test_get_form_on_add_report_with_ticket_into_query_get(
+        self, report_util):
+        request = report_util.get('openhelpdesk/report/add/?ticket=1')
+        result = report_util.model_admin.get_form(request)
+        assert result is forms.ReportAdminForm
+
+    def test_get_form_on_add_report_without_ticket_into_query_get(
+        self, report_util):
+        request = report_util.get('openhelpdesk/report/add/')
+        result = report_util.model_admin.get_form(request)
+        assert result is forms.ReportAdminAutocompleteForm
 
     @patch('openhelpdesk.admin.messages', autospec=True)
     def test_check_access_with_request_without_ticket_param(

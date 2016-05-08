@@ -6,10 +6,7 @@ require(['./common'], function (common) {
             $("#searchbar").attr("title", search_fields_info);
             $("#searchbar").tooltip({track: true});
         }
-
-        // $( "input[name^='news']" )
-        console.log($("ul#object-tools li a[href^='add']"));
-        // console.log($("ul#object-tools li"));
+        
         var add_link = $("ul.object-tools li a[href^='add']");
         var content =
             '<i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp' +

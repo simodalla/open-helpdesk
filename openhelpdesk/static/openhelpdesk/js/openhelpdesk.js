@@ -5,7 +5,7 @@ function helpdeskGetObjectTools($) {
         for (var key in data) {
             if ("url" in data[key] && "id" in data[key]){
                 var link_content = data[key].text;
-                var li = '<li><a href="'+ data[key].url + '"';
+                var li = '<li><a class="focus" href="'+ data[key].url + '"';
                 if (data[key].id) {
                     li += ' id="' + data[key].id  + '"';
                 }
