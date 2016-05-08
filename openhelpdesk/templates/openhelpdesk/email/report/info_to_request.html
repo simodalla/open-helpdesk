@@ -1,10 +1,8 @@
 {% extends "openhelpdesk/email/email_base.html" %}
 {% load i18n %}
 
-{#New {{ ticket_name }} with id <b>{{ id }}</b> was created</b>#}
 {# Translators: Header of email sends on creation of ticket to operators  #}
 {% block content_header %}
-{#{% blocktrans with report_name=report_name|lower %}A new {{ report_name }} for ticket n.{{ report.ticket_id }} has been created{% endblocktrans %}#}
 {% blocktrans with report_name=report_name|lower ticket_id=report.ticket_id %}
 A new {{ report_name }} for ticket n.{{ ticket_id }} has been created
 {% endblocktrans %}

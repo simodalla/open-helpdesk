@@ -13,5 +13,5 @@ A new {{ report_name }} for ticket n.{{ ticket_id }} has been created
 {% trans "Use the link below to view the ticket" %}:
 http://{{ request.get_host }}{{ change_ticket_url }}
 
-{% trans "Questa email è generata automaticamente, si prega di non rispondere. Per qualunque informazione contattare l'ufficio Servizi Informatici all'indirizzo ced@comune.zolapredosa.bo.it" %}
+{% trans "Questa email è generata automaticamente, si prega di non rispondere. Per qualunque informazione contattare il Servizio Informatico Associato all'indirizzo ced@unionerenolavinosamoggia.bo.it" %}
 {% endblock %}

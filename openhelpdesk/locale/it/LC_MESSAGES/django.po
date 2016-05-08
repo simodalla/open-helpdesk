@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-03 13:44+0200\n"
+"POT-Creation-Date: 2016-05-08 18:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,31 +18,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:110 models.py:207
+#: admin.py:113 models.py:207
 msgid "Category"
 msgstr "Categoria"
 
-#: admin.py:119
+#: admin.py:122
 msgid "Enabled on Sites"
 msgstr "Abilitata sui Siti"
 
-#: admin.py:142
+#: admin.py:145
 msgid "Requesters"
 msgstr "Richiedenti"
 
-#: admin.py:147
+#: admin.py:150
 msgid "Operators"
 msgstr "Operatori"
 
-#: admin.py:152
+#: admin.py:155
 msgid "Admins"
 msgstr "Admin"
 
-#: admin.py:159
+#: admin.py:162
 msgid "Emails"
 msgstr "Email"
 
-#: admin.py:196
+#: admin.py:204
 msgid ""
 "content of ticket, title of tipology, title of category ,username, last "
 "name, first name, email of requester"
@@ -50,87 +50,89 @@ msgstr ""
 "contenuto del ticket, titolo della tipologia, titolo della categoria, "
 "username, cognome, nome, email del richiedente"
 
-#: admin.py:221
+#: admin.py:229
 msgid "Open and assign to me"
 msgstr "Aprila e assegnatela"
 
-#: admin.py:228
+#: admin.py:237
 msgid "Add Report"
 msgstr "Aggiungi Report"
 
-#: admin.py:231
+#: admin.py:241
 msgid "The range of pending is over."
 msgstr "Il periodo di attesa è terminato."
 
-#: admin.py:236 core.py:38
+#: admin.py:246 core.py:38
 msgid "Remove from pending"
 msgstr "Termina il periodo di attesa"
 
-#: admin.py:247
+#: admin.py:258
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:12
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:6
 msgid "Id"
 msgstr "Id"
 
-#: admin.py:253 models.py:355
+#: admin.py:264 models.py:355
 #: templates/admin/openhelpdesk/ticket/change_form.html:34
 msgid "Requester"
 msgstr "Richiedente"
 
-#: admin.py:262
+#: admin.py:273
 msgid "Please, verify email address"
 msgstr "Verifica subito l'indirizzo email"
 
-#: admin.py:264
+#: admin.py:275
 msgid "Organization"
 msgstr "Organizzazione"
 
-#: admin.py:268 models.py:341 models.py:582
+#: admin.py:279 models.py:341 models.py:582
 #: templates/admin/openhelpdesk/ticket/change_form.html:32
-#: templates/openhelpdesk/email/report/info_to_request.html:21
+#: templates/openhelpdesk/email/report/info_to_request.html:19
 #: templates/openhelpdesk/email/report/info_to_request.txt:11
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:21
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:13
 msgid "Content"
 msgstr "Contenuto"
 
-#: admin.py:274 filters.py:10
+#: admin.py:285 filters.py:13
 #: templates/admin/openhelpdesk/ticket/change_form.html:31
 msgid "Status"
 msgstr "Stato"
 
-#: admin.py:277 templates/admin/openhelpdesk/ticket/change_form.html:39
+#: admin.py:288 templates/admin/openhelpdesk/ticket/change_form.html:39
 msgid "Not assigned"
 msgstr "Non assegnato"
 
-#: admin.py:279 models.py:360
+#: admin.py:290 models.py:360
 #: templates/admin/openhelpdesk/ticket/change_form.html:39
 msgid "Assignee"
 msgstr "Assegnato a"
 
-#: admin.py:291 models.py:315 models.py:368
+#: admin.py:302 models.py:315 models.py:368
 #: templates/admin/openhelpdesk/ticket/change_form.html:30
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:15
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:9
 msgid "Source"
 msgstr "Sorgente"
 
-#: admin.py:298 templates/admin/openhelpdesk/ticket/change_form.html:24
+#: admin.py:309 templates/admin/openhelpdesk/ticket/change_form.html:24
 msgid "Created"
 msgstr "Creato il"
 
-#: admin.py:446
+#: admin.py:515
 msgid ""
 "Sorry! Your email address is invalid. Contact the support service for fix "
 "this."
-msgstr "Siamo spiacenti! Il tuo indirizzo email risulta non essere valido. "
-"Contatta il SIA via email o telefonicamente richiedendone la sistemazione."
-#: admin.py:475
+msgstr ""
+"Siamo spiacenti! Il tuo indirizzo email risulta non essere valido. Contatta "
+"il SIA via email o telefonicamente richiedendone la sistemazione."
+
+#: admin.py:544
 #, python-format
 msgid "Tickets %(ticket_ids)s successfully opened and assigned."
 msgstr "I Ticket %(ticket_ids)s sono stati aperti e assegnati con successo."
 
-#: admin.py:477
+#: admin.py:546
 #, python-format
 msgid ""
 "Errors occours: \n"
@@ -139,35 +141,27 @@ msgstr ""
 "Errori occorsi: \n"
 "%(errors)s."
 
-#: admin.py:500
+#: admin.py:569
 msgid "Open e assign selected Tickets"
 msgstr "Apri a assegnati i Ticket selezionati"
 
-#: admin.py:531
+#: admin.py:600
 msgid "Error: wrong request for adding Report."
 msgstr "Errore: richiesta errata nel tentativo di aggiungere un Report."
 
-#: admin.py:553
+#: admin.py:622
 #, python-format
 msgid "You can not change Report with id %(report_id)s"
 msgstr "Tu non puoi modificare il Report con id %(report_id)s"
 
-#: admin.py:637
+#: admin.py:706
 #, python-format
 msgid "%(title)s is a system %(model)s and is not eliminated."
 msgstr "%(title)s è un %(model)s di sistema e non può essere eliminato."
 
-#: admin.py:646
+#: admin.py:715
 msgid "Icon"
 msgstr "Icona"
-
-#: autocomplete_light_registry.py:20
-msgid "Type id or content for search Ticket..."
-msgstr "Digita l'id o il contenuto per ricercare il Ticket..."
-
-#: autocomplete_light_registry.py:40
-msgid "Type text for search Requester..."
-msgstr "Digita dei caratteri per ricercare il Richiedente..."
 
 #: core.py:16
 msgid "New"
@@ -269,11 +263,15 @@ msgid ""
 "openhelpdesk"
 msgstr ""
 
-#: filters.py:18
+#: filters.py:21
 msgid "Domain of email"
 msgstr "Dominio email"
 
-#: forms.py:76
+#: filters.py:37 models.py:726
+msgid "Subteam"
+msgstr ""
+
+#: forms.py:63
 #, python-format
 msgid "Too many tipologies selected. You can select a maximum of %(max)s."
 msgstr ""
@@ -324,7 +322,7 @@ msgstr "Configurazione Sito"
 msgid "Site Configurations"
 msgstr "Configurazione Siti"
 
-#: models.py:177 models.py:202 models.py:244 models.py:308
+#: models.py:177 models.py:202 models.py:244 models.py:308 models.py:710
 msgid "Title"
 msgstr "Titolo"
 
@@ -543,6 +541,30 @@ msgstr "Changelog di Stato"
 msgid "Status Changelogs"
 msgstr "Changelog di Stato"
 
+#: models.py:718
+msgid "organizations managed"
+msgstr "Organizzazioni gestite"
+
+#: models.py:723
+msgid "teammates"
+msgstr "componenti"
+
+#: models.py:727
+msgid "Subteams"
+msgstr "Subteam"
+
+#: models.py:742
+msgid "default subteam"
+msgstr "subteam di default"
+
+#: models.py:745
+msgid "Teammate Setting"
+msgstr "Componente Subteam"
+
+#: models.py:746
+msgid "Teammate Settings"
+msgstr "Componenti Subteam"
+
 #: templates/admin/openhelpdesk/report/change_form.html:13
 msgid "Pending Range Data"
 msgstr "Periodo di attesa"
@@ -578,6 +600,7 @@ msgid "There are no messages until now."
 msgstr "Non è ancora presente alcun messaggio."
 
 #: templates/openhelpdesk/email/email_base.html:24
+#: templates/openhelpdesk/email/report/info_to_request.txt:16
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:18
 msgid ""
 "Questa email è generata automaticamente, si prega di non rispondere. Per "
@@ -586,61 +609,50 @@ msgid ""
 msgstr ""
 
 #. Translators: Header of email sends on creation of ticket to operators
-#: templates/openhelpdesk/email/report/info_to_request.html:8
+#: templates/openhelpdesk/email/report/info_to_request.html:6
 #: templates/openhelpdesk/email/report/info_to_request.txt:3
-#, fuzzy, python-format
-#| msgid "A new %(ticket_name)s has been created"
+#, python-format
 msgid ""
 "\n"
 "A new %(report_name)s for ticket n.%(ticket_id)s has been created\n"
-msgstr "Un nuovo %(report_name)s per il ticket n.%(ticket_id)s è stato creato\n"
+msgstr ""
+"\n"
+"Nuovo %(report_name)s per il ticket n.%(ticket_id)s\n"
 
-#: templates/openhelpdesk/email/report/info_to_request.html:16
+#: templates/openhelpdesk/email/report/info_to_request.html:14
 #: templates/openhelpdesk/email/report/info_to_request.txt:8
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:16
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:10
 msgid "Created at"
 msgstr "Creato il"
 
-#: templates/openhelpdesk/email/report/info_to_request.html:17
+#: templates/openhelpdesk/email/report/info_to_request.html:15
 #: templates/openhelpdesk/email/report/info_to_request.txt:9
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:17
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:11
 msgid "Created by"
 msgstr "Creato da"
 
-#: templates/openhelpdesk/email/report/info_to_request.html:18
+#: templates/openhelpdesk/email/report/info_to_request.html:16
 #: templates/openhelpdesk/email/report/info_to_request.txt:10
-#, fuzzy
-#| msgid "Ticket"
 msgid "Ticket Id"
-msgstr "Ticket"
+msgstr "Ticket Id"
 
-#: templates/openhelpdesk/email/report/info_to_request.html:25
-#, fuzzy
-#| msgid "Use the link below to view the ticket"
+#: templates/openhelpdesk/email/report/info_to_request.html:23
 msgid "Use the link below to view the report"
-msgstr "Use il link sottostante per vedere il ticket"
+msgstr "Usa il link sottostante per vedere il report"
 
 #: templates/openhelpdesk/email/report/info_to_request.txt:13
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:25
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:15
 msgid "Use the link below to view the ticket"
-msgstr "Use il link sottostante per vedere il ticket"
-
-#: templates/openhelpdesk/email/report/info_to_request.txt:16
-msgid ""
-"Questa email è generata automaticamente, si prega di non rispondere. Per "
-"qualunque informazione contattare l'ufficio Servizi Informatici "
-"all'indirizzo ced@comune.zolapredosa.bo.it"
-msgstr ""
+msgstr "Usa il link sottostante per vedere il ticket"
 
 #. Translators: Subject of email sends on creation of ticket to operators
 #: templates/openhelpdesk/email/report/info_to_request_subject.html:3
-#, fuzzy, python-format
-#| msgid "New %(ticket_name)s created by %(username)s"
-msgid "New %(report_name)s created by %(operator)s for ticket n.%(ticket_id)s"
-msgstr "Nuovo %(ticket_name)s creato da %(username)s"
+#, python-format
+msgid "New %(report_name)s for ticket n.%(ticket_id)s"
+msgstr "Nuovo %(report_name)s per il ticket n.%(ticket_id)s"
 
 #: templates/openhelpdesk/email/report/ldap_backend/on_creation.txt:4
 #, python-format
@@ -694,7 +706,6 @@ msgid "New %(ticket_name)s created by %(username)s"
 msgstr "Nuovo %(ticket_name)s creato da %(username)s"
 
 #: templates/openhelpdesk/header_oh_organization.html:5
-#| msgid "Organization Setting"
 msgid "No organization"
 msgstr "Nessuna organizzazione"
 
@@ -703,19 +714,29 @@ msgstr "Nessuna organizzazione"
 msgid "You can search for: %(search_fields_info)s"
 msgstr "Puoi effettuare ricerche per: %(search_fields_info)s"
 
-#: views.py:41
+#: views.py:42
 msgid "An error occurs."
 msgstr "Si è verificato un errore."
 
-#: views.py:45
+#: views.py:46
 #, python-format
 msgid "Ticket n.%(pk)s is opened and assigned."
 msgstr "Il Ticket n.%(pk)s è stato aperto e assegnato."
 
-#: views.py:48
+#: views.py:49
 #, python-format
 msgid "Ticket n.%(pk)s does not exist."
 msgstr "Il Ticket n.%(pk)s non esiste."
+
+#~ msgid ""
+#~ "New %(report_name)s created by %(operator)s for ticket n.%(ticket_id)s"
+#~ msgstr "Nuovo %(report_name)s per il ticket n.%(ticket_id)s"
+
+#~ msgid "Type id or content for search Ticket..."
+#~ msgstr "Digita l'id o il contenuto per ricercare il Ticket..."
+
+#~ msgid "Type text for search Requester..."
+#~ msgstr "Digita dei caratteri per ricercare il Richiedente..."
 
 #~ msgid "Helpdesk Operators"
 #~ msgstr "Operatori"

@@ -713,18 +713,17 @@ class Subteam(TimeStamped):
     organizations_managed = models.ManyToManyField(
         OrganizationSetting,
         blank=True,
-        null=True,
         related_name='managed_from',
         verbose_name=_('organizations managed'))
     teammates = models.ManyToManyField(
         user_model_name,
-        blank=True, null=True,
+        blank=True,
         related_name='subteams',
-        verbose_name=_('teammate'))
+        verbose_name=_('teammates'))
 
     class Meta:
         verbose_name = _('Subteam')
-        verbose_name_plural = _('subteams')
+        verbose_name_plural = _('Subteams')
         ordering = ('title',)
 
     def __str__(self):
