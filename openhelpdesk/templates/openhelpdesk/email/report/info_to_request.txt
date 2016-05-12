@@ -9,6 +9,7 @@ A new {{ report_name }} for ticket n.{{ ticket_id }} has been created
 {% trans "Created by" %}: {{ operator_name }}
 {% trans "Email" %}: {{ operator.email }}
 {% trans "Ticket Id" %}: {{ report.ticket_id }}
+{% trans "Ticket Status" %}: {% trans report.ticket.status %}
 {% trans "Content" %}: {{ report.content|striptags }}
 
 {% trans "Use the link below to view the ticket" %}:

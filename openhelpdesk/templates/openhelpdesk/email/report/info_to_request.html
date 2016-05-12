@@ -15,7 +15,7 @@ A new {{ report_name }} for ticket n.{{ ticket_id }} has been created
 <p><b>{% trans "Created by operator" %}</b>: {{ operator_name }}</p>
 <p><b>{% trans "Email" %}</b>: {{ operator.email }}</p>
 <p><b>{% trans "Ticket Id" %}</b>: {{ report.ticket_id }}</p>
-<p><b>{% trans "Ticket Status" %}</b>: {{ report.ticket.status }}</p>
+<p><b>{% trans "Ticket Status" %}</b>: {% trans report.ticket.status %}</p>
 </div>
 <div style="clear: left; border-top: 1px solid lightblue; padding-top: 5px;">
     <div style="float: left;"><b>{% trans "Content" %}</b>:</div>
