@@ -83,21 +83,24 @@ class CategoryAdmin(admin.ModelAdmin):
                     'admin_enable_on_organizations']
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
-    search_fields = ['title', 'organizations']
+    list_filter = ['enable_on_organizations']
+    search_fields = ['title', 'enable_on_organizations__title',
+                     'enable_on_organizations__email_domain']
 
 
 # noinspection PyMethodMayBeStatic
 class TipologyAdmin(admin.ModelAdmin):
-    fields = ('title', 'category', 'sites', 'enable_on_organizations',
-              'disable_on_organizations')
+    fields = ('title', 'category', 'sites', 'disable_on_organizations')
     form = forms.TipologyAdminAutocompleteForm
     list_display = ['title', 'ld_category', 'ld_sites',
-                    'admin_enable_on_organizations',
+                    # 'admin_enable_on_organizations',
                     'admin_disable_on_organizations']
-    list_filter = ['category']
+    list_filter = ['category', 'sites']
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
-    search_fields = ['title', 'category__title']
+    search_fields = ['title', 'category__title',
+                     'disable_on_organizations__title',
+                     'disable_on_organizations__email_domain']
 
     def ld_category(self, obj):
         return (

@@ -158,7 +158,7 @@ class SiteConfiguration(models.Model):
 
     @staticmethod
     def get_no_site_email_addr_from():
-        return settings.SERVER_EMAIL
+        return settings.DEFAULT_FROM_EMAIL
 
     @staticmethod
     def get_no_site_email_addrs_to():
@@ -552,7 +552,7 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
         subject = subject_template(
             "{}_subject.html".format(template),
             {'ticket_name': self._meta.verbose_name.lower(),
-             'username': self.requester.username})
+             'username': self.requester.email or self.requester.username})
         try:
             site_conf = SiteConfiguration.objects.get(site=self.site)
             addr_from = site_conf.email_addr_from
@@ -636,8 +636,13 @@ class Report(Message):
                        OrganizationSetting.email_objects.get_color(
                            self.ticket.requester.email))}
 
+        try:
+            site_conf = SiteConfiguration.objects.get(site=self.ticket.site)
+            addr_from = site_conf.email_addr_from
+        except (SiteConfiguration.DoesNotExist, Ticket.DoesNotExist):
+            addr_from = SiteConfiguration.get_no_site_email_addr_from()
+
         subject = subject_template("{}_subject.html".format(template), context)
-        addr_from = request.user.email
         addr_to = [self.ticket.requester.email]
         change_ticket_url = '{}#tab_messages'.format(
             reverse(admin_urlname(self.ticket._meta, 'change'),
