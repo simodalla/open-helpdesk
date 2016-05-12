@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-12 17:43+0200\n"
+"POT-Creation-Date: 2016-05-12 18:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,7 +88,7 @@ msgstr "Organizzazione"
 #: admin.py:277 models.py:330 models.py:571
 #: templates/admin/openhelpdesk/ticket/change_form.html:32
 #: templates/openhelpdesk/email/report/info_to_request.html:21
-#: templates/openhelpdesk/email/report/info_to_request.txt:12
+#: templates/openhelpdesk/email/report/info_to_request.txt:13
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:21
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:13
 msgid "Content"
@@ -601,7 +601,7 @@ msgid "There are no messages until now."
 msgstr "Non è ancora presente alcun messaggio."
 
 #: templates/openhelpdesk/email/email_base.html:24
-#: templates/openhelpdesk/email/report/info_to_request.txt:17
+#: templates/openhelpdesk/email/report/info_to_request.txt:18
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:18
 msgid ""
 "Questa email è generata automaticamente, si prega di non rispondere. Per "
@@ -637,6 +637,7 @@ msgid "Ticket Id"
 msgstr "Ticket Id"
 
 #: templates/openhelpdesk/email/report/info_to_request.html:18
+#: templates/openhelpdesk/email/report/info_to_request.txt:12
 msgid "Ticket Status"
 msgstr "Stato del ticket"
 
@@ -650,7 +651,7 @@ msgstr "Usa il link sottostante per vedere il report"
 msgid "Created by"
 msgstr "Creato da"
 
-#: templates/openhelpdesk/email/report/info_to_request.txt:14
+#: templates/openhelpdesk/email/report/info_to_request.txt:15
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:25
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:15
 msgid "Use the link below to view the ticket"

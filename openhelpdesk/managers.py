@@ -41,10 +41,6 @@ class EmailOrganizationSettingManager(models.Manager):
             tipology_pks = set(
                 itertools.chain(*[c.tipologies.values_list('pk', flat=True)
                                   for c in obj.categories_enabled.all()]))
-            # union whit get pks of direct enabled tipologies of this obj
-            # organizations
-            tipology_pks = tipology_pks.union(
-                set(obj.tipologies_enabled.values_list('pk', flat=True)))
             # differenze with pks of disabled
             tipology_pks = tipology_pks.difference(
                     set(obj.tipologies_disabled.values_list('pk', flat=True)))
