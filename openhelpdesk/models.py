@@ -201,7 +201,8 @@ class OrganizationSetting(TimeStamped):
 class Category(TimeStamped):
     title = models.CharField(_('Title'), max_length=500, unique=True)
     enable_on_organizations = models.ManyToManyField(
-        OrganizationSetting, blank=True, related_name='categories_enabled')
+        OrganizationSetting, blank=True, related_name='categories_enabled',
+        verbose_name=_('Enable on organizations'))
 
     class Meta:
         verbose_name = _('Category')
@@ -250,10 +251,9 @@ class Tipology(TimeStamped):
                                    related_name='helpdesk_tipologies')
     priority = models.IntegerField(_('Priority'), choices=PRIORITIES,
                                    default=PRIORITY_LOW)
-    enable_on_organizations = models.ManyToManyField(
-        OrganizationSetting, blank=True, related_name='tipologies_enabled')
     disable_on_organizations = models.ManyToManyField(
-        OrganizationSetting, blank=True, related_name='tipologies_disabled')
+        OrganizationSetting, blank=True, related_name='tipologies_disabled',
+        verbose_name=_('Disable on organizations'))
 
     class Meta:
         verbose_name = _('Tipology')
@@ -263,17 +263,6 @@ class Tipology(TimeStamped):
 
     def __str__(self):
         return '[{self.category.title}] {self.title}'.format(self=self)
-
-    def admin_enable_on_organizations(self):
-        return format_html_join(
-            mark_safe('<br>'),
-            '<a href="{}?id={}" class="view_tipology">{}</a>',
-            ((reverse(admin_urlname(obj._meta, 'changelist')),
-              obj.pk,
-              obj.title)
-             for obj in self.enable_on_organizations.all()))
-    admin_enable_on_organizations.short_description = _(
-        'Enable on organizations')
 
     def admin_disable_on_organizations(self):
         return format_html_join(

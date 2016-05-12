@@ -47,10 +47,8 @@ DEFAULT_LIST_PER_PAGE = 15
 
 class TipologyInline(StackedDynamicInlineAdmin):
     model = Tipology
-    fields = ('title', 'sites', 'enable_on_organizations',
-              'disable_on_organizations')
-    filter_horizontal = ('sites', 'enable_on_organizations',
-                         'disable_on_organizations')
+    fields = ('title', 'sites', 'disable_on_organizations')
+    filter_horizontal = ('sites', 'disable_on_organizations')
 
 
 class MessageInline(TabularDynamicInlineAdmin):
