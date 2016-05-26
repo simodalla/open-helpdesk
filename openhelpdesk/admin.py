@@ -579,7 +579,7 @@ class ReportAdmin(admin.ModelAdmin):
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     radio_fields = {'action_on_ticket': admin.VERTICAL}
-    search_fields = ['ticket__pk', 'ticket__content', 'content']
+    search_fields = ['ticket__id', 'ticket__content', 'content']
     helpdesk_ticket = None
 
     def _check_access(self, request):
