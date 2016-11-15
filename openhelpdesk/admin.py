@@ -300,8 +300,7 @@ class TicketAdmin(admin.ModelAdmin):
     ld_source.short_description = _('Source')
 
     def ld_created(self, obj):
-        from django.template import defaultfilters
-        return defaultfilters.date(obj.created, 'SHORT_DATETIME_FORMAT')
+        return obj.created
     ld_created.admin_order_field = 'created'
     ld_created.allow_tags = True
     ld_created.short_description = _('Created')
