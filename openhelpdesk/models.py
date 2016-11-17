@@ -323,11 +323,12 @@ class Source(TimeStamped):
     def icon(self, icon_name):
         self.awesome_icon = icon_name
 
+from tinymce.models import HTMLField
 
 @python_2_unicode_compatible
 class Ticket(SiteRelated, TimeStamped, StatusModel):
     STATUS = Choices(*TICKET_STATUSES)
-    content = models.TextField(_("Content"))
+    content = HTMLField(_("Content"))
     tipologies = models.ManyToManyField(
         'Tipology', verbose_name=_('Tipologies'),
         help_text=
