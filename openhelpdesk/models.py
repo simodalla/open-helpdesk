@@ -31,6 +31,8 @@ from mezzanine.utils.email import send_mail_template, subject_template
 from model_utils.models import StatusModel
 from model_utils import Choices
 
+from tinymce.models import HTMLField
+
 from .core import (TICKET_STATUSES, TicketIsNotNewError, TicketIsNotOpenError,
                    TicketIsClosedError,
                    TicketIsNotPendingError,
@@ -323,7 +325,6 @@ class Source(TimeStamped):
     def icon(self, icon_name):
         self.awesome_icon = icon_name
 
-from tinymce.models import HTMLField
 
 @python_2_unicode_compatible
 class Ticket(SiteRelated, TimeStamped, StatusModel):
@@ -364,6 +365,7 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
         ordering = ('-created',)
         verbose_name = _('Ticket')
         verbose_name_plural = _('Tickets')
+        default_manager_name = 'objects'
 
     def __str__(self):
         return str(self.pk)
