@@ -1,7 +1,10 @@
 from __future__ import absolute_import
 
 import factory
+
 from openhelpdesk.core import get_perm
+
+from .conftest import TEST_EMAIL_DOMAIN
 
 
 class GroupFactory(factory.DjangoModelFactory):
@@ -28,7 +31,8 @@ class UserFactory(factory.DjangoModelFactory):
     username = factory.Sequence(lambda n: 'user{0}'.format(n))
     first_name = factory.Sequence(lambda n: 'John {0}'.format(n))
     last_name = factory.Sequence(lambda n: 'Doe {0}'.format(n))
-    email = factory.Sequence(lambda n: 'user{0}@example.com'.format(n))
+    email = factory.Sequence(
+        lambda n: 'user{0}@{1}'.format(n, TEST_EMAIL_DOMAIN))
     password = factory.PostGenerationMethodCall('set_password',
                                                 'default')
     is_staff = True
@@ -118,6 +122,8 @@ class SubteamF(factory.DjangoModelFactory):
         model = 'openhelpdesk.Subteam'
 
     title = factory.Sequence(lambda n: 'subteam{0}'.format(n))
+    email = factory.Sequence(
+        lambda n: 'subteam{0}@{1}'.format(n, TEST_EMAIL_DOMAIN))
 
 
 class TeammateSettingF(factory.DjangoModelFactory):
@@ -125,3 +131,11 @@ class TeammateSettingF(factory.DjangoModelFactory):
     class Meta:
         model = 'openhelpdesk.TeammateSetting'
 
+
+class OrganizationSettingF(factory.DjangoModelFactory):
+    class Meta:
+        model = 'openhelpdesk.OrganizationSetting'
+
+    title = factory.Sequence(lambda n: 'OrgSett{0}'.format(n))
+    email_domain = TEST_EMAIL_DOMAIN
+    active = True
