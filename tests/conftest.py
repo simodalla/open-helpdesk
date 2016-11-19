@@ -9,6 +9,9 @@ except ImportError:
     from mock import Mock
 
 
+TEST_EMAIL_DOMAIN = 'example.com'
+
+
 @pytest.fixture(scope='module')
 def stringios():
     from six.moves import cStringIO
