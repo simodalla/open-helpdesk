@@ -3,7 +3,7 @@ from __future__ import unicode_literals, absolute_import
 
 from django.contrib.auth.models import Group, Permission
 from django.contrib.sites.models import Site
-from django.core.management.base import NoArgsCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.db import connection
 
 from mezzanine.core.management.commands import createdb
@@ -15,7 +15,7 @@ from openhelpdesk.defaults import (
 from openhelpdesk.models import Source
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     """
     Execute init operation for openhelpdesk app. Create default group with
     relative permissions.
@@ -25,7 +25,7 @@ class Command(NoArgsCommand):
 
     app_label = 'openhelpdesk'
 
-    def handle_noargs(self, **options):
+    def handle(self, *args, **options):
 
         if "conf_setting" not in connection.introspection.table_names():
             createdb.Command.execute(**{'no_data': True})
