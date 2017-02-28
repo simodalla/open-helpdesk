@@ -27,7 +27,8 @@ from openhelpdesk.core import (TicketIsNotNewError, TicketIsNotOpenError,
                                TicketIsClosedError, TicketIsNotPendingError,
                                TicketIsNewError)
 from .factories import (CategoryFactory, UserFactory, GroupFactory,
-                        SiteFactory, TipologyFactory, TicketFactory)
+                        SiteFactory, TipologyFactory, TicketFactory,
+                        OrganizationSettingF, SubteamF)
 
 from openhelpdesk.core import HelpdeskUser
 
@@ -210,6 +211,23 @@ def request_for_email(rf):
 # noinspection PyUnresolvedReferences
 @pytest.mark.django_db
 class TestTicketModel(object):
+
+    def test_organization_property_return_none_with_differente_email_domain(
+            self, requester, new_ticket):
+        org = OrganizationSettingF()
+        different_domain = 'fake-domain.com'
+        assert org.email_domain != different_domain
+        new_ticket.requester.email = 'user@' + different_domain
+        assert new_ticket.organization is None
+
+    def test_organization_property_return_organization_obj_with_same_email_domain(
+            self, requester, new_ticket):
+        org = OrganizationSettingF()
+        assert (
+            org.email_domain ==
+            new_ticket.requester.email[new_ticket.requester.email.find('@')+1:])
+        assert new_ticket.organization == org
+
 
     def test_custom_save_set_insert_by_to_requester_by_default(
             self, requester, unsaved_ticket):
@@ -642,4 +660,3 @@ class TestTeammateSettingModels:
         assert teammate.user in subteam.teammates.all()
         # import ipdb
         # ipdb.set_trace()
-

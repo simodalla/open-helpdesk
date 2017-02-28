@@ -18,9 +18,9 @@ USE_TZ = True
 
 LANGUAGE_CODE = "en"
 
-LANGUAGES = (
-    ('en', _('English')),
-)
+# LANGUAGES = (
+#     ('en', _('English')),
+# )
 
 DEBUG = False
 
@@ -44,7 +44,7 @@ uid = os.getenv('UID', 0)
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django.db.backends.postgresql",
         'NAME': 'test_openhelpdesk_{}'.format(uid),
         "USER": "postgres",
         "PASSWORD": "",
@@ -74,8 +74,8 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 
 ROOT_URLCONF = "%s.urls" % PROJECT_APP
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_ROOT, "templates"),)
+# TEMPLATE_DIRS = (
+#     os.path.join(PROJECT_ROOT, "templates"),)
 
 
 ################
@@ -93,6 +93,7 @@ INSTALLED_APPS = (
     "django.contrib.staticfiles",
     'dal',
     'dal_select2',
+    'tinymce',
     "openhelpdesk",
     "mezzanine.boot",
     "mezzanine.conf",
@@ -102,18 +103,61 @@ INSTALLED_APPS = (
     'waffle',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.static",
-    "django.core.context_processors.media",
-    "django.core.context_processors.request",
-    "django.core.context_processors.tz",
-    "mezzanine.conf.context_processors.settings",
-    "mezzanine.pages.context_processors.page",
-)
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#     "django.contrib.auth.context_processors.auth",
+#     "django.contrib.messages.context_processors.messages",
+#     "django.core.context_processors.debug",
+#     "django.core.context_processors.i18n",
+#     "django.core.context_processors.static",
+#     "django.core.context_processors.media",
+#     "django.core.context_processors.request",
+#     "django.core.context_processors.tz",
+#     "mezzanine.conf.context_processors.settings",
+#     "mezzanine.pages.context_processors.page",
+# )
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.join(PROJECT_ROOT, "templates")
+        ],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.static",
+                "django.template.context_processors.media",
+                "django.template.context_processors.request",
+                "django.template.context_processors.tz",
+                "mezzanine.conf.context_processors.settings",
+                "mezzanine.pages.context_processors.page",
+            ],
+            "builtins": [
+                "mezzanine.template.loader_tags",
+            ],
+        },
+    },
+]
+
+# MIDDLEWARE_CLASSES = (
+#     "mezzanine.core.middleware.UpdateCacheMiddleware",
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.locale.LocaleMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     "mezzanine.core.request.CurrentRequestMiddleware",
+#     "mezzanine.core.middleware.RedirectFallbackMiddleware",
+#     "mezzanine.core.middleware.SitePermissionMiddleware",
+#     "mezzanine.pages.middleware.PageMiddleware",
+#     'waffle.middleware.WaffleMiddleware',
+# )
 
 MIDDLEWARE_CLASSES = (
     "mezzanine.core.middleware.UpdateCacheMiddleware",
@@ -124,11 +168,15 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "mezzanine.core.request.CurrentRequestMiddleware",
     "mezzanine.core.middleware.RedirectFallbackMiddleware",
+    "mezzanine.core.middleware.TemplateForDeviceMiddleware",
+    "mezzanine.core.middleware.TemplateForHostMiddleware",
+    "mezzanine.core.middleware.AdminLoginInterfaceSelectorMiddleware",
     "mezzanine.core.middleware.SitePermissionMiddleware",
     "mezzanine.pages.middleware.PageMiddleware",
-    'waffle.middleware.WaffleMiddleware',
+    "mezzanine.core.middleware.FetchFromCacheMiddleware",
 )
 
 PACKAGE_NAME_FILEBROWSER = "filebrowser_safe"
@@ -140,8 +188,12 @@ PACKAGE_NAME_GRAPPELLI = "grappelli_safe"
 
 OPTIONAL_APPS = (
     "debug_toolbar",
+    PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
+
+# MEZZANINE
+USE_MODELTRANSLATION = False
 
 ##################
 # LOCAL SETTINGS #

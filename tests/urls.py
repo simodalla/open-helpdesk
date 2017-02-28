@@ -11,11 +11,11 @@ from mezzanine.conf import settings
 
 
 urlpatterns = [
-    url(r'admin/', include(admin.site.urls)),
-    url("^$", RedirectView.as_view(pattern_name='admin:index'), name="home"),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r"^$", RedirectView.as_view(pattern_name='admin:index'), name="home"),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^ohp/', include('openhelpdesk.urls')),
-    url("^", include("mezzanine.urls")),
+    url(r"^", include("mezzanine.urls")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -22,7 +22,7 @@ class AddFormData(object):
     def __init__(self, content="Foo", tipologies=None, priority=None):
         self.content = content
         self.priority = priority or PRIORITY_NORMAL
-        self.tipologies = [t.pk for t in tipologies] if tipologies else []
+        self.tipologies = [str(t.pk) for t in tipologies] if tipologies else []
 
 
 class TestAddingTicket(WebTest):
@@ -36,9 +36,14 @@ class TestAddingTicket(WebTest):
         response = self.app.get(self.url, user=self.user)
         # support django 1.8 and previus version
         form_id = '_form' if '_form' in response.forms else 'ticket_form'
+        # import ipdb
+        # ipdb.set_trace()
         self.form = response.forms[form_id]
         self.form['content'] = self.add_form_data.content
         self.form['priority'] = self.add_form_data.priority
+        import pytest
+        pytest.set_trace()
+        # print(self.add_form_data.tipologies)
         self.form['tipologies'] = self.add_form_data.tipologies
 
     def test_requester_field_is_setted_with_current_logged_user(self):

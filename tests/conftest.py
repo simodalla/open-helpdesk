@@ -9,7 +9,7 @@ except ImportError:
     from mock import Mock
 
 
-TEST_EMAIL_DOMAIN = 'example.com'
+TEST_EMAIL_DOMAIN = 'gothamcity.com'
 
 
 @pytest.fixture(scope='module')
@@ -31,21 +31,24 @@ def app(request):
 
 def helpdesker(helpdesker_conf):
     import openhelpdesk.defaults
-    from tests.factories import HelpdeskerF, GroupFactory
+    from tests.factories import HelpdeskerF, GroupFactory, OrganizationSettingF
     from mezzanine.utils.sites import current_site_id
 
     helpdesker_conf = getattr(openhelpdesk.defaults, helpdesker_conf, None)
     if not helpdesker_conf:
         return None
+    username = helpdesker_conf[0].rstrip('s')
     user = HelpdeskerF(
-        username=helpdesker_conf[0].rstrip('s'),
+        username=username,
+        email='{}@{}'.format(username, TEST_EMAIL_DOMAIN),
         groups=[GroupFactory(name=helpdesker_conf[0],
                              permissions=list(helpdesker_conf[1]))])
 
-    # import pdb
-    # pdb.set_trace()
     if user.sitepermissions.sites.count() == 0:
         user.sitepermissions.sites.add(current_site_id())
+
+    org_set = OrganizationSettingF(title='Gotham City',
+                                   email_domain=TEST_EMAIL_DOMAIN)
     # site_perm, created = user.sitepermissions.get_or_create(user=user)
     return user
 

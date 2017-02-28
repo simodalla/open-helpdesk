@@ -135,7 +135,6 @@ class TeammateSettingF(factory.DjangoModelFactory):
 class OrganizationSettingF(factory.DjangoModelFactory):
     class Meta:
         model = 'openhelpdesk.OrganizationSetting'
+        django_get_or_create = ('email_domain',)
 
-    title = factory.Sequence(lambda n: 'OrgSett{0}'.format(n))
-    email_domain = TEST_EMAIL_DOMAIN
     active = True

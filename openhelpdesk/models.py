@@ -194,6 +194,7 @@ class OrganizationSetting(TimeStamped):
         ordering = ('title',)
         verbose_name = _('Organization Setting')
         verbose_name_plural = _('Organization Settings')
+        unique_together = ('email_domain', 'active',)
 
     def __str__(self):
         return self.title
@@ -535,6 +536,15 @@ class Ticket(SiteRelated, TimeStamped, StatusModel):
                                                 'close'])
         return result
 
+    @property
+    def organization(self):
+        try:
+            return OrganizationSetting.email_objects.get(self.requester.email)
+        except OrganizationSetting.DoesNotExist:
+            return None
+
+
+
     def send_email_to_operators_on_adding(self, request):
         template = "openhelpdesk/email/ticket/ticket_operators_creation"
         requester_name = _('no personal info assigned')
@@ -588,6 +598,43 @@ class Message(TimeStamped):
 
     def __str__(self):
         return self.content
+
+    def notify_to_operator(self, request):
+        pass
+        # self.ticket.organization
+        # addr_to = None
+        # if self.ticket.assignee.email:
+        #     addr_to = self.ticket.assignee.email
+        # # elif self.
+        # template = "openhelpdesk/email/message/notify_to_operator"
+        # operator = request.user
+        # operator_name = operator.username
+        # if operator.last_name and operator.first_name:
+        #     operator_name = '{} {}'.format(operator.first_name,
+        #                                    operator.last_name)
+        # context = {'report_name': self._meta.verbose_name.lower(),
+        #            'operator': operator,
+        #            'operator_name': operator_name,
+        #            'ticket_id': self.ticket_id,
+        #            'email_background_color': (
+        #                OrganizationSetting.email_objects.get_color(
+        #                    self.ticket.requester.email))}
+        #
+        # try:
+        #     site_conf = SiteConfiguration.objects.get(site=self.ticket.site)
+        #     addr_from = site_conf.email_addr_from
+        # except (SiteConfiguration.DoesNotExist, Ticket.DoesNotExist):
+        #     addr_from = SiteConfiguration.get_no_site_email_addr_from()
+        #
+        # subject = subject_template("{}_subject.html".format(template), context)
+        # addr_to = [self.ticket.requester.email]
+        # change_ticket_url = '{}#tab_messages'.format(
+        #     reverse(admin_urlname(self.ticket._meta, 'change'),
+        #             args=(self.ticket_id,)))
+        # context.update({'report': self, 'request': request,
+        #                 'change_ticket_url': change_ticket_url})
+        # send_mail_template(subject, template, addr_from, addr_to,
+        #                    context=context, attachments=None)
 
 
 ACTIONS_ON_TICKET_CHOICES = tuple((k, ACTIONS_ON_TICKET[k])
@@ -726,6 +773,7 @@ class Subteam(TimeStamped):
         blank=True,
         related_name='subteams',
         verbose_name=_('teammates'))
+    email = models.EmailField(blank=True)
 
     class Meta:
         verbose_name = _('Subteam')

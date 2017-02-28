@@ -183,7 +183,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_per_page = DEFAULT_LIST_PER_PAGE
     list_select_related = True
     radio_fields = {'priority': admin.HORIZONTAL}
-    search_fields = ['content', 'requester__username', 'requester__email',
+    search_fields = ['id', 'content', 'requester__username', 'requester__email',
                      'requester__first_name', 'requester__last_name',
                      'tipologies__title', 'tipologies__category__title']
 
@@ -199,7 +199,7 @@ class TicketAdmin(admin.ModelAdmin):
         return HelpdeskUser(request)
 
     def get_search_fields_info(self, request):
-        return _('content of ticket, title of tipology, title of category'
+        return _('content of ticket, id, title of tipology, title of category'
                  ' ,username, last name, first name, email of requester')
 
     @staticmethod
@@ -256,6 +256,9 @@ class TicketAdmin(admin.ModelAdmin):
     ld_id.short_description = _('Id')
 
     def ld_requester(self, obj):
+        if obj.requester.first_name and obj.requester.last_name:
+            return "{}<br>{}".format(obj.requester.first_name,
+                                     obj.requester.last_name)
         return obj.requester.username
     ld_requester.admin_order_field = 'requester'
     ld_requester.allow_tags = True
@@ -283,8 +286,14 @@ class TicketAdmin(admin.ModelAdmin):
     ld_status.short_description = _('Status')
 
     def ld_assegnee(self, obj):
-        return obj.assignee or _('Not assigned')
+        if not obj.assignee:
+            return _('Not assigned')
+        if obj.assignee.first_name and obj.assignee.last_name:
+            return "{}<br>{}".format(obj.assignee.first_name,
+                                     obj.assignee.last_name)
+        return obj.assignee.username
     ld_assegnee.admin_order_field = 'assignee'
+    ld_assegnee.allow_tags = True
     ld_assegnee.short_description = _('Assignee')
 
     def ld_source(self, obj):
@@ -300,7 +309,7 @@ class TicketAdmin(admin.ModelAdmin):
     ld_source.short_description = _('Source')
 
     def ld_created(self, obj):
-        return obj.created
+        return obj.created.strftime('%d/%m/%Y %H:%M')
     ld_created.admin_order_field = 'created'
     ld_created.allow_tags = True
     ld_created.short_description = _('Created')
@@ -404,11 +413,17 @@ class TicketAdmin(admin.ModelAdmin):
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
+        # import ipdb
+        # ipdb.set_trace()
+        # # print(instances)
+        # # if formset.mo
         for instance in instances:
             if isinstance(instance, Message):
                 if instance.sender_id is None:
                     instance.sender = request.user
             instance.save()
+            if not change:
+                instance.notify_to_operator()
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
@@ -442,12 +457,13 @@ class TicketAdmin(admin.ModelAdmin):
         """:type : openhelpdesk.models.Ticket"""
         if not change and obj.requester_id == obj.insert_by_id:
             obj.send_email_to_operators_on_adding(request)
+        # import ipdb
+        # ipdb.set_trace()
 
     # ModelsAdmin views methods customized ####################################
 
     def changelist_view(self, request, extra_context=None):
         hp = HelpdeskUser(request)
-
         if hp.is_requester():
             try:
                 del request.session['oh_query_string']
