@@ -1,10 +1,10 @@
 django==1.10.6
 mezzanine==4.2.2
 psycopg2==2.6.2
-django-model-utils>=2.5
+django-model-utils==2.6.1
 django-braces==1.10.0
 django-autocomplete-light==3.0.4
 django_waffle==0.11
-celery
-django_celery_email
+celery==4.0.2
+django_celery_email==1.1.5
 django_tinymce==2.4.0
