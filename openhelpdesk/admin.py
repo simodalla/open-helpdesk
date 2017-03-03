@@ -422,8 +422,8 @@ class TicketAdmin(admin.ModelAdmin):
                 if instance.sender_id is None:
                     instance.sender = request.user
             instance.save()
-            if not change:
-                instance.notify_to_operator()
+            # if not change:
+            #     instance.notify_to_operator()
         formset.save_m2m()
 
     def save_model(self, request, obj, form, change):
