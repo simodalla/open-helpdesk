@@ -189,8 +189,10 @@ class TicketAdmin(admin.ModelAdmin):
     operator_list_display = ['ld_requester', 'ld_organization']
     operator_list_filter = [filters.SubteamFilter,
                             filters.EmailDomainFilter,
-                            ('assignee', admin.RelatedOnlyFieldListFilter),
-                            'source']
+                            filters.AssegneeFilter,
+                            # ('assignee', admin.RelatedOnlyFieldListFilter),
+                            ]
+                            # 'source']
     operator_actions = ['requester', 'assignee']
 
     def get_request_helpdeskuser(self, request):

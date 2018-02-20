@@ -6,6 +6,9 @@ from django.contrib import admin
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from mezzanine.conf import settings
+
+from .core import HelpdeskUser
 from .models import OrganizationSetting, Subteam
 
 
@@ -52,3 +55,25 @@ class SubteamFilter(admin.SimpleListFilter):
                        for o in subteam.organizations_managed.all()]
                 queryset = queryset.filter(functools.reduce(operator.or_, ors))
         return queryset
+
+
+class AssegneeFilter(admin.SimpleListFilter):
+    title = _('Assignee')
+
+    parameter_name = 'assignee'
+
+    def lookups(self, request, model_admin):
+
+        operators = HelpdeskUser.get_user_model().objects.filter(groups__name__in=[
+            settings.HELPDESK_OPERATORS,
+            settings.HELPDESK_ADMINS],
+            is_active=True).order_by('first_name', 'last_name').distinct(
+            'first_name', 'last_name').iterator()
+        # return super(AssegneeFilter, self).lookups(request, model_admin)
+        return tuple([(assignee.id, '{} {}'.format(assignee.first_name.capitalize(),
+                                                   assignee.last_name.capitalize()))
+                      for assignee in operators])
+
+    def queryset(self, request, queryset):
+        q_id = self.value()
+        return queryset.filter(assignee__id=q_id)
