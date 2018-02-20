@@ -173,9 +173,7 @@ class TicketAdmin(admin.ModelAdmin):
     filter_vertical = ('tipologies',)
     form = forms.TicketAdminAutocompleteForm
     inlines = [AttachmentInline]
-    list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status',
-                    # 'ld_source', 'ld_assegnee']
-                    'priority', 'ld_assegnee']
+    list_display = ['ld_id', 'ld_content', 'ld_created', 'ld_status', 'priority', 'ld_assegnee']
     list_filter = ['priority',
                    ('status', filters.StatusListFilter),
                    'tipologies']
@@ -309,7 +307,7 @@ class TicketAdmin(admin.ModelAdmin):
     ld_source.short_description = _('Source')
 
     def ld_created(self, obj):
-        return obj.created.strftime('%d/%m/%Y %H:%M')
+        return Template('{{ created|date:"d/m/Y H:i" }}').render(Context({'created': obj.created}))
     ld_created.admin_order_field = 'created'
     ld_created.allow_tags = True
     ld_created.short_description = _('Created')
