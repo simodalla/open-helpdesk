@@ -213,19 +213,6 @@ class TestTicketAdmin(object):
         assert result == fake_status
         mock_ht.assert_called_once_with(fake_status)
 
-    def test_ld_created_call_django_defaultfilters_filter_date(
-            self, ticket_admin_util):
-        from django.utils import timezone
-        now = timezone.now()
-        ticket_admin_util.obj.created = now
-        expected = now.strftime('%d/%m/%Y %H:%M')
-        # with patch('django.template.defaultfilters.date',
-        #            return_value=expected) as mock_filter_date:
-        result = ticket_admin_util.model_admin.ld_created(
-            ticket_admin_util.obj)
-        assert result == expected
-        # mock_filter_date.assert_called_once_with(now, 'SHORT_DATETIME_FORMAT')
-
     def test_get_inline_instances_return_list_empty_if_ticket_is_closed(
             self, ticket_admin_util):
         ticket_admin_util.obj.is_closed.return_value = True
