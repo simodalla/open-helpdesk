@@ -8,18 +8,14 @@ services:
   - rabbitmq
 
 addons:
-  postgresql: "9.4"
+  postgresql: "9.5"
 
 cache:
   directories:
     - $HOME/.pip-cache/
 
 env:
-  - TESTENV=py33-django17-mezzanine4
-  - TESTENV=py33-django18-mezzanine4
-  - TESTENV=py34-django17-mezzanine4
-  - TESTENV=py34-django18-mezzanine4
-
+  - TESTENV=py35-django110-mezzanine423
 
 before_install:
   - "export DISPLAY=:99.0"
