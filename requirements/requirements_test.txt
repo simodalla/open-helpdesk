@@ -1,6 +1,6 @@
 coverage
 coveralls
-factory_boy==2.6.1
+factory_boy
 mock
 pytest
 pytest-django
