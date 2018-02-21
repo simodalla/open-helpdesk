@@ -76,4 +76,6 @@ class AssegneeFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         q_id = self.value()
-        return queryset.filter(assignee__id=q_id)
+        if q_id:
+            return queryset.filter(assignee__id=q_id)
+        return queryset
