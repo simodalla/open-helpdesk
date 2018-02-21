@@ -19,6 +19,7 @@ develop-eggs
 lib/*
 lib64
 .cache
+.pytest_cache
 
 # Installer logs
 pip-log.txt
