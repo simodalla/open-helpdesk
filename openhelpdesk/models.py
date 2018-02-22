@@ -58,79 +58,8 @@ PRIORITIES = (
 )
 
 
-# class HelpdeskUserManager(models.Manager):
-#     def filter_by_group(self, group_name):
-#         return self.filter(groups__name=group_name)
-#
-#
-# @python_2_unicode_compatible
-# class HelpdeskUser(User):
-#     objects = HelpdeskUserManager()
-#
-#     class Meta:
-#         proxy = True
-#
-#     def __str__(self):
-#         return ('{} {}'.format(self.last_name.capitalize(),
-#                                self.first_name.capitalize())
-#                 if (self.last_name and self.first_name) else self.username)
-#
-#     @property
-#     def group_names(self):
-#         return self.groups.values_list('name', flat=True)
-#
-#     @classmethod
-#     def get_from_request(cls, request):
-#         return cls.objects.get(pk=request.user.pk)
-#
-#     def is_requester(self):
-#         """Test if user belong to settings.HELPDESK_REQUESTERS group."""
-#         if settings.HELPDESK_REQUESTERS in self.group_names:
-#             return True
-#         return False
-#
-#     def is_operator(self):
-#         """Test if user belong to settings.HELPDESK_OPERATORS group."""
-#         if settings.HELPDESK_OPERATORS in self.group_names:
-#             return True
-#         return False
-#
-#     def is_admin(self):
-#         """Test if user belong to settings.HELPDESK_ADMINS group."""
-#         if settings.HELPDESK_ADMINS in self.group_names:
-#             return True
-#         return False
-#
-#     def get_messages_by_ticket(self, ticket_id):
-#         """
-#         Returns Messages' queryset filterd by 'ticket_id' parameter and
-#         ordered by createion date. If user (self) is a requester queryset
-#         is filtered on Report is only visible by requester and where sender
-#         or recipient is user (self).
-#
-#         :param ticket_id: ticket id
-#         :return: recordset of Message objects
-#         """
-#         messages = Message.objects.select_related(
-#             'sender', 'recipient').filter(ticket_id=ticket_id)
-#         if self.is_requester():
-#             messages = messages.exclude(
-#                 report__visible_from_requester=False).filter(
-#                     Q(sender__id=self.id) | Q(recipient__id=self.id))
-#         return messages.order_by('created')
-
-
-# # monkey-patch for add __str__ method of HelpdeskUser to system User model
-# if six.PY3:
-#     for method_to_patch in ['__str__', '__unicode__']:
-#         if (hasattr(User, method_to_patch)
-#                 and hasattr(HelpdeskUser, method_to_patch)):
-#             setattr(User, method_to_patch, getattr(HelpdeskUser,
-#                                                    method_to_patch))
-
 
 @python_2_unicode_compatible
-# class SiteConfiguration(TimeStamped):
 class SiteConfiguration(models.Model):
     site = models.OneToOneField('sites.Site', primary_key=True,
                                 verbose_name=_('Site'))
@@ -174,8 +103,6 @@ class SiteConfiguration(models.Model):
 
 @python_2_unicode_compatible
 class OrganizationSetting(TimeStamped):
-    """
-    """
     title = models.CharField(_('Title'), max_length=500, unique=True)
     email_domain = models.CharField(_('Email Domain'), max_length=100,
                                     unique=True)
