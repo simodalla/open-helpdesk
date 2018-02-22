@@ -1,0 +1,22 @@
+{% extends "openhelpdesk/email/email_base.html" %}
+{% load i18n %}
+
+{# Translators: Header of email sends on notify message from requester to operator  #}
+{% block content_header %}
+{% blocktrans %}You have new message for ticket {{ message.ticket.pk }} by {{ message.sender.email }}{% endblocktrans %}
+{% endblock %}
+
+{% block body %}
+<div>
+    <p><b>{% trans "Ticket id" %}</b>: <a href="http://{{ request.get_host }}{{ change_url }}">{{ message.ticket.pk }}</a></p>
+    <p><b>{% trans "Sent from" %}</b>: {{ message.sender }}</p>
+</div>
+<div style="clear: left; border-top: 1px solid lightblue; padding-top: 5px;">
+    <div style="float: left;"><b>{% trans "Content" %}</b>:</div>
+    <div style="float: left; padding:0; margin:0 0 10px 20px;">{{ message.content|safe }}</div>
+</div>
+<div style="clear: left; border-top: 1px solid lightblue; margin-bottom: 20px;">
+<p>{% trans "Use the link below to view the messages" %}:</p>
+<p><a href="http://{{ request.get_host }}{{ change_url }}">http://{{ request.get_host }}{{ change_url }}</a></p>
+</div>
+{% endblock %}
