@@ -1,4 +1,4 @@
 {% load i18n %}
-**{{ message }}
+
 {# Translators: Subject of email sends on creation of ticket to operators  #}
-{% blocktrans with message_verbose_name=message_verbose_name|lower %}You have new {{ message_verbose_name }} by {{ message_from }}{% endblocktrans %}
+{% blocktrans with message_verbose_name=message_verbose_name|lower %}You have new {{ message_verbose_name }} by {{ message_from_email }}{% endblocktrans %}

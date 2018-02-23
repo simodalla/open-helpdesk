@@ -552,7 +552,8 @@ class Message(TimeStamped):
                         'ticket_url': ticket_url,
                         'message_url': ticket_url + "#tab_messages",
                         'ticket_id': self.ticket.id,
-                        'content': self.content})
+                        'content': self.content,
+                        'message_from_email': self.sender.email})
         print(context)
         send_mail_template(subject, template, addr_from, addr_to,
                            context=context, attachments=None)

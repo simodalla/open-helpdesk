@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 17:14+0100\n"
+"POT-Creation-Date: 2018-02-23 19:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -120,7 +120,7 @@ msgstr "Sorgente"
 msgid "Created"
 msgstr "Creato il"
 
-#: admin.py:534
+#: admin.py:539
 msgid ""
 "Sorry! Your email address is invalid. Contact the support service for fix "
 "this."
@@ -128,12 +128,12 @@ msgstr ""
 "Siamo spiacenti! Il tuo indirizzo email risulta non essere valido. Contatta "
 "il SIA via email o telefonicamente richiedendone la sistemazione."
 
-#: admin.py:563
+#: admin.py:568
 #, python-format
 msgid "Tickets %(ticket_ids)s successfully opened and assigned."
 msgstr "I Ticket %(ticket_ids)s sono stati aperti e assegnati con successo."
 
-#: admin.py:565
+#: admin.py:570
 #, python-format
 msgid ""
 "Errors occours: \n"
@@ -142,25 +142,25 @@ msgstr ""
 "Errori occorsi: \n"
 "%(errors)s."
 
-#: admin.py:588
+#: admin.py:593
 msgid "Open e assign selected Tickets"
 msgstr "Apri a assegnati i Ticket selezionati"
 
-#: admin.py:619
+#: admin.py:624
 msgid "Error: wrong request for adding Report."
 msgstr "Errore: richiesta errata nel tentativo di aggiungere un Report."
 
-#: admin.py:641
+#: admin.py:646
 #, python-format
 msgid "You can not change Report with id %(report_id)s"
 msgstr "Tu non puoi modificare il Report con id %(report_id)s"
 
-#: admin.py:725
+#: admin.py:730
 #, python-format
 msgid "%(title)s is a system %(model)s and is not eliminated."
 msgstr "%(title)s è un %(model)s di sistema e non può essere eliminato."
 
-#: admin.py:734
+#: admin.py:739
 msgid "Icon"
 msgstr "Icona"
 
@@ -269,7 +269,7 @@ msgstr ""
 msgid "Domain of email"
 msgstr "Dominio email"
 
-#: filters.py:40 models.py:700
+#: filters.py:40 models.py:701
 msgid "Subteam"
 msgstr "Subteam"
 
@@ -324,7 +324,7 @@ msgstr "Configurazione Sito"
 msgid "Site Configurations"
 msgstr "Configurazione Siti"
 
-#: models.py:106 models.py:132 models.py:175 models.py:227 models.py:684
+#: models.py:106 models.py:132 models.py:175 models.py:227 models.py:685
 msgid "Title"
 msgstr "Titolo"
 
@@ -471,99 +471,99 @@ msgstr "Messaggio"
 msgid "Messages"
 msgstr "Messaggi"
 
-#: models.py:568
+#: models.py:569
 msgid "Action on ticket"
 msgstr "Azione sul ticket"
 
-#: models.py:570
+#: models.py:571
 msgid "Select any action to perform on the ticket."
 msgstr "Seleziona l'eventuale azione da effettuare sul ticket."
 
-#: models.py:572
+#: models.py:573
 msgid "Visible from requester"
 msgstr "Visibile dal richiedente"
 
-#: models.py:573
+#: models.py:574
 msgid "Check to make visible this report to the requester."
 msgstr "Metti la spunta per rendere visibile questo report al richiedente."
 
-#: models.py:578
+#: models.py:579
 msgid "Report"
 msgstr "Report"
 
-#: models.py:579
+#: models.py:580
 msgid "Reports"
 msgstr "Report"
 
-#: models.py:628
+#: models.py:629
 msgid "Pending Range"
 msgstr "Periodo di attesa"
 
-#: models.py:629
+#: models.py:630
 msgid "Pending Ranges"
 msgstr "Periodi di attesa"
 
-#: models.py:637
+#: models.py:638
 msgid "Maker"
 msgstr "Maker"
 
-#: models.py:640
+#: models.py:641
 msgid "Co Makers"
 msgstr "Co Maker"
 
-#: models.py:647
+#: models.py:648
 msgid "Scheduled at"
 msgstr "Schedulato il"
 
-#: models.py:652
+#: models.py:653
 msgid "Activity"
 msgstr "Attivita"
 
-#: models.py:653
+#: models.py:654
 msgid "Activities"
 msgstr "Attivita"
 
-#: models.py:665
+#: models.py:666
 msgid "Before"
 msgstr "Prima"
 
-#: models.py:666
+#: models.py:667
 msgid "After"
 msgstr "Dopo"
 
-#: models.py:667
+#: models.py:668
 msgid "Changer"
 msgstr "Cambiato da"
 
-#: models.py:672
+#: models.py:673
 msgid "Status Changelog"
 msgstr "Changelog di Stato"
 
-#: models.py:673 templates/admin/openhelpdesk/ticket/change_form.html:17
+#: models.py:674 templates/admin/openhelpdesk/ticket/change_form.html:17
 msgid "Status Changelogs"
 msgstr "Changelog di Stato"
 
-#: models.py:691
+#: models.py:692
 msgid "organizations managed"
 msgstr "Organizzazioni gestite"
 
-#: models.py:696
+#: models.py:697
 msgid "teammates"
 msgstr "componenti"
 
-#: models.py:701
+#: models.py:702
 msgid "Subteams"
 msgstr "Subteam"
 
-#: models.py:716
+#: models.py:717
 msgid "default subteam"
 msgstr "subteam di default"
 
-#: models.py:719
+#: models.py:720
 msgid "Teammate Setting"
 msgstr "Componente Subteam"
 
-#: models.py:720
+#: models.py:721
 msgid "Teammate Settings"
 msgstr "Componenti Subteam"
 
@@ -614,13 +614,16 @@ msgstr ""
 #. Translators: Header of email sends on creation of ticket to operators
 #: templates/openhelpdesk/email/message/notify_to_operator.html:6
 #: templates/openhelpdesk/email/message/notify_to_operator.txt:3
+#, python-format
 msgid ""
 "\n"
 "You have new %(message_verbose_name)s for ticket %(ticket_id)s by "
-"%(message_from)s\n"
+"%(message_from_email)s\n"
 msgstr ""
 "\n"
-"Hai un nuovo %(message_verbose_name)s per il ticket %(ticket_id)s da %(message_from)s\n\n"
+"Hai un nuovo %(message_verbose_name)s per il ticket %(ticket_id)s da "
+"%(message_from_email)s\n"
+"\n"
 
 #: templates/openhelpdesk/email/message/notify_to_operator.html:13
 #: templates/openhelpdesk/email/message/notify_to_operator.txt:8
@@ -636,15 +639,13 @@ msgstr "Inviato da"
 
 #: templates/openhelpdesk/email/message/notify_to_operator.html:21
 #: templates/openhelpdesk/email/message/notify_to_operator.txt:12
-#| msgid "Use the links below to view the user"
 msgid "Use the link below to view the message"
 msgstr "Usa il link sottostante per vedere il messaggio"
 
 #. Translators: Subject of email sends on creation of ticket to operators
 #: templates/openhelpdesk/email/message/notify_to_operator_subject.html:4
-#, python-format
-msgid "You have new %(message_verbose_name)s by %(message_from)s"
-msgstr "Hai un nuovo %(message_verbose_name)s da %(message_from)s"
+msgid "You have new %(message_verbose_name)s by %(message_from_email)s"
+msgstr "Hai un nuovo %(message_verbose_name)s da %(message_from_email)s"
 
 #. Translators: Header of email sends on creation of ticket to operators
 #: templates/openhelpdesk/email/report/info_to_request.html:6

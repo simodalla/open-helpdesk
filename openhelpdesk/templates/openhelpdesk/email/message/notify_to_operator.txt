@@ -1,12 +1,12 @@
 {% load i18n %}
 {# Translators: Header of email sends on creation of ticket to operators  #}
-{% blocktrans with message_verbose_name=message_verbose_name|lower ticket_id=ticket_id message_from=message_from%}
-You have new {{ message_verbose_name }} for ticket {{ ticket_id }} by {{ message_from }}
+{% blocktrans with message_verbose_name=message_verbose_name|lower ticket_id=ticket_id message_from_email=message_from_email%}
+You have new {{ message_verbose_name }} for ticket {{ ticket_id }} by {{ message_from_email }}
 {% endblocktrans %}
 
 {% block body %}
 {% trans "Ticket Id" %}: {{ ticket_id }}
-{% trans "Sent from" %}: {{ message_from }}
+{% trans "Sent from" %}: {{ message_from }}, {{ message_from_email }}
 {% trans "Content" %}: {{ content|striptags }}
 
 {% trans "Use the link below to view the message" %}:
