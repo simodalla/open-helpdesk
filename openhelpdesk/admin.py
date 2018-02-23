@@ -452,13 +452,24 @@ class TicketAdmin(admin.ModelAdmin):
         called on Ticket objets because in this method are used the related
         objects (eg: ticket.tipologies.all)
         """
+
+        old_messages_ids = []
+        if change:
+            old_messages_ids = [m.pk for m in form.instance.messages.filter(
+                sender=request.user.id)]
+
         super(TicketAdmin, self).save_related(request, form, formsets, change)
         obj = form.instance
         """:type : openhelpdesk.models.Ticket"""
         if not change and obj.requester_id == obj.insert_by_id:
             obj.send_email_to_operators_on_adding(request)
-        # import ipdb
-        # ipdb.set_trace()
+
+        if change and request.user.id == obj.requester_id:
+            new_messages = obj.messages.filter(sender=request.user.id).exclude(
+                pk__in=old_messages_ids)
+            for message in new_messages:
+                """:type : openhelpdesk.models.Message"""
+                message.notify_to_operator(request)
 
     # ModelsAdmin views methods customized ####################################
 
