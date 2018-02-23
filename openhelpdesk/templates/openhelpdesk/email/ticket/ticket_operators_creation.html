@@ -1,7 +1,6 @@
 {% extends "openhelpdesk/email/email_base.html" %}
 {% load i18n %}
 
-{#New {{ ticket_name }} with id <b>{{ id }}</b> was created</b>#}
 {# Translators: Header of email sends on creation of ticket to operators  #}
 {% block content_header %}
 {% blocktrans with ticket_name=ticket_name|lower %}A new {{ ticket_name }} has been created{% endblocktrans %}
@@ -12,7 +11,6 @@
 <p><b>{% trans "Id" %}</b>: {{ ticket.pk }}</p>
 <p><b>{% trans "Tipologies" %}</b>: {{ ticket.tipologies.all|join:", " }}</p>
 <p><b>{% trans "Priority" %}</b>: {{ ticket.get_priority_display }}</p>
-<p><b>{% trans "Source" %}</b>: {{ ticket.source.title }}</p>
 <p><b>{% trans "Created at" %}</b>: {{ ticket.created|date:"DATETIME_FORMAT" }}</p>
 <p><b>{% trans "Created by" %}</b>: {{ requester_name }} - {{ requester_username }}</p>
 <p><b>{% trans "Email" %}</b>: {{ requester_email }}</p>
