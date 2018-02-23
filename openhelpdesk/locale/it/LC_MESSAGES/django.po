@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 17:24+0100\n"
+"POT-Creation-Date: 2018-02-23 17:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:111 models.py:211
+#: admin.py:111 models.py:138
 msgid "Category"
 msgstr "Categoria"
 
@@ -67,12 +67,12 @@ msgid "Remove from pending"
 msgstr "Termina il periodo di attesa"
 
 #: admin.py:256
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:12
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:11
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:6
 msgid "Id"
 msgstr "Id"
 
-#: admin.py:265 models.py:347
+#: admin.py:265 models.py:274
 #: templates/admin/openhelpdesk/ticket/change_form.html:34
 msgid "Requester"
 msgstr "Richiedente"
@@ -85,16 +85,18 @@ msgstr "Verifica subito l'indirizzo email"
 msgid "Organization"
 msgstr "Organizzazione"
 
-#: admin.py:280 models.py:333 models.py:584
+#: admin.py:280 models.py:260 models.py:511
 #: templates/admin/openhelpdesk/ticket/change_form.html:32
+#: templates/openhelpdesk/email/message/notify_to_operator.html:17
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:10
 #: templates/openhelpdesk/email/report/info_to_request.html:21
 #: templates/openhelpdesk/email/report/info_to_request.txt:13
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:21
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:19
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:13
 msgid "Content"
 msgstr "Contenuto"
 
-#: admin.py:286 filters.py:13
+#: admin.py:286 filters.py:16
 #: templates/admin/openhelpdesk/ticket/change_form.html:31
 msgid "Status"
 msgstr "Stato"
@@ -103,14 +105,13 @@ msgstr "Stato"
 msgid "Not assigned"
 msgstr "Non assegnato"
 
-#: admin.py:297 models.py:352
+#: admin.py:297 filters.py:61 models.py:279
 #: templates/admin/openhelpdesk/ticket/change_form.html:39
 msgid "Assignee"
 msgstr "Assegnato a"
 
-#: admin.py:309 models.py:307 models.py:360
+#: admin.py:309 models.py:234 models.py:287
 #: templates/admin/openhelpdesk/ticket/change_form.html:30
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:15
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:9
 msgid "Source"
 msgstr "Sorgente"
@@ -119,7 +120,7 @@ msgstr "Sorgente"
 msgid "Created"
 msgstr "Creato il"
 
-#: admin.py:528
+#: admin.py:534
 msgid ""
 "Sorry! Your email address is invalid. Contact the support service for fix "
 "this."
@@ -127,12 +128,12 @@ msgstr ""
 "Siamo spiacenti! Il tuo indirizzo email risulta non essere valido. Contatta "
 "il SIA via email o telefonicamente richiedendone la sistemazione."
 
-#: admin.py:557
+#: admin.py:563
 #, python-format
 msgid "Tickets %(ticket_ids)s successfully opened and assigned."
 msgstr "I Ticket %(ticket_ids)s sono stati aperti e assegnati con successo."
 
-#: admin.py:559
+#: admin.py:565
 #, python-format
 msgid ""
 "Errors occours: \n"
@@ -141,25 +142,25 @@ msgstr ""
 "Errori occorsi: \n"
 "%(errors)s."
 
-#: admin.py:582
+#: admin.py:588
 msgid "Open e assign selected Tickets"
 msgstr "Apri a assegnati i Ticket selezionati"
 
-#: admin.py:613
+#: admin.py:619
 msgid "Error: wrong request for adding Report."
 msgstr "Errore: richiesta errata nel tentativo di aggiungere un Report."
 
-#: admin.py:635
+#: admin.py:641
 #, python-format
 msgid "You can not change Report with id %(report_id)s"
 msgstr "Tu non puoi modificare il Report con id %(report_id)s"
 
-#: admin.py:719
+#: admin.py:725
 #, python-format
 msgid "%(title)s is a system %(model)s and is not eliminated."
 msgstr "%(title)s è un %(model)s di sistema e non può essere eliminato."
 
-#: admin.py:728
+#: admin.py:734
 msgid "Icon"
 msgstr "Icona"
 
@@ -186,7 +187,7 @@ msgstr "Sito Web"
 #: core.py:30 templates/openhelpdesk/email/report/info_to_request.html:16
 #: templates/openhelpdesk/email/report/info_to_request.txt:10
 #: templates/openhelpdesk/email/report/ldap_backend/on_creation.txt:9
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:18
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:16
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:12
 msgid "Email"
 msgstr "Email"
@@ -264,11 +265,11 @@ msgid ""
 "openhelpdesk"
 msgstr ""
 
-#: filters.py:21
+#: filters.py:24
 msgid "Domain of email"
 msgstr "Dominio email"
 
-#: filters.py:37 models.py:779
+#: filters.py:40 models.py:700
 msgid "Subteam"
 msgstr "Subteam"
 
@@ -295,126 +296,126 @@ msgstr "Normale"
 msgid "Low"
 msgstr "Bassa"
 
-#: models.py:136
+#: models.py:65
 msgid "Site"
 msgstr "Sito"
 
-#: models.py:137
+#: models.py:66
 msgid "Email from"
 msgstr "Mittente"
 
-#: models.py:138
+#: models.py:67
 msgid "Email to - 1"
 msgstr "Destinatario - 1"
 
-#: models.py:139
+#: models.py:68
 msgid "Email to - 2"
 msgstr "Destinatario - 2"
 
-#: models.py:140
+#: models.py:69
 msgid "Email to - 3"
 msgstr "Destinatario - 3"
 
-#: models.py:143
+#: models.py:72
 msgid "Site Configuration"
 msgstr "Configurazione Sito"
 
-#: models.py:144
+#: models.py:73
 msgid "Site Configurations"
 msgstr "Configurazione Siti"
 
-#: models.py:179 models.py:205 models.py:248 models.py:300 models.py:763
+#: models.py:106 models.py:132 models.py:175 models.py:227 models.py:684
 msgid "Title"
 msgstr "Titolo"
 
-#: models.py:180
+#: models.py:107
 msgid "Email Domain"
 msgstr "Dominio Email"
 
-#: models.py:182
+#: models.py:109
 msgid "Active"
 msgstr "Attiva"
 
-#: models.py:183
+#: models.py:110
 msgid "Filter label"
 msgstr "Etichetta del filtro"
 
-#: models.py:195
+#: models.py:122
 msgid "Organization Setting"
 msgstr "Configurazione Organizzazioni"
 
-#: models.py:196
+#: models.py:123
 msgid "Organization Settings"
 msgstr "Configurazione Organizzazioni"
 
-#: models.py:208 models.py:239
+#: models.py:135 models.py:166
 msgid "Enable on organizations"
 msgstr "Abilita sulle organizzazioni"
 
-#: models.py:212 models.py:250
+#: models.py:139 models.py:177
 msgid "Categories"
 msgstr "Categorie"
 
-#: models.py:228 models.py:263 models.py:335
+#: models.py:155 models.py:190 models.py:262
 #: templates/admin/openhelpdesk/ticket/change_form.html:26
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:13
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:12
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:7
 msgid "Tipologies"
 msgstr "Tipologie"
 
-#: models.py:253 models.py:302
+#: models.py:180 models.py:229
 msgid "Enable on Sites"
 msgstr "Abilita sui Siti"
 
-#: models.py:255 models.py:341
+#: models.py:182 models.py:268
 #: templates/admin/openhelpdesk/ticket/change_form.html:29
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:14
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:13
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:8
 msgid "Priority"
 msgstr "Piorità"
 
-#: models.py:259 models.py:279
+#: models.py:186 models.py:206
 msgid "Disable on organizations"
 msgstr "Disabilta sulle organizzazioni"
 
-#: models.py:262
+#: models.py:189
 msgid "Tipology"
 msgstr "Tipologia"
 
-#: models.py:283
+#: models.py:210
 msgid "File"
 msgstr "File"
 
-#: models.py:285
+#: models.py:212
 msgid "Description"
 msgstr "Descrizione"
 
-#: models.py:292
+#: models.py:219
 msgid "Attachment"
 msgstr "Allegato"
 
-#: models.py:293
+#: models.py:220
 msgid "Attachments"
 msgstr "Allegati"
 
-#: models.py:299
+#: models.py:226
 msgid "code"
 msgstr "codice"
 
-#: models.py:308
+#: models.py:235
 msgid "Sources"
 msgstr "Sorgenti"
 
-#: models.py:337
+#: models.py:264
 #, python-format
 msgid "You can select a maximum of %(max)s %(tipologies)s."
 msgstr "Puoi selezionare al massimo %(max)s %(tipologies)s."
 
-#: models.py:343 templates/admin/openhelpdesk/ticket/change_form.html:37
+#: models.py:270 templates/admin/openhelpdesk/ticket/change_form.html:37
 msgid "Insert by"
 msgstr "Inserito da"
 
-#: models.py:349
+#: models.py:276
 msgid ""
 "You must insert the Requester of Ticket.  Start to type characters for "
 "searching into 'username', 'first name' 'last name' or 'email' fields of "
@@ -424,11 +425,11 @@ msgstr ""
 "ricercare nei campi 'username', 'nome' 'cognome' ed 'email' degli utenti "
 "Richiedenti."
 
-#: models.py:356 templates/admin/openhelpdesk/ticket/change_form.html:41
+#: models.py:283 templates/admin/openhelpdesk/ticket/change_form.html:41
 msgid "Related tickets"
 msgstr "Ticket correlati"
 
-#: models.py:357
+#: models.py:284
 msgid ""
 "You can insert one or more related Tickets. Start to type digits for "
 "searching into 'id' or 'content' fields of your other Tickets previously "
@@ -438,131 +439,131 @@ msgstr ""
 "da ricercare nel campo 'id' o caratteri da ricercare nel campo 'contenuto' "
 "dei tuoi Ticket precedentemente inseriti."
 
-#: models.py:367 models.py:591
+#: models.py:294 models.py:518
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models.py:368
+#: models.py:295
 msgid "Tickets"
 msgstr "Ticket"
 
-#: models.py:550
+#: models.py:477
 msgid "no personal info assigned"
 msgstr "nessuna informazione personale assegnata"
 
-#: models.py:575
+#: models.py:502
 msgid "no email assigned"
 msgstr "nessuna email assegnata"
 
-#: models.py:585
+#: models.py:512
 msgid "Sender"
 msgstr "Mittente"
 
-#: models.py:587
+#: models.py:514
 msgid "Recipient"
 msgstr "Destinatario"
 
-#: models.py:596
+#: models.py:523
 msgid "Message"
 msgstr "Messaggio"
 
-#: models.py:597
+#: models.py:524
 msgid "Messages"
 msgstr "Messaggi"
 
-#: models.py:647
+#: models.py:568
 msgid "Action on ticket"
 msgstr "Azione sul ticket"
 
-#: models.py:649
+#: models.py:570
 msgid "Select any action to perform on the ticket."
 msgstr "Seleziona l'eventuale azione da effettuare sul ticket."
 
-#: models.py:651
+#: models.py:572
 msgid "Visible from requester"
 msgstr "Visibile dal richiedente"
 
-#: models.py:652
+#: models.py:573
 msgid "Check to make visible this report to the requester."
 msgstr "Metti la spunta per rendere visibile questo report al richiedente."
 
-#: models.py:657
+#: models.py:578
 msgid "Report"
 msgstr "Report"
 
-#: models.py:658
+#: models.py:579
 msgid "Reports"
 msgstr "Report"
 
-#: models.py:707
+#: models.py:628
 msgid "Pending Range"
 msgstr "Periodo di attesa"
 
-#: models.py:708
+#: models.py:629
 msgid "Pending Ranges"
 msgstr "Periodi di attesa"
 
-#: models.py:716
+#: models.py:637
 msgid "Maker"
 msgstr "Maker"
 
-#: models.py:719
+#: models.py:640
 msgid "Co Makers"
 msgstr "Co Maker"
 
-#: models.py:726
+#: models.py:647
 msgid "Scheduled at"
 msgstr "Schedulato il"
 
-#: models.py:731
+#: models.py:652
 msgid "Activity"
 msgstr "Attivita"
 
-#: models.py:732
+#: models.py:653
 msgid "Activities"
 msgstr "Attivita"
 
-#: models.py:744
+#: models.py:665
 msgid "Before"
 msgstr "Prima"
 
-#: models.py:745
+#: models.py:666
 msgid "After"
 msgstr "Dopo"
 
-#: models.py:746
+#: models.py:667
 msgid "Changer"
 msgstr "Cambiato da"
 
-#: models.py:751
+#: models.py:672
 msgid "Status Changelog"
 msgstr "Changelog di Stato"
 
-#: models.py:752 templates/admin/openhelpdesk/ticket/change_form.html:17
+#: models.py:673 templates/admin/openhelpdesk/ticket/change_form.html:17
 msgid "Status Changelogs"
 msgstr "Changelog di Stato"
 
-#: models.py:770
+#: models.py:691
 msgid "organizations managed"
 msgstr "Organizzazioni gestite"
 
-#: models.py:775
+#: models.py:696
 msgid "teammates"
 msgstr "componenti"
 
-#: models.py:780
+#: models.py:701
 msgid "Subteams"
 msgstr "Subteam"
 
-#: models.py:795
+#: models.py:716
 msgid "default subteam"
 msgstr "subteam di default"
 
-#: models.py:798
+#: models.py:719
 msgid "Teammate Setting"
 msgstr "Componente Subteam"
 
-#: models.py:799
+#: models.py:720
 msgid "Teammate Settings"
 msgstr "Componenti Subteam"
 
@@ -601,6 +602,7 @@ msgid "There are no messages until now."
 msgstr "Non è ancora presente alcun messaggio."
 
 #: templates/openhelpdesk/email/email_base.html:24
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:15
 #: templates/openhelpdesk/email/report/info_to_request.txt:18
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:18
 msgid ""
@@ -608,6 +610,41 @@ msgid ""
 "qualunque informazione contattare il Servizio Informatico Associato "
 "all'indirizzo ced@unionerenolavinosamoggia.bo.it"
 msgstr ""
+
+#. Translators: Header of email sends on creation of ticket to operators
+#: templates/openhelpdesk/email/message/notify_to_operator.html:6
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:3
+msgid ""
+"\n"
+"You have new %(message_verbose_name)s for ticket %(ticket_id)s by "
+"%(message_from)s\n"
+msgstr ""
+"\n"
+"Hai un nuovo %(message_verbose_name)s per il ticket %(ticket_id)s da %(message_from)s\n\n"
+
+#: templates/openhelpdesk/email/message/notify_to_operator.html:13
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:8
+#: templates/openhelpdesk/email/report/info_to_request.html:17
+#: templates/openhelpdesk/email/report/info_to_request.txt:11
+msgid "Ticket Id"
+msgstr "Ticket Id"
+
+#: templates/openhelpdesk/email/message/notify_to_operator.html:14
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:9
+msgid "Sent from"
+msgstr "Inviato da"
+
+#: templates/openhelpdesk/email/message/notify_to_operator.html:21
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:12
+#| msgid "Use the links below to view the user"
+msgid "Use the link below to view the message"
+msgstr "Usa il link sottostante per vedere il messaggio"
+
+#. Translators: Subject of email sends on creation of ticket to operators
+#: templates/openhelpdesk/email/message/notify_to_operator_subject.html:4
+#, python-format
+msgid "You have new %(message_verbose_name)s by %(message_from)s"
+msgstr "Hai un nuovo %(message_verbose_name)s da %(message_from)s"
 
 #. Translators: Header of email sends on creation of ticket to operators
 #: templates/openhelpdesk/email/report/info_to_request.html:6
@@ -622,7 +659,7 @@ msgstr ""
 
 #: templates/openhelpdesk/email/report/info_to_request.html:14
 #: templates/openhelpdesk/email/report/info_to_request.txt:8
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:16
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:14
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:10
 msgid "Created at"
 msgstr "Creato il"
@@ -630,11 +667,6 @@ msgstr "Creato il"
 #: templates/openhelpdesk/email/report/info_to_request.html:15
 msgid "Created by operator"
 msgstr "Creato dall'operatore"
-
-#: templates/openhelpdesk/email/report/info_to_request.html:17
-#: templates/openhelpdesk/email/report/info_to_request.txt:11
-msgid "Ticket Id"
-msgstr "Ticket Id"
 
 #: templates/openhelpdesk/email/report/info_to_request.html:18
 #: templates/openhelpdesk/email/report/info_to_request.txt:12
@@ -646,13 +678,13 @@ msgid "Use the link below to view the report"
 msgstr "Usa il link sottostante per vedere il report"
 
 #: templates/openhelpdesk/email/report/info_to_request.txt:9
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:17
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:15
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:11
 msgid "Created by"
 msgstr "Creato da"
 
 #: templates/openhelpdesk/email/report/info_to_request.txt:15
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:25
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:23
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:15
 msgid "Use the link below to view the ticket"
 msgstr "Usa il link sottostante per vedere il ticket"
@@ -702,7 +734,7 @@ msgid "[Openhelpdesk] New user %(user)s added"
 msgstr "[Openhelpdesk] Nuovo utente %(user)s creato"
 
 #. Translators: Header of email sends on creation of ticket to operators
-#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:7
+#: templates/openhelpdesk/email/ticket/ticket_operators_creation.html:6
 #: templates/openhelpdesk/email/ticket/ticket_operators_creation.txt:3
 #, python-format
 msgid "A new %(ticket_name)s has been created"
