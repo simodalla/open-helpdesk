@@ -1,14 +1,16 @@
 {% load i18n %}
 {# Translators: Header of email sends on creation of ticket to operators  #}
-{% blocktrans %}You have new message for ticket {{ message.ticket.pk }} by {{ message.sender.email }}{% endblocktrans %}
+{% blocktrans with message_verbose_name=message_verbose_name|lower ticket_id=ticket_id message_from=message_from%}
+You have new {{ message_verbose_name }} for ticket {{ ticket_id }} by {{ message_from }}
+{% endblocktrans %}
 
 {% block body %}
-{% trans "Ticket id" %}: {{ message.ticket.pk }}
-{% trans "Sent from" %}: {{ message.sender }}
-{% trans "Content" %}: {{ message.content|striptags }}
+{% trans "Ticket Id" %}: {{ ticket_id }}
+{% trans "Sent from" %}: {{ message_from }}
+{% trans "Content" %}: {{ content|striptags }}
 
-{% trans "Use the link below to view the ticket" %}:
-http://{{ request.get_host }}{{ change_url }}"
+{% trans "Use the link below to view the message" %}:
+{{ message_url }}
 
 {% trans "Questa email è generata automaticamente, si prega di non rispondere. Per qualunque informazione contattare il Servizio Informatico Associato all'indirizzo ced@unionerenolavinosamoggia.bo.it" %}
 {% endblock %}
