@@ -5,8 +5,8 @@ You have new {{ message_verbose_name }} for ticket {{ ticket_id }}
 {% endblocktrans %}
 
 {% block body %}
-{% trans "Ticket" %}: {{ ticket_id }} [{% trans "Status" %}: {{ ticket_status }}]
-{% trans "Sent from" %}: {{ message_from }}, {{ message_from_email }}
+{% trans "Ticket" %}: {{ ticket_id }}   {% trans "Status" %}: {{ ticket_status }}
+{% trans "Sent from" %}: {{ message_from }}   {{ message_from_email }}
 {% trans "Content" %}: {{ content|striptags }}
 
 {% trans "Use the link below to view the message" %}:

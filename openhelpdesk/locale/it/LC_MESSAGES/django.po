@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 08:51+0100\n"
+"POT-Creation-Date: 2018-02-24 10:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -271,7 +271,7 @@ msgstr ""
 msgid "Domain of email"
 msgstr "Dominio email"
 
-#: filters.py:40 models.py:701
+#: filters.py:40 models.py:703
 msgid "Subteam"
 msgstr "Subteam"
 
@@ -326,7 +326,7 @@ msgstr "Configurazione Sito"
 msgid "Site Configurations"
 msgstr "Configurazione Siti"
 
-#: models.py:106 models.py:132 models.py:175 models.py:227 models.py:685
+#: models.py:106 models.py:132 models.py:175 models.py:227 models.py:687
 msgid "Title"
 msgstr "Titolo"
 
@@ -475,99 +475,99 @@ msgstr "Messaggio"
 msgid "Messages"
 msgstr "Messaggi"
 
-#: models.py:569
+#: models.py:571
 msgid "Action on ticket"
 msgstr "Azione sul ticket"
 
-#: models.py:571
+#: models.py:573
 msgid "Select any action to perform on the ticket."
 msgstr "Seleziona l'eventuale azione da effettuare sul ticket."
 
-#: models.py:573
+#: models.py:575
 msgid "Visible from requester"
 msgstr "Visibile dal richiedente"
 
-#: models.py:574
+#: models.py:576
 msgid "Check to make visible this report to the requester."
 msgstr "Metti la spunta per rendere visibile questo report al richiedente."
 
-#: models.py:579
+#: models.py:581
 msgid "Report"
 msgstr "Report"
 
-#: models.py:580
+#: models.py:582
 msgid "Reports"
 msgstr "Report"
 
-#: models.py:629
+#: models.py:631
 msgid "Pending Range"
 msgstr "Periodo di attesa"
 
-#: models.py:630
+#: models.py:632
 msgid "Pending Ranges"
 msgstr "Periodi di attesa"
 
-#: models.py:638
+#: models.py:640
 msgid "Maker"
 msgstr "Maker"
 
-#: models.py:641
+#: models.py:643
 msgid "Co Makers"
 msgstr "Co Maker"
 
-#: models.py:648
+#: models.py:650
 msgid "Scheduled at"
 msgstr "Schedulato il"
 
-#: models.py:653
+#: models.py:655
 msgid "Activity"
 msgstr "Attivita"
 
-#: models.py:654
+#: models.py:656
 msgid "Activities"
 msgstr "Attivita"
 
-#: models.py:666
+#: models.py:668
 msgid "Before"
 msgstr "Prima"
 
-#: models.py:667
+#: models.py:669
 msgid "After"
 msgstr "Dopo"
 
-#: models.py:668
+#: models.py:670
 msgid "Changer"
 msgstr "Cambiato da"
 
-#: models.py:673
+#: models.py:675
 msgid "Status Changelog"
 msgstr "Changelog di Stato"
 
-#: models.py:674 templates/admin/openhelpdesk/ticket/change_form.html:17
+#: models.py:676 templates/admin/openhelpdesk/ticket/change_form.html:17
 msgid "Status Changelogs"
 msgstr "Changelog di Stato"
 
-#: models.py:692
+#: models.py:694
 msgid "organizations managed"
 msgstr "Organizzazioni gestite"
 
-#: models.py:697
+#: models.py:699
 msgid "teammates"
 msgstr "componenti"
 
-#: models.py:702
+#: models.py:704
 msgid "Subteams"
 msgstr "Subteam"
 
-#: models.py:717
+#: models.py:719
 msgid "default subteam"
 msgstr "subteam di default"
 
-#: models.py:720
+#: models.py:722
 msgid "Teammate Setting"
 msgstr "Componente Subteam"
 
-#: models.py:721
+#: models.py:723
 msgid "Teammate Settings"
 msgstr "Componenti Subteam"
 
