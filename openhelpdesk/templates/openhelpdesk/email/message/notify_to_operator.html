@@ -10,7 +10,7 @@ You have new {{ message_verbose_name }} for ticket {{ ticket_id }}
 
 {% block body %}
 <div>
-    <p><b>{% trans "Ticket" %}</b>: <a href="{{ ticket_url }}">{{ ticket_id }}</a>&nbsp;&nbsp;&nbsp;<b>{% trans "Status" %}</b>:&nbsp;<i>{% trans ticket_status%}{</i></p>
+    <p><b>{% trans "Ticket" %}</b>: <a href="{{ ticket_url }}">{{ ticket_id }}</a>&nbsp;&nbsp;<b>{% trans "Status" %}</b>:&nbsp;<i>{% blocktrans with status=ticket_status|capfirst %}{{ status }}{% endblocktrans %}</i></p>
     <p><b>{% trans "Sent from" %}</b>: {{ message_from }}&nbsp;&nbsp;&nbsp;{{ message_from_email }}</p>
 </div>
 <div style="clear: left; border-top: 1px solid lightblue; padding-top: 5px;">
