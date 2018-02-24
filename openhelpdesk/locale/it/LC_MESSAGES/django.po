@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 19:00+0100\n"
+"POT-Creation-Date: 2018-02-24 08:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -98,6 +98,8 @@ msgstr "Contenuto"
 
 #: admin.py:286 filters.py:16
 #: templates/admin/openhelpdesk/ticket/change_form.html:31
+#: templates/openhelpdesk/email/message/notify_to_operator.html:13
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:8
 msgid "Status"
 msgstr "Stato"
 
@@ -440,6 +442,8 @@ msgstr ""
 "dei tuoi Ticket precedentemente inseriti."
 
 #: models.py:294 models.py:518
+#: templates/openhelpdesk/email/message/notify_to_operator.html:13
+#: templates/openhelpdesk/email/message/notify_to_operator.txt:8
 msgid "Ticket"
 msgstr "Ticket"
 
@@ -617,20 +621,10 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"You have new %(message_verbose_name)s for ticket %(ticket_id)s by "
-"%(message_from_email)s\n"
+"You have new %(message_verbose_name)s for ticket %(ticket_id)s\n"
 msgstr ""
 "\n"
-"Hai un nuovo %(message_verbose_name)s per il ticket %(ticket_id)s da "
-"%(message_from_email)s\n"
-"\n"
-
-#: templates/openhelpdesk/email/message/notify_to_operator.html:13
-#: templates/openhelpdesk/email/message/notify_to_operator.txt:8
-#: templates/openhelpdesk/email/report/info_to_request.html:17
-#: templates/openhelpdesk/email/report/info_to_request.txt:11
-msgid "Ticket Id"
-msgstr "Ticket Id"
+"Hai un nuovo %(message_verbose_name)s per il ticket %(ticket_id)s\n"
 
 #: templates/openhelpdesk/email/message/notify_to_operator.html:14
 #: templates/openhelpdesk/email/message/notify_to_operator.txt:9
@@ -644,6 +638,7 @@ msgstr "Usa il link sottostante per vedere il messaggio"
 
 #. Translators: Subject of email sends on creation of ticket to operators
 #: templates/openhelpdesk/email/message/notify_to_operator_subject.html:4
+#, python-format
 msgid "You have new %(message_verbose_name)s by %(message_from_email)s"
 msgstr "Hai un nuovo %(message_verbose_name)s da %(message_from_email)s"
 
@@ -668,6 +663,11 @@ msgstr "Creato il"
 #: templates/openhelpdesk/email/report/info_to_request.html:15
 msgid "Created by operator"
 msgstr "Creato dall'operatore"
+
+#: templates/openhelpdesk/email/report/info_to_request.html:17
+#: templates/openhelpdesk/email/report/info_to_request.txt:11
+msgid "Ticket Id"
+msgstr "Ticket Id"
 
 #: templates/openhelpdesk/email/report/info_to_request.html:18
 #: templates/openhelpdesk/email/report/info_to_request.txt:12
