@@ -531,6 +531,7 @@ class Message(TimeStamped):
         context = {'message_verbose_name': self._meta.verbose_name.lower(),
                    'message_from': '{} {}'.format(self.sender.last_name.capitalize(),
                                                   self.sender.first_name.capitalize()),
+                   'message_from_email': self.sender.email,
                    'email_background_color': (
                        OrganizationSetting.email_objects.get_color(
                            self.sender.email))}
@@ -554,7 +555,6 @@ class Message(TimeStamped):
                         'message_url': ticket_url + "#tab_messages",
                         'ticket_id': self.ticket.id,
                         'content': self.content,
-                        'message_from_email': self.sender.email,
                         'ticket_status': self.ticket.status})
 
         send_mail_template(subject, template, addr_from, addr_to,
