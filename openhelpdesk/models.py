@@ -528,8 +528,7 @@ class Message(TimeStamped):
 
     def notify_to_operator(self, request):
         template = "openhelpdesk/email/message/notify_to_operator"
-        context = {#'message': self,
-                   'message_verbose_name': self._meta.verbose_name.lower(),
+        context = {'message_verbose_name': self._meta.verbose_name.lower(),
                    'message_from': '{} {}'.format(self.sender.last_name.capitalize(),
                                                   self.sender.first_name.capitalize()),
                    'email_background_color': (
@@ -542,9 +541,11 @@ class Message(TimeStamped):
         except (SiteConfiguration.DoesNotExist, Ticket.DoesNotExist):
             addr_from = SiteConfiguration.get_no_site_email_addr_from()
 
-        print(context)
         subject = subject_template("{}_subject.html".format(template), context)
-        addr_to = [self.ticket.assignee.email or 'ced@unionerenolavinosamoggia.bo.it']
+        # TODO: gestire la questione del destinatario
+        addr_to = 'ced@unionerenolavinosamoggia.bo.it'
+        if self.ticket.assignee:
+            addr_to = self.ticket.assignee.email
         ticket_url = 'http://{}{}'.format(
             request.get_host(),
             reverse(admin_urlname(self.ticket._meta, 'change'), args=(self.ticket_id,)))
@@ -553,8 +554,9 @@ class Message(TimeStamped):
                         'message_url': ticket_url + "#tab_messages",
                         'ticket_id': self.ticket.id,
                         'content': self.content,
-                        'message_from_email': self.sender.email})
-        print(context)
+                        'message_from_email': self.sender.email,
+                        'ticket_status': self.ticket.status})
+
         send_mail_template(subject, template, addr_from, addr_to,
                            context=context, attachments=None)
 
