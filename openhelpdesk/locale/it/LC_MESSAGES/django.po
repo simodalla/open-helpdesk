@@ -629,7 +629,7 @@ msgstr ""
 #: templates/openhelpdesk/email/message/notify_to_operator.html:13
 #, python-format
 msgid "%(status)s"
-msgstr "%(status)"
+msgstr "%(status)s"
 
 #: templates/openhelpdesk/email/message/notify_to_operator.html:14
 #: templates/openhelpdesk/email/message/notify_to_operator.txt:9
