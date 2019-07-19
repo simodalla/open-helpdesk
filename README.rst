@@ -30,12 +30,6 @@ Documentation
 Please head over to `Documentation`_ for all
 the details on how to install, configurate and use the OpenHelpdesk.
 
-Live Demo
-=========
-
-`Live demo`_ is online!
-
-
 License
 =======
 OpenHelpdesk is `GPLv3 licensed`_.
