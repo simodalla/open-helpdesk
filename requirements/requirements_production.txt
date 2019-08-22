@@ -1,6 +1,6 @@
 django>=1.10.8,<1.11.0
 mezzanine==4.2.3
-psycopg2
+psycopg2-binary==2.8.3
 django-model-utils==2.6.1
 django-braces==1.12.0
 django-autocomplete-light==3.0.4
