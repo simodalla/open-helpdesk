@@ -21,8 +21,8 @@
     </div>
     <div style="font-size: 13px; background-color: #FFF; padding: 10px 7px 7px 7px;">
         {% block body %}{% endblock %}
-        {% trans "Questa email è generata automaticamente, si prega di non rispondere. Per qualunque informazione contattare il Servizio Informatico Associato all'indirizzo ced@unionerenolavinosamoggia.bo.it" as default_footer %}
-        {% block footer %}<span style="color: #898989; font-size: 10px">{% block content_footer %}{{ footer|default:default_footer }}{% endblock %}</span>{% endblock %}
+        {% trans "Questa email è generata automaticamente, si prega di non rispondere." as default_footer %}
+        {% block footer %}<span style="color: #A52A2A; font-style: italic; font-weight: bold;">{% block content_footer %}{{ footer|default:default_footer }}{% endblock %}</span>{% endblock %}
     </div>
 </div>
 <br><br>

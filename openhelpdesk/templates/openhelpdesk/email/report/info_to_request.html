@@ -22,7 +22,7 @@ A new {{ report_name }} for ticket n.{{ ticket_id }} has been created
     <div style="float: left; padding:0; margin:0 0 10px 20px;"><p>{{ report.content|safe }}</p></div>
 </div>
 <div style="clear: left; border-top: 1px solid lightblue; margin-bottom: 20px;">
-<p>{% trans "Use the link below to view the report" %}:</p>
+<p>Usa il link sottostante per rispondere al tecnico SIA:</p>
 <p><a href="http://{{ request.get_host }}{{ change_ticket_url }}">http://{{ request.get_host }}{{ change_ticket_url }}</a></p>
 </div>
 {% endblock %}
