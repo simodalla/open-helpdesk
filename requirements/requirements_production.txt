@@ -5,7 +5,7 @@ django-model-utils==2.6.1
 django-braces==1.12.0
 django-autocomplete-light==3.0.4
 django_waffle==0.11
-celery==4.2.2
+celery==5.2.2
 django_celery_email==2.0.1
 django_tinymce==2.4.0
 django-contrib-comments==1.8.0
